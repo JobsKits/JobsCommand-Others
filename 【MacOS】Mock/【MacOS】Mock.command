@@ -8,9 +8,10 @@ SCRIPT_BASENAME="$(basename "$0" | sed 's/\.[^.]*$//')"
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
 HTTP_LOG_FILE="/tmp/${SCRIPT_BASENAME}_http_server.log"
-SERVER_PID=""
+PID_FILE="/tmp/${SCRIPT_BASENAME}_http_server.pid"
 PORT="8080"
 HOST="127.0.0.1"
+JSON_DIR_NAME="jsons"
 
 # ================================== 日志与彩色输出 ==================================
 
@@ -55,7 +56,7 @@ require_basic_commands() {
   local missing=()
   local cmd
 
-  for cmd in basename sed tee uname find sort grep cat ps kill sleep; do
+  for cmd in basename sed tee uname find sort grep cat ps kill sleep mkdir touch; do
     command -v "$cmd" >/dev/null 2>&1 || missing+=("$cmd")
   done
 
@@ -98,10 +99,6 @@ ensure_file_exists() {
 }
 
 # ================================== 幂等环境注入 ==================================
-# 说明：
-# 1. 用 block header 做唯一标识，避免重复写入
-# 2. 统一支持后续扩展 PATH / alias / tool env
-# 3. 写入后立即 eval，让当前 shell 直接生效
 
 append_block_if_missing() {
   local file="$1"
@@ -128,23 +125,6 @@ append_block_if_missing() {
   success_echo "已写入配置块：$block_id -> $file"
 }
 
-inject_line_if_missing() {
-  local file="$1"
-  local line="$2"
-
-  ensure_file_exists "$file" || return 1
-
-  if grep -Fq "$line" "$file" 2>/dev/null; then
-    info_echo "配置文件中已存在：$line"
-  else
-    {
-      echo ""
-      echo "$line"
-    } >> "$file"
-    success_echo "已追加到 $file：$line"
-  fi
-}
-
 apply_shellenv_now() {
   local shellenv_cmd="$1"
   eval "$shellenv_cmd"
@@ -154,10 +134,10 @@ apply_shellenv_now() {
 # ================================== Homebrew 环境处理 ==================================
 
 brew_bin_candidates() {
-  cat <<'EOF'
+  cat <<'BREWEOF'
 /opt/homebrew/bin/brew
 /usr/local/bin/brew
-EOF
+BREWEOF
 }
 
 detect_brew_bin() {
@@ -271,10 +251,6 @@ ensure_brew() {
 }
 
 # ================================== 通用 brew 包检查/安装/升级 ==================================
-# 说明：
-# 1. 优先检查命令是否可用
-# 2. 安装完再校验一次
-# 3. 对 python3 / fzf 打印版本，便于排障
 
 brew_install_or_upgrade_pkg() {
   local command_name="$1"
@@ -333,20 +309,53 @@ find_port_owner() {
   fi
 }
 
-check_port_available() {
+get_pid_from_file() {
+  [[ -f "$PID_FILE" ]] || return 1
+  local pid
+  pid="$(cat "$PID_FILE" 2>/dev/null || true)"
+  [[ -n "$pid" ]] || return 1
+  printf "%s" "$pid"
+}
+
+is_pid_running() {
+  local pid="$1"
+  ps -p "$pid" >/dev/null 2>&1
+}
+
+is_server_running() {
+  local pid=""
+
+  if pid="$(get_pid_from_file)"; then
+    if is_pid_running "$pid"; then
+      return 0
+    fi
+    rm -f "$PID_FILE"
+  fi
+
+  return 1
+}
+
+check_port_available_for_new_server() {
   if command_exists lsof && lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
-    error_echo "端口 ${PORT} 已被占用，请先释放后再运行脚本"
+    if is_server_running; then
+      warn_echo "后台服务已在运行，无需重复启动"
+      return 1
+    fi
+
+    error_echo "端口 ${PORT} 已被其他进程占用，请先释放后再运行脚本"
     gray_echo "占用信息如下："
     find_port_owner | tee -a "$LOG_FILE" || true
     exit 1
   fi
+
+  return 0
 }
 
 wait_for_http_server_ready() {
   local url="http://${HOST}:${PORT}/"
   local i
 
-  for i in {1..20}; do
+  for i in {1..30}; do
     if curl -fsS "$url" >/dev/null 2>&1; then
       return 0
     fi
@@ -356,48 +365,121 @@ wait_for_http_server_ready() {
   return 1
 }
 
-start_local_http_server() {
-  print_divider
-  bold_echo "启动本地 HTTP 服务"
+start_local_http_server_detached() {
+  local pid=""
 
-  check_port_available
+  print_divider
+  bold_echo "启动本地 HTTP 服务（后台模式）"
+
+  if is_server_running; then
+    pid="$(get_pid_from_file)"
+    success_echo "后台服务已在运行：http://${HOST}:${PORT}（PID: ${pid}）"
+    return 0
+  fi
+
+  check_port_available_for_new_server || return 0
 
   : > "$HTTP_LOG_FILE"
-  note_echo "执行：python3 -m http.server ${PORT} --bind ${HOST}"
-  python3 -m http.server "$PORT" --bind "$HOST" >"$HTTP_LOG_FILE" 2>&1 &
-  SERVER_PID=$!
+  note_echo "执行：nohup python3 -m http.server ${PORT} --bind ${HOST}"
+  nohup python3 -m http.server "$PORT" --bind "$HOST" >"$HTTP_LOG_FILE" 2>&1 < /dev/null &
+  pid=$!
+  disown "$pid" 2>/dev/null || true
+  echo "$pid" > "$PID_FILE"
 
   if ! wait_for_http_server_ready; then
     error_echo "本地 HTTP 服务启动失败"
     gray_echo "日志如下："
     cat "$HTTP_LOG_FILE" || true
+    rm -f "$PID_FILE"
     exit 1
   fi
 
-  success_echo "本地 HTTP 服务已启动：http://${HOST}:${PORT}"
+  success_echo "本地 HTTP 服务已后台启动：http://${HOST}:${PORT}（PID: ${pid}）"
+  gray_echo "现在可以直接关闭这个终端，服务不会跟着退出"
 }
 
 stop_local_http_server() {
-  if [[ -n "${SERVER_PID:-}" ]] && ps -p "$SERVER_PID" >/dev/null 2>&1; then
-    kill "$SERVER_PID" >/dev/null 2>&1 || true
-    wait "$SERVER_PID" 2>/dev/null || true
-    gray_echo "本地 HTTP 服务已停止"
+  local pid=""
+
+  print_divider
+  bold_echo "停止本地 HTTP 服务"
+
+  if ! pid="$(get_pid_from_file)"; then
+    warn_echo "未找到 PID 文件，可能服务并不是由本脚本启动"
+    return 0
   fi
+
+  if ! is_pid_running "$pid"; then
+    warn_echo "PID 文件存在，但进程已不在运行，现已清理 PID 文件"
+    rm -f "$PID_FILE"
+    return 0
+  fi
+
+  kill "$pid" >/dev/null 2>&1 || true
+  sleep 0.5
+
+  if is_pid_running "$pid"; then
+    warn_echo "普通停止失败，尝试强制结束 PID: ${pid}"
+    kill -9 "$pid" >/dev/null 2>&1 || true
+  fi
+
+  rm -f "$PID_FILE"
+  success_echo "本地 HTTP 服务已停止"
 }
 
-cleanup() {
-  stop_local_http_server
+show_status() {
+  print_divider
+  bold_echo "服务状态"
+
+  if is_server_running; then
+    local pid
+    pid="$(get_pid_from_file)"
+    success_echo "运行中：http://${HOST}:${PORT}（PID: ${pid}）"
+    gray_echo "脚本目录：$SCRIPT_DIR"
+    gray_echo "日志文件：$LOG_FILE"
+    gray_echo "HTTP 日志：$HTTP_LOG_FILE"
+  else
+    warn_echo "当前未运行"
+  fi
 }
 
 # ================================== JSON 选择与 URL 处理 ==================================
 
+get_json_search_root() {
+  if [[ -d "$SCRIPT_DIR/$JSON_DIR_NAME" ]]; then
+    printf "%s" "$SCRIPT_DIR/$JSON_DIR_NAME"
+  else
+    printf "%s" "$SCRIPT_DIR"
+  fi
+}
+
 find_json_files() {
-  find . -type f -name '*.json' ! -path '*/.git/*' | sed 's#^\./##' | sort
+  local search_root relative_prefix
+
+  search_root="$(get_json_search_root)"
+
+  if [[ "$search_root" == "$SCRIPT_DIR/$JSON_DIR_NAME" ]]; then
+    relative_prefix="$JSON_DIR_NAME/"
+  else
+    relative_prefix=""
+  fi
+
+  find "$search_root" -type f -name '*.json' ! -path '*/.git/*' | while IFS= read -r file; do
+    file="${file#"$search_root"/}"
+    printf "%s%s\n" "$relative_prefix" "$file"
+  done | sort
 }
 
 ensure_json_files_exist() {
   if [[ -z "$(find_json_files)" ]]; then
-    warn_echo "当前目录及子目录下未找到任何 JSON 文件"
+    warn_echo "未找到任何 JSON 文件"
+
+    if [[ -d "$SCRIPT_DIR/$JSON_DIR_NAME" ]]; then
+      gray_echo "已检测到目录：$SCRIPT_DIR/$JSON_DIR_NAME，但里面没有 .json 文件"
+    else
+      gray_echo "未检测到目录：$SCRIPT_DIR/$JSON_DIR_NAME，已回退为扫描脚本所在目录"
+    fi
+
     exit 0
   fi
 }
@@ -462,46 +544,84 @@ show_intro() {
   log "3. 检查 python3：没有就安装，有就可选升级"
   log "4. 检查 fzf：没有就安装，有就可选升级"
   log "5. 切换到脚本所在目录"
-  log "6. 启动本地服务：http://${HOST}:${PORT}"
-  log "7. 用 fzf 选择一个 json 文件"
+  log "6. 后台启动本地服务：http://${HOST}:${PORT}"
+  log "7. 优先从 jsons 文件夹里用 fzf 选择一个 json 文件；若 jsons 不存在则回退扫描脚本目录"
   log "8. 浏览器自动打开对应地址（已处理空格/中文等 URL 编码）"
-  log "9. 服务保持运行，按 Ctrl + C 结束"
+  log "9. 脚本退出后服务仍保持运行，可直接关闭终端"
+  log "10. 以后可用 start / stop / status / restart 管理服务"
   print_divider
   pause_enter
 }
 
 show_runtime_summary() {
   print_divider
-  success_echo "本地服务仍在运行中"
+  success_echo "当前流程已完成，服务仍在后台运行"
   gray_echo "脚本目录：$SCRIPT_DIR"
   gray_echo "日志文件：$LOG_FILE"
   gray_echo "HTTP 日志：$HTTP_LOG_FILE"
-  gray_echo "按 Ctrl + C 可结束服务"
+  gray_echo "JSON 目录：$(get_json_search_root)"
+  gray_echo "PID 文件：$PID_FILE"
+  gray_echo "关闭终端是安全的；下次停止服务可运行：$(basename "$0") stop"
+}
+
+show_usage() {
+  print_divider
+  bold_echo "用法"
+  log "直接双击 / 直接运行：交互式启动并打开 JSON"
+  log "$(basename "$0") start   -> 启动后台服务并交互选择 JSON"
+  log "$(basename "$0") stop    -> 停止后台服务"
+  log "$(basename "$0") status  -> 查看后台服务状态"
+  log "$(basename "$0") restart -> 重启后台服务并交互选择 JSON"
 }
 
 # ================================== 主流程 ==================================
 
-main() {
-  trap cleanup EXIT INT TERM
-
-  require_macos
-  require_basic_commands
-
-  : > "$LOG_FILE"
-
+main_start_flow() {
   show_intro
   ensure_brew
   ensure_python3
   ensure_fzf
   cd_to_script_dir
-  start_local_http_server
+  start_local_http_server_detached
 
   local selected_json
   selected_json="$(pick_json_file)"
   open_json_in_browser "$selected_json"
 
   show_runtime_summary
-  wait "$SERVER_PID"
+}
+
+main() {
+  require_macos
+  require_basic_commands
+
+  : > "$LOG_FILE"
+
+  local action="${1:-start}"
+
+  case "$action" in
+    start)
+      main_start_flow
+      ;;
+    stop)
+      stop_local_http_server
+      ;;
+    status)
+      show_status
+      ;;
+    restart)
+      stop_local_http_server || true
+      main_start_flow
+      ;;
+    help|-h|--help)
+      show_usage
+      ;;
+    *)
+      error_echo "不支持的参数：$action"
+      show_usage
+      exit 1
+      ;;
+  esac
 }
 
 main "$@"
