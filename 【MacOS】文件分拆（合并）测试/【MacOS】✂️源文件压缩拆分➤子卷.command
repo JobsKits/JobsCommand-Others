@@ -131,17 +131,162 @@ install_fzf() {
   fi
 }
 
-MIN_SPLIT_SIZE="50M"   # find 用的阈值
-SPLIT_CHUNK_SIZE="50m" # split 每个子卷大小
+MAX_CHUNK_BYTES=$((50 * 1024 * 1024))
+MAX_CHUNK_LABEL="50 MB"
 TARGET_DIR=""
+
+format_mb_to_gb() {
+  local mb="$1"
+  awk -v mb="$mb" 'BEGIN { printf "%.3f", mb / 1024 }'
+}
+
+format_bytes_human() {
+  local bytes="$1"
+  awk -v b="$bytes" 'BEGIN {
+    split("B KiB MiB GiB TiB", u, " ")
+    i = 1
+    while (b >= 1024 && i < 5) {
+      b /= 1024
+      i++
+    }
+    if (i == 1) printf "%d %s", b, u[i]
+    else printf "%.2f %s", b, u[i]
+  }'
+}
+
+mb_to_bytes() {
+  local mb="$1"
+  awk -v mb="$mb" 'BEGIN { printf "%.0f", mb * 1024 * 1024 }'
+}
+
+get_file_size_bytes() {
+  stat -f %z "$1"
+}
+
+calc_balanced_chunk_size_bytes() {
+  local file_size_bytes="$1"
+  local limit_bytes="$2"
+
+  if (( file_size_bytes <= limit_bytes )); then
+    echo "$file_size_bytes"
+    return 0
+  fi
+
+  local divisor_count
+  divisor_count=$(awk -v n="$file_size_bytes" -v l="$limit_bytes" 'BEGIN { printf "%d", int(n / (l + 1)) + 1 }')
+  (( divisor_count < 2 )) && divisor_count=2
+
+  local chunk_size_bytes
+  chunk_size_bytes=$(awk -v n="$file_size_bytes" -v d="$divisor_count" 'BEGIN { printf "%d", int(n / d) }')
+  (( chunk_size_bytes < 1 )) && chunk_size_bytes=1
+
+  echo "$chunk_size_bytes"
+}
+
+choose_split_standard() {
+  local selected_key=""
+
+  echo ""
+  note_echo "请选择拆分标准："
+
+  if command -v fzf &>/dev/null; then
+    local -a options=(
+      "50MB|脚本当前标准（警告线，默认）"
+      "100MiB|GitHub 仓库限制线标准"
+      "2GB|GitHub Releases 标准"
+      "CUSTOM|自定义标准（单位：MB）"
+    )
+
+    selected_key="$(printf '%s
+' "${options[@]}" |       fzf         --prompt='请选择拆分标准（Enter 确认，默认 50MB）> '         --height=10         --layout=reverse         --border         --delimiter='|'         --with-nth=2         --select-1         --exit-0 | cut -d'|' -f1)"
+
+    [[ -z "$selected_key" ]] && selected_key="50MB"
+  else
+    warn_echo "未检测到 fzf，当前步骤将自动回退为数字输入模式。"
+    echo "👉 直接按 [Enter]：使用脚本当前标准（50MB，警告线）"
+    echo "👉 输入 1 后回车：使用 GitHub 仓库限制线标准（100 MiB）"
+    echo "👉 输入 2 后回车：使用 GitHub Releases 标准（2GB）"
+    echo "👉 输入 3 后回车：使用自定义标准（单位：MB）"
+
+    local choice
+    IFS= read -r choice
+
+    case "$choice" in
+      "") selected_key="50MB" ;;
+      1)  selected_key="100MiB" ;;
+      2)  selected_key="2GB" ;;
+      3)  selected_key="CUSTOM" ;;
+      *)  selected_key="50MB" ;;
+    esac
+  fi
+
+  case "$selected_key" in
+    50MB)
+      MAX_CHUNK_BYTES=$((50 * 1024 * 1024))
+      MAX_CHUNK_LABEL="50 MB"
+      info_echo "已选择脚本当前标准：50 MB（上限，约 $(format_mb_to_gb 50) GB）"
+      ;;
+    100MiB)
+      MAX_CHUNK_BYTES=$((100 * 1024 * 1024))
+      MAX_CHUNK_LABEL="100 MiB"
+      info_echo "已选择 GitHub 仓库限制线标准：100 MiB（上限，约 $(format_mb_to_gb 100) GB）"
+      ;;
+    2GB)
+      MAX_CHUNK_BYTES=$((1900 * 1024 * 1024))
+      MAX_CHUNK_LABEL="GitHub Releases 安全上限（1900 MiB）"
+      info_echo "已选择 GitHub Releases 安全标准：1900 MiB（严格小于 2 GiB）"
+      ;;
+    CUSTOM)
+      local custom_mb
+      while true; do
+        echo ""
+        note_echo "请输入自定义拆分标准（单位：MB，必须大于 0，可带小数）："
+        IFS= read -r custom_mb
+
+        if [[ ! "$custom_mb" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+          warn_echo "输入无效：必须是大于 0 的数字，例如 50、100、512、1024、2048。"
+          continue
+        fi
+
+        if ! awk -v n="$custom_mb" 'BEGIN { exit !(n > 0) }'; then
+          warn_echo "输入无效：必须大于 0。"
+          continue
+        fi
+
+        local custom_gb
+        custom_gb="$(format_mb_to_gb "$custom_mb")"
+        echo ""
+        info_echo "你输入的是：${custom_mb} MB（约 ${custom_gb} GB）"
+        echo "👉 直接按 [Enter]：确认使用这个标准"
+        echo "👉 输入任意字符后回车：重新输入"
+
+        local confirm_custom
+        IFS= read -r confirm_custom
+        if [[ -z "$confirm_custom" ]]; then
+          MAX_CHUNK_BYTES="$(mb_to_bytes "$custom_mb")"
+          MAX_CHUNK_LABEL="${custom_mb} MB"
+          success_echo "已选择自定义标准：${custom_mb} MB（约 ${custom_gb} GB）"
+          break
+        else
+          note_echo "已取消本次输入，请重新设置。"
+        fi
+      done
+      ;;
+    *)
+      MAX_CHUNK_BYTES=$((50 * 1024 * 1024))
+      MAX_CHUNK_LABEL="50 MB"
+      warn_echo "未识别的选项，已自动使用脚本当前标准：50 MB（上限，约 $(format_mb_to_gb 50) GB）"
+      ;;
+  esac
+}
 
 print_intro() {
   bold_echo "======== 大文件拆分为子卷脚本（${SCRIPT_BASENAME}）========"
   note_echo "功能概要："
-  echo "  1. 在目标目录中查找 ≥50MB 的文件（不递归子目录）；"
+  echo "  1. 在目标目录中查找达到拆分阈值的文件（不递归子目录）；"
   echo "  2. 针对每一个大文件："
   echo "     - 创建与去掉后缀名后的文件名同名的子卷目录；"
-  echo "     - 按 ${SPLIT_CHUNK_SIZE} 大小拆分成多个子卷文件；"
+  echo "     - 按你选择的拆分标准拆分成多个子卷文件；"
   echo "     - 子卷命名形如：原文件名@001of005（代表第 1/5 卷）；"
   echo "     - 拆分成功后，询问是否删除源文件。"
   echo ""
@@ -223,8 +368,23 @@ split_one_file() {
   local tmp_prefix="$subdir/.tmp_${filename}_part_"
   rm -f "${tmp_prefix}"* 2>/dev/null || true
 
-  note_echo "使用 split 按 ${SPLIT_CHUNK_SIZE} 拆分文件..."
-  if ! split -b "$SPLIT_CHUNK_SIZE" -d -a 3 -- "$file" "$tmp_prefix"; then
+  local file_size_bytes
+  file_size_bytes=$(get_file_size_bytes "$file")
+
+  local actual_chunk_size_bytes
+  actual_chunk_size_bytes=$(calc_balanced_chunk_size_bytes "$file_size_bytes" "$MAX_CHUNK_BYTES")
+
+  local estimated_main_parts
+  estimated_main_parts=$(awk -v n="$file_size_bytes" -v s="$actual_chunk_size_bytes" 'BEGIN { printf "%d", int(n / s) }')
+
+  local remainder_bytes
+  remainder_bytes=$(awk -v n="$file_size_bytes" -v s="$actual_chunk_size_bytes" 'BEGIN { printf "%d", n % s }')
+
+  note_echo "拆分上限：${MAX_CHUNK_LABEL}（$(format_bytes_human "$MAX_CHUNK_BYTES")）"
+  info_echo "本文件大小：$(format_bytes_human "$file_size_bytes")"
+  info_echo "本文件实际主卷大小：$(format_bytes_human "$actual_chunk_size_bytes")；预计主卷数：${estimated_main_parts}；尾卷余数：$(format_bytes_human "$remainder_bytes")"
+
+  if ! split -b "$actual_chunk_size_bytes" -d -a 3 -- "$file" "$tmp_prefix"; then
     error_echo "split 命令执行失败，跳过此文件：$filename"
     rm -f "${tmp_prefix}"* 2>/dev/null || true
     return 1
@@ -277,14 +437,19 @@ split_one_file() {
 }
 
 split_large_files() {
-  note_echo "正在扫描目录中 ≥${MIN_SPLIT_SIZE} 的文件（不递归子目录）..."
+  note_echo "正在扫描目录中超过拆分上限（${MAX_CHUNK_LABEL}）的文件（不递归子目录）..."
   local large_files=()
+  local f
   while IFS= read -r f; do
-    large_files+=("$f")
-  done < <(find "$TARGET_DIR" -maxdepth 1 -type f \( -size +"$MIN_SPLIT_SIZE" -o -size "$MIN_SPLIT_SIZE" \) -print 2>/dev/null | LC_ALL=C sort)
+    local file_size_bytes
+    file_size_bytes=$(get_file_size_bytes "$f")
+    if (( file_size_bytes > MAX_CHUNK_BYTES )); then
+      large_files+=("$f")
+    fi
+  done < <(find "$TARGET_DIR" -maxdepth 1 -type f -print 2>/dev/null | LC_ALL=C sort)
 
   if [[ ${#large_files[@]} -eq 0 ]]; then
-    info_echo "未在 $TARGET_DIR 中找到任何 ≥${MIN_SPLIT_SIZE} 的文件，任务结束。"
+    info_echo "未在 $TARGET_DIR 中找到任何超过 ${MAX_CHUNK_LABEL} 的文件，任务结束。"
     return 0
   fi
 
@@ -309,6 +474,7 @@ split_large_files() {
 main() {
   print_intro
   run_self_check_interactive
+  choose_split_standard
   choose_target_directory
   split_large_files
 }

@@ -245,7 +245,7 @@ select_volume_dirs() {
     info_echo "仅检测到 1 个子卷目录，将直接处理：${selection%% :: *}"
   else
     # ALL 选项也做成“描述 :: token”的形式，方便统一解析
-    options+=("【全部子卷目录】 :: __ALL__")
+    options=("【全部子卷目录】 :: __ALL__" "${options[@]}")
 
     note_echo "在 fzf 中选择要合并的子卷目录："
     selection=$(printf '%s\n' "${options[@]}" | fzf --prompt="请选择要合并的子卷目录：" --height=15 --border) || {
