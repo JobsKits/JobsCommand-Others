@@ -1,0 +1,78 @@
+# `【MacOS】时间戳转换工具.command` <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+
+![Jobs倾情奉献](https://picsum.photos/1500/400 "Jobs出品，必属精品")
+
+[toc]
+
+## 🔥 <font id=前言>前言</font>
+
+> 当前总行数：
+
+* 🔧**工欲善其事必先利其器**
+
+* 🌋 **站在巨人的肩膀上，才能看得更远**
+
+* ✝️ **面向信仰编程**
+
+* 🔔 **温馨提示**：这个自述文件和同目录脚本是一一对应关系。双击脚本后，会先打印本文件内容并阻塞等待回车，避免误操作。
+
+* 脚本日志默认写入：
+
+  ```shell
+  /tmp/【MacOS】时间戳转换工具.log
+  ```
+
+## 一、🎯 脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+
+**Unix 时间戳转换脚本**
+
+用于把秒、毫秒、微秒级 Unix 时间戳转换成本地可读时间，并复制到剪切板。
+
+## 二、🧩 适用场景 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+
+* 排查接口返回时间。
+* 把日志中的时间戳转换成人类可读时间。
+* 连续转换多个时间戳。
+
+## 三、🚀 快速开始 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+
+双击当前 `.command` 文件即可运行；也可以在终端中执行：
+
+```shell
+chmod +x './【MacOS】时间戳转换工具.command'
+./【MacOS】时间戳转换工具.command
+```
+
+> 运行后先阅读终端打印的 README，确认无误后按回车继续。
+
+## 四、🧭 工作流程 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+
+```mermaid
+graph TD
+    A1[显示 README 并等待回车] --> A2
+    A2[循环等待输入] --> A3
+    A3[判断秒 / 毫秒 / 微秒] --> A4
+    A4[调用 date 转换] --> A5
+    A5[输出结果并复制]
+```
+
+## 五、⚠️ 注意事项 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+
+* 只读转换，不修改文件。
+* 结果使用当前 Mac 的本地时区。
+
+## 六、📁 文件结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+
+```text
+【MacOS】时间戳转换工具.command/
+├── 【MacOS】时间戳转换工具.command
+└── README.md
+```
+
+## 七、🪵 日志位置 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+
+```shell
+/tmp/【MacOS】时间戳转换工具.log
+```
+
+<a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>
