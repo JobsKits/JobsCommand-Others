@@ -12,7 +12,8 @@
 # - 手动拖入/输入目录时，只允许父目录已存在；末级 Stirling-PDF 目录缺失时自动创建
 # - SSH remote 会被识别为官方仓库，并统一修正为 HTTPS remote
 # - 首次 clone 前进入确认页；目录已校验后直接回车继续，不要求输入 YES
-# - 已有仓库时 fetch 后判断远程是否有更新，再按安全策略 pull
+# - 已有仓库时先人工确认是否拉取远程更新；直接回车跳过，输入任意字符后执行 fetch/pull
+# - Caddy 端口映射阶段为防误操作：直接回车不跳过，输入一个空格后回车才跳过
 # - 执行 task install / task check
 # - 后台静默启动 backend:dev + frontend:dev
 # - 打开 http://localhost:5173
@@ -143,6 +144,14 @@ trim_text() {
   done
 
   printf "%s" "$text"
+}
+
+input_is_space_skip() {
+  local raw="$1"
+  local trimmed=""
+
+  trimmed="$(trim_text "$raw")"
+  [[ -n "$raw" && -z "$trimmed" ]]
 }
 
 unwrap_input_text() {
@@ -362,7 +371,7 @@ require_yes_for_stash() {
     warn_echo "检测到本地存在未提交改动。"
     warm_echo "为了安全更新，建议先自动 stash。"
     warm_echo "请输入 YES：自动 git stash 后继续。"
-    warm_echo "直接按 [Enter]：不继续，继续停在这里。"
+    warm_echo "直接按 [Enter]：跳过本次远程更新，继续使用本地现有代码。"
     warm_echo "输入 q / quit / exit / cancel：取消并退出脚本。"
     printf "> "
 
@@ -376,8 +385,8 @@ require_yes_for_stash() {
         return 0
         ;;
       "" )
-        warn_echo "检测到空回车，已拦截。请明确输入 YES 才会 stash 并继续。"
-        continue
+        note_echo "已跳过自动 stash；本次远程更新取消，继续使用本地现有代码。"
+        return 1
         ;;
       q|Q|quit|QUIT|exit|EXIT|cancel|CANCEL)
         warn_echo "已主动取消执行。"
@@ -389,6 +398,25 @@ require_yes_for_stash() {
         ;;
     esac
   done
+}
+
+ask_repo_remote_update() {
+  echo ""
+  info_echo "检测到已有 Stirling-PDF 本地仓库。是否拉取远程更新？"
+  gray_echo "本地仓库：$REPO_DIR"
+  warm_echo "👉 直接按 [Enter]：跳过拉取更新，立即使用本地现有代码"
+  warm_echo "👉 输入任意字符后回车：立即拉取远程更新"
+  printf "> "
+
+  read_input
+
+  if [[ -z "$INPUT_VALUE" ]]; then
+    note_echo "已跳过远程更新，继续使用本地现有代码。"
+    return 1
+  fi
+
+  success_echo "已选择拉取远程更新。"
+  return 0
 }
 
 show_readme() {
@@ -407,12 +435,12 @@ show_readme() {
   gray_echo "9. 手动拖入/输入目录时，只允许父目录已存在；末级 Stirling-PDF 目录缺失时自动创建。"
   gray_echo "10. SSH remote 会被识别为官方仓库，并统一修正为 HTTPS remote。"
   gray_echo "11. 首次 clone 前进入确认页；目录已校验后直接按 [Enter] 继续，不需要输入 YES。"
-  gray_echo "12. 已有仓库时 fetch 后判断远程是否有更新，再按安全策略 pull。"
+  gray_echo "12. 已有仓库时先询问是否拉取远程更新：直接按 [Enter] 跳过；输入任意字符后回车才执行 fetch/pull。"
   gray_echo "13. 进入 Stirling-PDF 后执行 task install 和 task check。"
   gray_echo "14. 后台静默启动 task backend:dev 和 task frontend:dev。"
   gray_echo "15. 打开前端地址：${FRONTEND_URL}，并打印后端地址：${BACKEND_URL}。"
-  gray_echo "16. Stirling-PDF 启动完成后，询问是否配置 Caddy 本地域名 HTTPS 映射。"
-  gray_echo "17. 可选择映射前端 ${FRONTEND_URL} 或后端 ${BACKEND_URL}，配置完一个后可继续配置另一个。"
+  gray_echo "16. Stirling-PDF 启动完成后，询问是否配置 Caddy 本地域名 HTTPS 映射：直接按 [Enter] 不跳过，会继续询问；输入一个空格后回车才跳过；输入任意非空非空格内容后回车进入配置。"
+  gray_echo "17. 配置前端/后端映射时，为防止误操作，空回车不会跳过，会继续询问；只有输入一个空格后回车才跳过当前映射流程。"
   echo ""
   warn_echo "注意：正常启动脚本会先归零旧后台服务，然后重新启动。"
   warn_echo "注意：确认自述文件后，会先关闭旧的 Caddy 后台映射，避免历史配置干扰。"
@@ -1105,7 +1133,7 @@ try_use_recorded_repo_dir() {
     success_echo "记录目录验证通过：这是官方 Stirling-PDF 仓库"
     ensure_origin_https_remote "$REPO_DIR" || exit 1
     write_record_file "$REPO_DIR"
-    success_echo "将复用该目录，并检查远程更新：$REPO_DIR"
+    success_echo "将复用该目录，并可按需手动拉取远程更新：$REPO_DIR"
     return 0
   fi
 
@@ -1267,17 +1295,20 @@ ensure_clean_or_stash() {
     return 0
   fi
 
-  require_yes_for_stash
+  require_yes_for_stash || return 1
 
   run_cmd git -C "$REPO_DIR" stash push -u -m "auto-stash before Stirling-PDF update $(date '+%Y-%m-%d %H:%M:%S')" || {
-    error_echo "自动 stash 失败，停止更新，避免覆盖你的本地改动。"
-    exit 1
+    warn_echo "自动 stash 失败；本次远程更新取消，继续使用本地现有代码。"
+    return 1
   }
 
   success_echo "本地改动已 stash。需要恢复时可进入仓库执行：git stash list / git stash pop"
+  return 0
 }
 
 ensure_branch_ready_for_update() {
+  UPDATE_CURRENT_BRANCH=""
+
   local current_branch
   current_branch="$(git -C "$REPO_DIR" symbolic-ref --quiet --short HEAD 2>/dev/null || true)"
 
@@ -1285,8 +1316,8 @@ ensure_branch_ready_for_update() {
   target_branch="$(get_remote_default_branch)"
 
   if [[ -z "$current_branch" ]]; then
-    warn_echo "当前仓库处于 detached HEAD，切回远端默认分支：$target_branch"
-    run_cmd git -C "$REPO_DIR" checkout -B "$target_branch" "origin/$target_branch" || exit 1
+    warn_echo "当前仓库处于 detached HEAD，尝试切回远端默认分支：$target_branch"
+    run_cmd git -C "$REPO_DIR" checkout -B "$target_branch" "origin/$target_branch" || return 1
     current_branch="$target_branch"
   fi
 
@@ -1299,7 +1330,7 @@ ensure_branch_ready_for_update() {
     read_input
 
     if [[ -n "$INPUT_VALUE" ]]; then
-      run_cmd git -C "$REPO_DIR" checkout "$target_branch" || run_cmd git -C "$REPO_DIR" checkout -B "$target_branch" "origin/$target_branch" || exit 1
+      run_cmd git -C "$REPO_DIR" checkout "$target_branch" || run_cmd git -C "$REPO_DIR" checkout -B "$target_branch" "origin/$target_branch" || return 1
       current_branch="$target_branch"
     fi
   fi
@@ -1308,12 +1339,13 @@ ensure_branch_ready_for_update() {
 
   if ! git -C "$REPO_DIR" rev-parse --verify "$upstream_ref" >/dev/null 2>&1; then
     warn_echo "远端不存在当前分支：$upstream_ref"
-    warn_echo "将切换到远端默认分支：$target_branch"
-    run_cmd git -C "$REPO_DIR" checkout "$target_branch" || run_cmd git -C "$REPO_DIR" checkout -B "$target_branch" "origin/$target_branch" || exit 1
+    warn_echo "尝试切换到远端默认分支：$target_branch"
+    run_cmd git -C "$REPO_DIR" checkout "$target_branch" || run_cmd git -C "$REPO_DIR" checkout -B "$target_branch" "origin/$target_branch" || return 1
     current_branch="$target_branch"
   fi
 
-  echo "$current_branch"
+  UPDATE_CURRENT_BRANCH="$current_branch"
+  return 0
 }
 
 update_existing_repo_to_latest() {
@@ -1328,24 +1360,35 @@ update_existing_repo_to_latest() {
   ensure_origin_https_remote "$REPO_DIR" || exit 1
   write_record_file "$REPO_DIR"
 
-  ensure_clean_or_stash
+  if ! ask_repo_remote_update; then
+    return 0
+  fi
 
   run_cmd git -C "$REPO_DIR" fetch --progress --prune origin || {
-    error_echo "git fetch 失败"
-    exit 1
+    warn_echo "git fetch 失败，已跳过本次远程更新；继续使用本地现有代码。"
+    return 0
   }
 
   local current_branch
-  current_branch="$(ensure_branch_ready_for_update)"
+  if ! ensure_branch_ready_for_update; then
+    warn_echo "分支检查/切换失败，已跳过本次远程更新；继续使用本地现有代码。"
+    return 0
+  fi
+  current_branch="$UPDATE_CURRENT_BRANCH"
   local upstream_ref="origin/$current_branch"
 
   local local_hash
   local remote_hash
   local base_hash
 
-  local_hash="$(git -C "$REPO_DIR" rev-parse HEAD)"
-  remote_hash="$(git -C "$REPO_DIR" rev-parse "$upstream_ref")"
-  base_hash="$(git -C "$REPO_DIR" merge-base HEAD "$upstream_ref")"
+  local_hash="$(git -C "$REPO_DIR" rev-parse HEAD 2>/dev/null || true)"
+  remote_hash="$(git -C "$REPO_DIR" rev-parse "$upstream_ref" 2>/dev/null || true)"
+  base_hash="$(git -C "$REPO_DIR" merge-base HEAD "$upstream_ref" 2>/dev/null || true)"
+
+  if [[ -z "$local_hash" || -z "$remote_hash" || -z "$base_hash" ]]; then
+    warn_echo "无法判断本地与远端提交关系，已跳过本次远程更新；继续使用本地现有代码。"
+    return 0
+  fi
 
   if [[ "$local_hash" == "$remote_hash" ]]; then
     success_echo "本地代码已经是最新：$current_branch"
@@ -1354,9 +1397,13 @@ update_existing_repo_to_latest() {
 
   if [[ "$local_hash" == "$base_hash" ]]; then
     info_echo "检测到远程有更新，开始拉取：$upstream_ref"
+    if ! ensure_clean_or_stash; then
+      return 0
+    fi
+
     run_cmd git -C "$REPO_DIR" pull --progress --ff-only origin "$current_branch" || {
-      error_echo "git pull --ff-only 失败"
-      exit 1
+      warn_echo "git pull --ff-only 失败，已跳过本次远程更新；继续使用本地现有代码。"
+      return 0
     }
     success_echo "代码已更新到远程最新"
     return 0
@@ -1369,7 +1416,7 @@ update_existing_repo_to_latest() {
   fi
 
   warn_echo "本地分支和远端分支已经分叉。"
-  warm_echo "直接按 [Enter]：停止，保留当前仓库状态。"
+  warm_echo "直接按 [Enter]：跳过远程更新，继续使用本地现有代码。"
   warm_echo "输入 YES 后回车：强制重置到 $upstream_ref。"
   printf "> "
 
@@ -1378,12 +1425,18 @@ update_existing_repo_to_latest() {
   reset_confirm="$(unwrap_input_text "$INPUT_VALUE")"
 
   if [[ "$reset_confirm" == "YES" ]]; then
+    if ! ensure_clean_or_stash; then
+      return 0
+    fi
+
     warn_echo "执行强制重置：git reset --hard $upstream_ref"
-    run_cmd git -C "$REPO_DIR" reset --hard "$upstream_ref" || exit 1
+    run_cmd git -C "$REPO_DIR" reset --hard "$upstream_ref" || {
+      warn_echo "git reset --hard 失败，已跳过本次远程更新；继续使用本地现有代码。"
+      return 0
+    }
     success_echo "代码已强制同步到远端最新"
   else
-    error_echo "已停止更新。请手动处理 Git 分支分叉后重试。"
-    exit 1
+    note_echo "已跳过分叉处理，继续使用本地现有代码。"
   fi
 }
 
@@ -1631,6 +1684,7 @@ normalize_caddy_domain() {
 
 prompt_caddy_domain() {
   local label="$1"
+  local raw=""
   local domain=""
   CADDY_SELECTED_DOMAIN=""
 
@@ -1641,13 +1695,28 @@ prompt_caddy_domain() {
       后端) gray_echo "示例：api.jobs.pdf.com / api.jobs.pdf.test" ;;
       *)    gray_echo "示例：jobs.pdf.com / jobs.pdf.test" ;;
     esac
+    warm_echo "直接按 [Enter]：不跳过，继续等待输入${label}域名"
+    warm_echo "输入一个空格后回车：跳过${label}映射，继续往下执行"
     printf "> "
 
     read_input
-    domain="$(normalize_caddy_domain "$INPUT_VALUE" 2>/dev/null || true)"
+    raw="$INPUT_VALUE"
+
+    if [[ -z "$raw" ]]; then
+      warn_echo "检测到空回车，已拦截。若要跳过${label}映射，请输入一个空格后回车。"
+      continue
+    fi
+
+    if input_is_space_skip "$raw"; then
+      note_echo "已跳过${label}映射。"
+      return 1
+    fi
+
+    raw="$(trim_text "$raw")"
+    domain="$(normalize_caddy_domain "$raw" 2>/dev/null || true)"
 
     if [[ -z "$domain" ]]; then
-      warn_echo "映射域名不能为空，且必须是合法域名，请重新输入。"
+      warn_echo "域名格式不合法，请重新输入；若要跳过${label}映射，请输入一个空格后回车。"
       continue
     fi
 
@@ -1732,17 +1801,33 @@ ensure_caddy_local_service() {
     fi
 
     warn_echo "如果本地服务未运行，映射后浏览器会看到 502。"
-    echo "👉 直接按 [Enter]：重新检测"
+    echo "👉 直接按 [Enter]：不跳过，继续停留在当前选择"
+    echo "👉 输入一个空格后回车：跳过${label}映射，继续往下执行"
+    echo "👉 输入 r 后回车：重新检测"
     echo "👉 输入 s 后回车：强制继续配置"
     echo "👉 输入 q 后回车：取消当前映射"
     printf "> "
 
     read_input
-    local choice
-    choice="$(trim_text "$INPUT_VALUE")"
+    local raw_choice choice
+    raw_choice="$INPUT_VALUE"
+
+    if [[ -z "$raw_choice" ]]; then
+      warn_echo "检测到空回车，已拦截。若要跳过${label}映射，请输入一个空格后回车。"
+      continue
+    fi
+
+    if input_is_space_skip "$raw_choice"; then
+      note_echo "已跳过${label}映射。"
+      return 1
+    fi
+
+    choice="$(trim_text "$raw_choice")"
 
     case "$choice" in
-      "") continue ;;
+      r|R|retry|check)
+        continue
+        ;;
       s|S|skip|force)
         warn_echo "已选择强制继续。若本地服务仍未运行，浏览器会看到 502。"
         return 0
@@ -1751,7 +1836,7 @@ ensure_caddy_local_service() {
         note_echo "已取消${label}映射。"
         return 1
         ;;
-      *) warn_echo "无法识别输入，请重新选择。" ;;
+      *) warn_echo "无法识别输入，请重新选择；若要跳过${label}映射，请输入一个空格后回车。" ;;
     esac
   done
 }
@@ -1782,35 +1867,38 @@ add_caddy_mapping() {
 choose_caddy_target_key() {
   local frontend_done="$1"
   local backend_done="$2"
+  local raw_choice=""
   local choice=""
   CADDY_SELECTED_TARGET_KEY=""
 
   while true; do
-    highlight_echo "请选择先配置哪一个本地域名映射"
+    highlight_echo "请选择要配置哪一个本地域名映射"
     [[ "$frontend_done" != "1" ]] && echo "1) 前端：$FRONTEND_URL"
     [[ "$backend_done" != "1" ]] && echo "2) 后端：$BACKEND_URL"
     echo "q) 结束映射配置"
-    [[ "$frontend_done" != "1" ]] && warm_echo "直接按 [Enter]：默认选择前端"
-    [[ "$frontend_done" == "1" && "$backend_done" != "1" ]] && warm_echo "直接按 [Enter]：默认选择后端"
+    warm_echo "直接按 [Enter]：不跳过，继续等待选择前端/后端"
+    warm_echo "输入一个空格后回车：不配置端口映射，继续往下执行"
     printf "> "
 
     read_input
-    choice="$(trim_text "$INPUT_VALUE")"
+    raw_choice="$INPUT_VALUE"
 
-    if [[ -z "$choice" ]]; then
-      if [[ "$frontend_done" != "1" ]]; then
-        CADDY_SELECTED_TARGET_KEY="frontend"
-        return 0
-      elif [[ "$backend_done" != "1" ]]; then
-        CADDY_SELECTED_TARGET_KEY="backend"
-        return 0
-      fi
+    if [[ -z "$raw_choice" ]]; then
+      warn_echo "检测到空回车，已拦截。若要跳过端口映射，请输入一个空格后回车。"
+      continue
     fi
+
+    if input_is_space_skip "$raw_choice"; then
+      note_echo "未选择前端/后端映射，已跳过映射配置。"
+      return 1
+    fi
+
+    choice="$(trim_text "$raw_choice")"
 
     case "$choice" in
       1|f|F|front|frontend|前端)
         if [[ "$frontend_done" == "1" ]]; then
-          warn_echo "前端已经加入映射，请选择其他项。"
+          warn_echo "前端已经加入映射，请选择其他项；若要结束映射配置，请输入一个空格后回车。"
         else
           CADDY_SELECTED_TARGET_KEY="frontend"
           return 0
@@ -1818,7 +1906,7 @@ choose_caddy_target_key() {
         ;;
       2|b|B|back|backend|后端)
         if [[ "$backend_done" == "1" ]]; then
-          warn_echo "后端已经加入映射，请选择其他项。"
+          warn_echo "后端已经加入映射，请选择其他项；若要结束映射配置，请输入一个空格后回车。"
         else
           CADDY_SELECTED_TARGET_KEY="backend"
           return 0
@@ -1828,7 +1916,7 @@ choose_caddy_target_key() {
         return 1
         ;;
       *)
-        warn_echo "输入无法识别，请重新选择。"
+        warn_echo "输入无法识别，请重新选择；若要结束映射配置，请输入一个空格后回车。"
         ;;
     esac
   done
@@ -1868,15 +1956,26 @@ collect_caddy_mappings() {
       break
     fi
 
-    echo ""
-    note_echo "是否继续配置另外一个映射？"
-    warm_echo "直接按 [Enter]：继续配置另一个"
-    warm_echo "输入任意字符后回车：结束配置并启动已有映射"
-    printf "> "
-    read_input
-    if [[ -n "$(trim_text "$INPUT_VALUE")" ]]; then
+    while true; do
+      echo ""
+      note_echo "是否继续配置另外一个映射？"
+      warm_echo "直接按 [Enter]：不结束，继续停留在当前选择"
+      warm_echo "输入一个空格后回车：不再配置，启动已有映射"
+      warm_echo "输入任意非空非空格内容后回车：继续配置另一个"
+      printf "> "
+      read_input
+
+      if [[ -z "$INPUT_VALUE" ]]; then
+        warn_echo "检测到空回车，已拦截。若不再配置，请输入一个空格后回车。"
+        continue
+      fi
+
+      if input_is_space_skip "$INPUT_VALUE"; then
+        break 2
+      fi
+
       break
-    fi
+    done
   done
 
   (( ${#CADDY_MAP_DOMAINS[@]} > 0 ))
@@ -2172,16 +2271,27 @@ restart_frontend_for_caddy_allowed_hosts_if_needed() {
 
 run_caddy_mapping_flow() {
   echo ""
-  highlight_echo "是否做 Caddy 本地域名 HTTPS 映射处理？"
-  warm_echo "直接按 [Enter]：默认做映射"
-  warm_echo "输入任意字符后回车：跳过映射，结束战斗"
-  printf "> "
 
-  read_input
-  if [[ -n "$(trim_text "$INPUT_VALUE")" ]]; then
-    note_echo "已跳过 Caddy 本地域名映射。"
-    return 0
-  fi
+  while true; do
+    highlight_echo "是否做 Caddy 本地域名 HTTPS 映射处理？"
+    warm_echo "直接按 [Enter]：不跳过，继续停留在当前询问"
+    warm_echo "输入一个空格后回车：跳过映射，继续往下执行"
+    warm_echo "输入任意非空非空格内容后回车：进入映射配置"
+    printf "> "
+
+    read_input
+    if [[ -z "$INPUT_VALUE" ]]; then
+      warn_echo "检测到空回车，已拦截。若要跳过 Caddy 本地域名映射，请输入一个空格后回车。"
+      continue
+    fi
+
+    if input_is_space_skip "$INPUT_VALUE"; then
+      note_echo "已跳过 Caddy 本地域名映射。"
+      return 0
+    fi
+
+    break
+  done
 
   ensure_caddy
 
@@ -2258,7 +2368,7 @@ main() {
   # 4. 读取记录文件并验证；无效或无记录时重新选择
   choose_download_dir
 
-  # 5. clone 或更新 Stirling-PDF 代码到最新
+  # 5. clone 或按需手动更新 Stirling-PDF 代码
   clone_or_update_repo
 
   # 6. 执行 Stirling-PDF 自检
