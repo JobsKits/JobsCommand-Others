@@ -13,7 +13,7 @@
 # - SSH remote 会被识别为官方仓库，并统一修正为 HTTPS remote
 # - 首次 clone 前进入确认页；目录已校验后直接回车继续，不要求输入 YES
 # - 已有仓库时先人工确认是否拉取远程更新；直接回车跳过，输入任意字符后执行 fetch/pull
-# - Caddy 端口映射阶段为防误操作：直接回车不跳过，输入一个空格后回车才跳过
+# - Caddy 端口映射阶段固定按前端、后端顺序询问域名；直接回车继续询问，输入空格后回车跳过当前项，输入域名则配置
 # - 执行 task install / task check
 # - 后台静默启动 backend:dev + frontend:dev
 # - 打开 http://localhost:5173
@@ -439,8 +439,8 @@ show_readme() {
   gray_echo "13. 进入 Stirling-PDF 后执行 task install 和 task check。"
   gray_echo "14. 后台静默启动 task backend:dev 和 task frontend:dev。"
   gray_echo "15. 打开前端地址：${FRONTEND_URL}，并打印后端地址：${BACKEND_URL}。"
-  gray_echo "16. Stirling-PDF 启动完成后，询问是否配置 Caddy 本地域名 HTTPS 映射：直接按 [Enter] 不跳过，会继续询问；输入一个空格后回车才跳过；输入任意非空非空格内容后回车进入配置。"
-  gray_echo "17. 配置前端/后端映射时，为防止误操作，空回车不会跳过，会继续询问；只有输入一个空格后回车才跳过当前映射流程。"
+  gray_echo "16. Stirling-PDF 启动完成后，按顺序询问前端、后端两个 Caddy 本地域名 HTTPS 映射。"
+  gray_echo "17. 每个映射项都遵循同一规则：直接按 [Enter] 继续询问；输入一个空格后回车跳过当前项；输入域名后回车立即配置该项。"
   echo ""
   warn_echo "注意：正常启动脚本会先归零旧后台服务，然后重新启动。"
   warn_echo "注意：确认自述文件后，会先关闭旧的 Caddy 后台映射，避免历史配置干扰。"
@@ -1684,19 +1684,22 @@ normalize_caddy_domain() {
 
 prompt_caddy_domain() {
   local label="$1"
+  local local_url="${2:-}"
   local raw=""
   local domain=""
   CADDY_SELECTED_DOMAIN=""
 
   while true; do
-    highlight_echo "请输入 ${label} 的映射域名"
+    highlight_echo "配置 ${label} Caddy 本地域名映射"
+    [[ -n "$local_url" ]] && gray_echo "本地地址：$local_url"
     case "$label" in
       前端) gray_echo "示例：jobs.pdf.com / jobs.pdf.test" ;;
       后端) gray_echo "示例：api.jobs.pdf.com / api.jobs.pdf.test" ;;
       *)    gray_echo "示例：jobs.pdf.com / jobs.pdf.test" ;;
     esac
     warm_echo "直接按 [Enter]：不跳过，继续等待输入${label}域名"
-    warm_echo "输入一个空格后回车：跳过${label}映射，继续往下执行"
+    warm_echo "输入一个空格后回车：跳过${label}映射"
+    warm_echo "输入域名后回车：立即配置${label}映射"
     printf "> "
 
     read_input
@@ -1788,59 +1791,6 @@ check_caddy_local_service_once() {
   return 1
 }
 
-ensure_caddy_local_service() {
-  local target_key="$1"
-  local label
-  label="$(caddy_target_label "$target_key")"
-
-  highlight_echo "检查${label}本地服务"
-
-  while true; do
-    if check_caddy_local_service_once "$target_key"; then
-      return 0
-    fi
-
-    warn_echo "如果本地服务未运行，映射后浏览器会看到 502。"
-    echo "👉 直接按 [Enter]：不跳过，继续停留在当前选择"
-    echo "👉 输入一个空格后回车：跳过${label}映射，继续往下执行"
-    echo "👉 输入 r 后回车：重新检测"
-    echo "👉 输入 s 后回车：强制继续配置"
-    echo "👉 输入 q 后回车：取消当前映射"
-    printf "> "
-
-    read_input
-    local raw_choice choice
-    raw_choice="$INPUT_VALUE"
-
-    if [[ -z "$raw_choice" ]]; then
-      warn_echo "检测到空回车，已拦截。若要跳过${label}映射，请输入一个空格后回车。"
-      continue
-    fi
-
-    if input_is_space_skip "$raw_choice"; then
-      note_echo "已跳过${label}映射。"
-      return 1
-    fi
-
-    choice="$(trim_text "$raw_choice")"
-
-    case "$choice" in
-      r|R|retry|check)
-        continue
-        ;;
-      s|S|skip|force)
-        warn_echo "已选择强制继续。若本地服务仍未运行，浏览器会看到 502。"
-        return 0
-        ;;
-      q|Q|quit|exit|cancel)
-        note_echo "已取消${label}映射。"
-        return 1
-        ;;
-      *) warn_echo "无法识别输入，请重新选择；若要跳过${label}映射，请输入一个空格后回车。" ;;
-    esac
-  done
-}
-
 add_caddy_mapping() {
   local target_key="$1"
   local label upstream local_url check_path domain
@@ -1850,9 +1800,10 @@ add_caddy_mapping() {
   local_url="$(caddy_target_url "$target_key")"
   check_path="$(caddy_target_check_path "$target_key")"
 
-  ensure_caddy_local_service "$target_key" || return 1
-  prompt_caddy_domain "$label" || return 1
+  prompt_caddy_domain "$label" "$local_url" || return 1
   domain="$CADDY_SELECTED_DOMAIN"
+
+  check_caddy_local_service_once "$target_key" || warn_echo "${label}本地服务当前不可访问，仍继续生成映射；如果服务未启动，浏览器会看到 502。"
 
   CADDY_MAP_LABELS+=("$label")
   CADDY_MAP_DOMAINS+=("$domain")
@@ -1864,67 +1815,7 @@ add_caddy_mapping() {
   return 0
 }
 
-choose_caddy_target_key() {
-  local frontend_done="$1"
-  local backend_done="$2"
-  local raw_choice=""
-  local choice=""
-  CADDY_SELECTED_TARGET_KEY=""
-
-  while true; do
-    highlight_echo "请选择要配置哪一个本地域名映射"
-    [[ "$frontend_done" != "1" ]] && echo "1) 前端：$FRONTEND_URL"
-    [[ "$backend_done" != "1" ]] && echo "2) 后端：$BACKEND_URL"
-    echo "q) 结束映射配置"
-    warm_echo "直接按 [Enter]：不跳过，继续等待选择前端/后端"
-    warm_echo "输入一个空格后回车：不配置端口映射，继续往下执行"
-    printf "> "
-
-    read_input
-    raw_choice="$INPUT_VALUE"
-
-    if [[ -z "$raw_choice" ]]; then
-      warn_echo "检测到空回车，已拦截。若要跳过端口映射，请输入一个空格后回车。"
-      continue
-    fi
-
-    if input_is_space_skip "$raw_choice"; then
-      note_echo "未选择前端/后端映射，已跳过映射配置。"
-      return 1
-    fi
-
-    choice="$(trim_text "$raw_choice")"
-
-    case "$choice" in
-      1|f|F|front|frontend|前端)
-        if [[ "$frontend_done" == "1" ]]; then
-          warn_echo "前端已经加入映射，请选择其他项；若要结束映射配置，请输入一个空格后回车。"
-        else
-          CADDY_SELECTED_TARGET_KEY="frontend"
-          return 0
-        fi
-        ;;
-      2|b|B|back|backend|后端)
-        if [[ "$backend_done" == "1" ]]; then
-          warn_echo "后端已经加入映射，请选择其他项；若要结束映射配置，请输入一个空格后回车。"
-        else
-          CADDY_SELECTED_TARGET_KEY="backend"
-          return 0
-        fi
-        ;;
-      q|Q|quit|exit|cancel)
-        return 1
-        ;;
-      *)
-        warn_echo "输入无法识别，请重新选择；若要结束映射配置，请输入一个空格后回车。"
-        ;;
-    esac
-  done
-}
-
 collect_caddy_mappings() {
-  local frontend_done="0"
-  local backend_done="0"
   local target_key=""
 
   CADDY_MAP_LABELS=()
@@ -1933,49 +1824,13 @@ collect_caddy_mappings() {
   CADDY_MAP_LOCAL_URLS=()
   CADDY_MAP_CHECK_PATHS=()
 
-  while true; do
-    if [[ "$frontend_done" == "1" && "$backend_done" == "1" ]]; then
-      success_echo "前端和后端均已加入映射。"
-      break
-    fi
+  highlight_echo "Caddy 本地域名 HTTPS 映射配置"
+  gray_echo "将按固定顺序询问两个页面：前端 ${FRONTEND_URL}，后端 ${BACKEND_URL}。"
+  gray_echo "每一项都可以单独跳过：输入一个空格后回车即可。"
 
-    if choose_caddy_target_key "$frontend_done" "$backend_done"; then
-      target_key="$CADDY_SELECTED_TARGET_KEY"
-    else
-      break
-    fi
-
-    if add_caddy_mapping "$target_key"; then
-      case "$target_key" in
-        frontend) frontend_done="1" ;;
-        backend) backend_done="1" ;;
-      esac
-    fi
-
-    if [[ "$frontend_done" == "1" && "$backend_done" == "1" ]]; then
-      break
-    fi
-
-    while true; do
-      echo ""
-      note_echo "是否继续配置另外一个映射？"
-      warm_echo "直接按 [Enter]：不结束，继续停留在当前选择"
-      warm_echo "输入一个空格后回车：不再配置，启动已有映射"
-      warm_echo "输入任意非空非空格内容后回车：继续配置另一个"
-      printf "> "
-      read_input
-
-      if [[ -z "$INPUT_VALUE" ]]; then
-        warn_echo "检测到空回车，已拦截。若不再配置，请输入一个空格后回车。"
-        continue
-      fi
-
-      if input_is_space_skip "$INPUT_VALUE"; then
-        break 2
-      fi
-
-      break
-    done
+  for target_key in frontend backend; do
+    echo ""
+    add_caddy_mapping "$target_key" || true
   done
 
   (( ${#CADDY_MAP_DOMAINS[@]} > 0 ))
@@ -2152,21 +2007,6 @@ wait_for_caddy_443() {
 }
 
 start_stirling_caddy_background() {
-  highlight_echo "准备启动 Caddy 后台映射"
-  note_echo "按 [Enter]：启动 Caddy 后台映射；关闭终端不影响映射继续运行。"
-  warm_echo "输入 q 后回车：取消启动并退出映射流程。"
-  printf "> "
-
-  read_input
-  local choice
-  choice="$(trim_text "$INPUT_VALUE")"
-  case "$choice" in
-    q|Q|quit|exit|cancel)
-      note_echo "已取消启动 Caddy 映射。"
-      return 1
-      ;;
-  esac
-
   highlight_echo "启动 Caddy HTTPS 反向代理"
   info_echo "正在后台启动 Caddy，详细日志写入：$LOG_FILE"
 
@@ -2272,34 +2112,12 @@ restart_frontend_for_caddy_allowed_hosts_if_needed() {
 run_caddy_mapping_flow() {
   echo ""
 
-  while true; do
-    highlight_echo "是否做 Caddy 本地域名 HTTPS 映射处理？"
-    warm_echo "直接按 [Enter]：不跳过，继续停留在当前询问"
-    warm_echo "输入一个空格后回车：跳过映射，继续往下执行"
-    warm_echo "输入任意非空非空格内容后回车：进入映射配置"
-    printf "> "
-
-    read_input
-    if [[ -z "$INPUT_VALUE" ]]; then
-      warn_echo "检测到空回车，已拦截。若要跳过 Caddy 本地域名映射，请输入一个空格后回车。"
-      continue
-    fi
-
-    if input_is_space_skip "$INPUT_VALUE"; then
-      note_echo "已跳过 Caddy 本地域名映射。"
-      return 0
-    fi
-
-    break
-  done
-
-  ensure_caddy
-
   if ! collect_caddy_mappings; then
-    note_echo "未添加任何 Caddy 映射，跳过。"
+    note_echo "前端和后端映射均已跳过，Caddy 本地域名映射流程结束。"
     return 0
   fi
 
+  ensure_caddy
   restart_frontend_for_caddy_allowed_hosts_if_needed
 
   write_caddy_hosts
