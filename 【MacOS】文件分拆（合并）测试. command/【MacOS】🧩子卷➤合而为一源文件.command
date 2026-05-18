@@ -89,12 +89,12 @@ install_homebrew() {
 
   else
     info_echo "🔄 Homebrew 已安装。是否执行更新？"
-    echo "👉 按 [Enter] 继续：将依次执行  brew update && brew upgrade && brew cleanup && brew doctor && brew -v"
-    echo "👉 输入任意字符后回车：跳过更新"
+    echo "👉 直接按 [Enter]：跳过更新"
+    echo "👉 输入任意字符后回车：执行 brew update && brew upgrade && brew cleanup && brew doctor && brew -v"
 
     local confirm
     IFS= read -r confirm
-    if [[ -z "$confirm" ]]; then
+    if [[ -n "$confirm" ]]; then
       info_echo "⏳ 正在更新 Homebrew..."
       brew update       || { error_echo "❌ brew update 失败"; return 1; }
       brew upgrade      || { error_echo "❌ brew upgrade 失败"; return 1; }
@@ -115,12 +115,12 @@ install_fzf() {
     success_echo "✅ fzf 安装成功"
   else
     info_echo "🔄 fzf 已安装。是否执行升级？"
-    echo "👉 按 [Enter] 继续：将依次执行  brew upgrade fzf && brew cleanup"
-    echo "👉 输入任意字符后回车：跳过升级"
+    echo "👉 直接按 [Enter]：跳过升级"
+    echo "👉 输入任意字符后回车：执行 brew upgrade fzf && brew cleanup"
 
     local confirm
     IFS= read -r confirm
-    if [[ -z "$confirm" ]]; then
+    if [[ -n "$confirm" ]]; then
       info_echo "⏳ 正在升级 fzf..."
       brew upgrade fzf       || { error_echo "❌ fzf 升级失败"; return 1; }
       brew cleanup           || { warn_echo  "⚠️  brew cleanup 执行时有警告"; }
@@ -132,16 +132,117 @@ install_fzf() {
 }
 
 TARGET_DIR=""
+TARGET_IS_VOLUME_DIR=0
 VOLUME_DIRS=()
 SELECTED_DIRS=()
+
+collect_volume_chunks() {
+  local dir="$1"
+  find "$dir" -maxdepth 1 -type f -name '*@*of*' -print 2>/dev/null | LC_ALL=C sort
+}
+
+infer_original_name_from_dir() {
+  local dir="$1"
+  local first_filename
+  first_filename="$(collect_volume_chunks "$dir" | head -n 1 | xargs -I{} basename "{}")"
+  [[ -n "$first_filename" ]] || return 1
+  local original_name="${first_filename%%@*}"
+  [[ -n "$original_name" ]] || return 1
+  printf '%s\n' "$original_name"
+}
+
+merge_one_dir_to_output_dir() {
+  local dir="$1"
+  local output_dir="$2"
+  local name
+  name=$(basename "$dir")
+
+  note_echo "开始合并子卷目录：$name"
+
+  local chunks=()
+  while IFS= read -r chunk; do
+    [[ -f "$chunk" ]] && chunks+=("$chunk")
+  done < <(collect_volume_chunks "$dir")
+
+  if [[ ${#chunks[@]} -eq 0 ]]; then
+    warn_echo "目录 $name 中未找到任何子卷文件，跳过。"
+    return 1
+  fi
+
+  local first_filename
+  first_filename=$(basename "${chunks[0]}")
+  local original_name="${first_filename%%@*}"
+  if [[ -z "$original_name" ]]; then
+    warn_echo "无法从子卷文件名推断原始文件名（目录：$name），跳过。"
+    return 1
+  fi
+
+  local meta="${first_filename#*@}"
+  local total_expected=""
+  if [[ "$meta" =~ ^[0-9]+of([0-9]+)$ ]]; then
+    total_expected="${BASH_REMATCH[1]}"
+    total_expected=$((10#$total_expected))
+  fi
+
+  local total_actual=${#chunks[@]}
+  if [[ -n "$total_expected" && "$total_expected" != "$total_actual" ]]; then
+    warn_echo "检测到目录 $name 子卷数量异常：标记总数=$total_expected，实际数量=$total_actual，建议手动检查，跳过。"
+    return 1
+  fi
+
+  mkdir -p "$output_dir"
+  local output_file="$output_dir/$original_name"
+  if [[ -e "$output_file" ]]; then
+    warn_echo "目标文件已存在，将覆盖：$output_file"
+  fi
+
+  : > "$output_file"
+  local chunk
+  for chunk in "${chunks[@]}"; do
+    cat "$chunk" >> "$output_file" || {
+      error_echo "合并过程中出错，文件：$chunk"
+      rm -f "$output_file"
+      return 1
+    }
+  done
+
+  success_echo "已完成合并：$output_file"
+  printf '%s\n' "$output_file"
+}
+
+run_jobs_noninteractive_merge() {
+  local volume_dir="$1"
+  local output_dir="$2"
+
+  if [[ ! -d "$volume_dir" ]]; then
+    error_echo "非交互合并失败：子卷目录不存在：$volume_dir"
+    return 1
+  fi
+
+  if [[ -z "$output_dir" ]]; then
+    error_echo "非交互合并失败：输出目录为空。"
+    return 1
+  fi
+
+  merge_one_dir_to_output_dir "$volume_dir" "$output_dir" >/dev/null
+}
+
+if [[ "${1:-}" == "--jobs-noninteractive" ]]; then
+  if [[ $# -lt 3 ]]; then
+    error_echo "用法：$0 --jobs-noninteractive 子卷目录 输出目录"
+    exit 1
+  fi
+  run_jobs_noninteractive_merge "$2" "$3"
+  exit $?
+fi
 
 print_intro() {
   bold_echo "======== 子卷合并脚本（${SCRIPT_BASENAME}）========"
   note_echo "功能概要："
-  echo "  1. 选择一个“目标目录”；"
-  echo "  2. 扫描其一级子目录，识别其中的子卷目录（包含类似 原文件@1of4 的文件）；"
+  echo "  1. 支持拖入包含子卷目录的目标目录，也支持直接拖入子卷目录本身；"
+  echo "  2. 识别包含类似 原文件@001of004 的子卷目录；"
   echo "  3. 使用 fzf 选择需要合并的子卷目录（或对全部目录执行）；"
-  echo "  4. 按顺序合并子卷为一个完整文件输出到目标目录；"
+  echo "  4. 按顺序合并子卷为一个完整文件；"
   echo "  5. 合并成功后，询问是否删除对应的子卷目录。"
   echo ""
   note_echo "按 [Enter] 继续，或 Ctrl+C 退出..."
@@ -165,21 +266,37 @@ run_self_check_interactive() {
   fi
 }
 
+normalize_input_path() {
+  local value="$1"
+  value="${value%$'\r'}"
+  value="${value%$'\n'}"
+  value="$(printf '%s' "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+
+  if [[ "${value:0:1}" == "'" && "${value: -1}" == "'" ]] || \
+     [[ "${value:0:1}" == '"' && "${value: -1}" == '"' ]]; then
+    value="${value:1:${#value}-2}"
+  fi
+
+  value="${value%/}"
+  value="$(printf '%s' "$value" | perl -pe 's/\\(.)/$1/g')"
+  printf '%s
+' "$value"
+}
+
 choose_target_directory() {
   echo ""
-  note_echo "请拖入要处理的【目标目录】，然后回车。"
+  note_echo "请拖入要处理的【目标目录】或【子卷目录】，然后回车。"
   echo "👉 直接按 [Enter]：使用脚本所在目录：$SCRIPT_DIR"
-  local input
-  IFS= read -r input
+  local input="${1:-}"
+
+  if [[ -z "$input" ]]; then
+    IFS= read -r input
+  fi
 
   if [[ -z "$input" ]]; then
     TARGET_DIR="$SCRIPT_DIR"
   else
-    input="${input%/}"
-    if [[ "${input:0:1}" == "'" && "${input: -1}" == "'" ]] || \
-       [[ "${input:0:1}" == '"' && "${input: -1}" == '"' ]]; then
-      input="${input:1:${#input}-2}"
-    fi
+    input="$(normalize_input_path "$input")"
 
     if [[ ! -d "$input" ]]; then
       error_echo "指定路径不是有效目录：$input"
@@ -191,27 +308,19 @@ choose_target_directory() {
   info_echo "本次操作的目标目录为：$TARGET_DIR"
 }
 
-# ==== 扫描一级子目录，找出含 @ 的“子卷目录” ====
 find_volume_dirs() {
   VOLUME_DIRS=()
+  TARGET_IS_VOLUME_DIR=0
   local dir
 
-  for dir in "$TARGET_DIR"/*; do
+  if [[ -n "$(collect_volume_chunks "$TARGET_DIR" | head -n 1)" ]]; then
+    VOLUME_DIRS+=("$TARGET_DIR")
+    TARGET_IS_VOLUME_DIR=1
+  fi
+
+  for dir in "$TARGET_DIR"/* "$TARGET_DIR"/.[!.]* "$TARGET_DIR"/..?*; do
     [[ -d "$dir" ]] || continue
-
-    shopt -s nullglob
-    local candidates=("$dir"/*@*)
-    shopt -u nullglob
-
-    local has_volume=false
-    local f
-    for f in "${candidates[@]}"; do
-      [[ -f "$f" ]] || continue
-      has_volume=true
-      break
-    done
-
-    if $has_volume; then
+    if [[ -n "$(collect_volume_chunks "$dir" | head -n 1)" ]]; then
       VOLUME_DIRS+=("$dir")
     fi
   done
@@ -228,14 +337,12 @@ find_volume_dirs() {
   done
 }
 
-# ==== 用 fzf 选择要操作的子卷目录（或全部） ====
 select_volume_dirs() {
   local options=()
   local dir
   for dir in "${VOLUME_DIRS[@]}"; do
     local name
     name=$(basename "$dir")
-    # 注意两侧空格只在左边，方便后面用“:: ”切分
     options+=("$name :: $dir")
   done
 
@@ -244,7 +351,6 @@ select_volume_dirs() {
     selection="${options[0]}"
     info_echo "仅检测到 1 个子卷目录，将直接处理：${selection%% :: *}"
   else
-    # ALL 选项也做成“描述 :: token”的形式，方便统一解析
     options=("【全部子卷目录】 :: __ALL__" "${options[@]}")
 
     note_echo "在 fzf 中选择要合并的子卷目录："
@@ -254,7 +360,6 @@ select_volume_dirs() {
     }
   fi
 
-  # 关键修复点：用“:: ”（两个冒号+空格）切掉左边，只保留 token，不带前导空格
   local selected_token="${selection#*:: }"
 
   if [[ "$selected_token" == "__ALL__" ]]; then
@@ -266,56 +371,22 @@ select_volume_dirs() {
   fi
 }
 
-# ==== 合并单个子卷目录 ====
 merge_one_dir() {
   local dir="$1"
   local name
   name=$(basename "$dir")
-
-  note_echo "开始合并子卷目录：$name"
-
-  # 收集子卷文件（只要文件名里有 @ 就认为是子卷）
-  local chunks=()
-  shopt -s nullglob
-  local f
-  for f in "$dir"/*@*; do
-    [[ -f "$f" ]] || continue
-    chunks+=("$f")
-  done
-  shopt -u nullglob
-
-  if [[ ${#chunks[@]} -eq 0 ]]; then
-    warn_echo "目录 $name 中未找到任何子卷文件，跳过。"
+  local original_name
+  original_name="$(infer_original_name_from_dir "$dir")" || {
+    warn_echo "无法推断目录 $name 的原文件名，跳过。"
     return 1
+  }
+
+  local output_dir="$TARGET_DIR"
+  if [[ "$TARGET_IS_VOLUME_DIR" == "1" && "$dir" == "$TARGET_DIR" ]]; then
+    output_dir="$(dirname "$TARGET_DIR")"
   fi
 
-  # bash 的 glob 默认按字典序展开，这里直接认为顺序是正确的
-  local first_filename
-  first_filename=$(basename "${chunks[0]}")
-
-  # 原始文件名 = @ 之前的部分
-  local original_name="${first_filename%%@*}"
-  if [[ -z "$original_name" ]]; then
-    warn_echo "无法从子卷文件名推断原始文件名（目录：$name），跳过。"
-    return 1
-  fi
-
-  # 从 “1of4” 这类后缀解析总卷数
-  local meta="${first_filename#*@}"   # 例如 1of4
-  local total_expected=""
-  if [[ "$meta" =~ ^[0-9]+of([0-9]+)$ ]]; then
-    total_expected="${BASH_REMATCH[1]}"
-    local t_no0="${total_expected#0}"
-    [[ -n "$t_no0" ]] && total_expected="$t_no0"
-  fi
-
-  local total_actual=${#chunks[@]}
-  if [[ -n "$total_expected" && "$total_expected" != "$total_actual" ]]; then
-    warn_echo "检测到目录 $name 子卷数量异常：标记总数=$total_expected，实际数量=$total_actual，建议手动检查，跳过。"
-    return 1
-  fi
-
-  local output_file="$TARGET_DIR/$original_name"
+  local output_file="$output_dir/$original_name"
   if [[ -e "$output_file" ]]; then
     warn_echo "目标文件已存在：$output_file"
     echo "👉 直接回车：覆盖现有文件"
@@ -330,27 +401,14 @@ merge_one_dir() {
     fi
   fi
 
-  {
-    > "$output_file"
-    local chunk
-    for chunk in "${chunks[@]}"; do
-      cat "$chunk" >> "$output_file" || {
-        error_echo "合并过程中出错，文件：$chunk"
-        rm -f "$output_file"
-        return 1
-      }
-    done
-  } 2>>"$LOG_FILE"
-
-  success_echo "已完成合并：$output_file"
+  merge_one_dir_to_output_dir "$dir" "$output_dir" >/dev/null || return 1
 
   echo ""
   warn_echo "是否删除子卷目录？（高危操作）"
-  echo "👉 直接回车：删除目录 $name"
-  echo "👉 输入任意字符后回车：保留目录"
+  gray_echo "必须输入 YES 后回车才会删除；其它输入一律保留。"
   local confirm_rm
   IFS= read -r confirm_rm
-  if [[ -z "$confirm_rm" ]]; then
+  if [[ "$confirm_rm" == "YES" ]]; then
     if rm -rf -- "$dir"; then
       success_echo "已删除子卷目录：$name"
     else
@@ -374,7 +432,7 @@ merge_selected_dirs() {
 main() {
   print_intro
   run_self_check_interactive
-  choose_target_directory
+  choose_target_directory "${1:-}"
   find_volume_dirs
   select_volume_dirs
   merge_selected_dirs

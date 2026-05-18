@@ -89,12 +89,12 @@ install_homebrew() {
 
   else
     info_echo "🔄 Homebrew 已安装。是否执行更新？"
-    echo "👉 按 [Enter] 继续：将依次执行  brew update && brew upgrade && brew cleanup && brew doctor && brew -v"
-    echo "👉 输入任意字符后回车：跳过更新"
+    echo "👉 直接按 [Enter]：跳过更新"
+    echo "👉 输入任意字符后回车：执行 brew update && brew upgrade && brew cleanup && brew doctor && brew -v"
 
     local confirm
     IFS= read -r confirm
-    if [[ -z "$confirm" ]]; then
+    if [[ -n "$confirm" ]]; then
       info_echo "⏳ 正在更新 Homebrew..."
       brew update       || { error_echo "❌ brew update 失败"; return 1; }
       brew upgrade      || { error_echo "❌ brew upgrade 失败"; return 1; }
@@ -115,12 +115,12 @@ install_fzf() {
     success_echo "✅ fzf 安装成功"
   else
     info_echo "🔄 fzf 已安装。是否执行升级？"
-    echo "👉 按 [Enter] 继续：将依次执行  brew upgrade fzf && brew cleanup"
-    echo "👉 输入任意字符后回车：跳过升级"
+    echo "👉 直接按 [Enter]：跳过升级"
+    echo "👉 输入任意字符后回车：执行 brew upgrade fzf && brew cleanup"
 
     local confirm
     IFS= read -r confirm
-    if [[ -z "$confirm" ]]; then
+    if [[ -n "$confirm" ]]; then
       info_echo "⏳ 正在升级 fzf..."
       brew upgrade fzf       || { error_echo "❌ fzf 升级失败"; return 1; }
       brew cleanup           || { warn_echo  "⚠️  brew cleanup 执行时有警告"; }
@@ -134,6 +134,7 @@ install_fzf() {
 MAX_CHUNK_BYTES=$((50 * 1024 * 1024))
 MAX_CHUNK_LABEL="50 MB"
 TARGET_DIR=""
+TARGET_FILE=""
 
 format_mb_to_gb() {
   local mb="$1"
@@ -160,7 +161,11 @@ mb_to_bytes() {
 }
 
 get_file_size_bytes() {
-  stat -f %z "$1"
+  if stat -f %z "$1" >/dev/null 2>&1; then
+    stat -f %z "$1"
+  else
+    stat -c %s "$1"
+  fi
 }
 
 calc_balanced_chunk_size_bytes() {
@@ -283,8 +288,10 @@ choose_split_standard() {
 print_intro() {
   bold_echo "======== 大文件拆分为子卷脚本（${SCRIPT_BASENAME}）========"
   note_echo "功能概要："
-  echo "  1. 在目标目录中查找达到拆分阈值的文件（不递归子目录）；"
-  echo "  2. 针对每一个大文件："
+  echo "  1. 支持拖入目标目录，也支持直接拖入单个待拆分文件；"
+  echo "  2. 目录模式：在目标目录中查找达到拆分阈值的文件（不递归子目录）；"
+  echo "  3. 文件模式：只处理你拖入的那个文件；"
+  echo "  4. 针对每一个大文件："
   echo "     - 创建与去掉后缀名后的文件名同名的子卷目录；"
   echo "     - 按你选择的拆分标准拆分成多个子卷文件；"
   echo "     - 子卷命名形如：原文件名@001of005（代表第 1/5 卷）；"
@@ -313,31 +320,59 @@ run_self_check_interactive() {
   fi
 }
 
+normalize_input_path() {
+  local value="$1"
+  value="${value%$'\r'}"
+  value="${value%$'\n'}"
+  value="$(printf '%s' "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+
+  if [[ "${value:0:1}" == "'" && "${value: -1}" == "'" ]] || \
+     [[ "${value:0:1}" == '"' && "${value: -1}" == '"' ]]; then
+    value="${value:1:${#value}-2}"
+  fi
+
+  value="${value%/}"
+  value="$(printf '%s' "$value" | perl -pe 's/\\(.)/$1/g')"
+  printf '%s
+' "$value"
+}
+
 choose_target_directory() {
   echo ""
-  note_echo "请拖入要处理的【目标目录】，然后回车。"
+  note_echo "请拖入要处理的【目标目录】或【单个待拆分文件】，然后回车。"
   echo "👉 直接按 [Enter]：使用脚本所在目录：$SCRIPT_DIR"
-  local input
-  IFS= read -r input
+  local input="${1:-}"
+
+  if [[ -z "$input" ]]; then
+    IFS= read -r input
+  fi
 
   if [[ -z "$input" ]]; then
     TARGET_DIR="$SCRIPT_DIR"
+    TARGET_FILE=""
   else
-    # 去掉可能包裹的引号和末尾的斜杠
-    input="${input%/}"
-    if [[ "${input:0:1}" == "'" && "${input: -1}" == "'" ]] || \
-       [[ "${input:0:1}" == '"' && "${input: -1}" == '"' ]]; then
-      input="${input:1:${#input}-2}"
-    fi
+    input="$(normalize_input_path "$input")"
 
-    if [[ ! -d "$input" ]]; then
-      error_echo "指定路径不是有效目录：$input"
+    if [[ -d "$input" ]]; then
+      TARGET_DIR="$(cd "$input" && pwd)"
+      TARGET_FILE=""
+    elif [[ -f "$input" ]]; then
+      TARGET_DIR="$(cd "$(dirname "$input")" && pwd)"
+      TARGET_FILE="${TARGET_DIR}/$(basename "$input")"
+    else
+      error_echo "指定路径不是有效目录或有效文件：$input"
       exit 1
     fi
-    TARGET_DIR="$(cd "$input" && pwd)"
   fi
 
-  info_echo "本次操作的目标目录为：$TARGET_DIR"
+  if [[ -n "$TARGET_FILE" ]]; then
+    info_echo "本次操作模式：单文件拆分"
+    info_echo "本次操作的目标文件为：$TARGET_FILE"
+    gray_echo "子卷目录将创建在源文件同级目录下。"
+  else
+    info_echo "本次操作模式：目录扫描"
+    info_echo "本次操作的目标目录为：$TARGET_DIR"
+  fi
 }
 
 split_one_file() {
@@ -402,6 +437,7 @@ split_one_file() {
 
   local total=${#parts[@]}
   local width=${#total}
+  (( width < 3 )) && width=3
   local i=1
 
   for p in "${parts[@]}"; do
@@ -421,11 +457,10 @@ split_one_file() {
 
   echo ""
   warn_echo "是否删除源文件？（高危操作）"
-  echo "👉 直接按 [Enter]：删除源文件 $filename"
-  echo "👉 输入任意字符后回车：保留源文件"
+  gray_echo "必须输入 YES 后回车才会删除；其它输入一律保留。"
   local confirm
   IFS= read -r confirm
-  if [[ -z "$confirm" ]]; then
+  if [[ "$confirm" == "YES" ]]; then
     if rm -f -- "$file"; then
       success_echo "已删除源文件：$filename"
     else
@@ -437,16 +472,29 @@ split_one_file() {
 }
 
 split_large_files() {
-  note_echo "正在扫描目录中超过拆分上限（${MAX_CHUNK_LABEL}）的文件（不递归子目录）..."
   local large_files=()
   local f
-  while IFS= read -r f; do
+
+  if [[ -n "$TARGET_FILE" ]]; then
     local file_size_bytes
-    file_size_bytes=$(get_file_size_bytes "$f")
+    file_size_bytes=$(get_file_size_bytes "$TARGET_FILE")
     if (( file_size_bytes > MAX_CHUNK_BYTES )); then
-      large_files+=("$f")
+      large_files+=("$TARGET_FILE")
+    else
+      info_echo "目标文件未超过拆分上限（${MAX_CHUNK_LABEL}）：$(basename "$TARGET_FILE")，任务结束。"
+      gray_echo "文件大小：$(format_bytes_human "$file_size_bytes")"
+      return 0
     fi
-  done < <(find "$TARGET_DIR" -maxdepth 1 -type f -print 2>/dev/null | LC_ALL=C sort)
+  else
+    note_echo "正在扫描目录中超过拆分上限（${MAX_CHUNK_LABEL}）的文件（不递归子目录）..."
+    while IFS= read -r f; do
+      local file_size_bytes
+      file_size_bytes=$(get_file_size_bytes "$f")
+      if (( file_size_bytes > MAX_CHUNK_BYTES )); then
+        large_files+=("$f")
+      fi
+    done < <(find "$TARGET_DIR" -maxdepth 1 -type f -print 2>/dev/null | LC_ALL=C sort)
+  fi
 
   if [[ ${#large_files[@]} -eq 0 ]]; then
     info_echo "未在 $TARGET_DIR 中找到任何超过 ${MAX_CHUNK_LABEL} 的文件，任务结束。"
@@ -454,7 +502,6 @@ split_large_files() {
   fi
 
   note_echo "共找到 ${#large_files[@]} 个待拆分文件："
-  local f
   for f in "${large_files[@]}"; do
     echo "  - $(basename "$f")"
   done
@@ -475,7 +522,7 @@ main() {
   print_intro
   run_self_check_interactive
   choose_split_standard
-  choose_target_directory
+  choose_target_directory "${1:-}"
   split_large_files
 }
 
