@@ -6,17 +6,19 @@
 
 ## 🔥 <font id=前言>前言</font>
 
+- 采用 Shell 脚本的原因：Shell 来自 [**macOS**](https://www.apple.com/macos/) 原生系统底层，虽然写法相对繁琐冗杂，但执行效率高，并且不需要额外介入 [**Ruby**](https://www.ruby-lang.org)、[**Python**](https://www.python.org) 等第三方运行环境，因此具备更好的移植性。
+
 > 当前总行数：
 
-* 🔧**工欲善其事必先利其器**
+- 🔧**工欲善其事必先利其器**
 
-* 🌋 **站在巨人的肩膀上，才能看得更远**
+- 🌋 **站在巨人的肩膀上，才能看得更远**
 
-* ✝️ **面向信仰编程**
+- ✝️ **面向信仰编程**
 
-* 🔔 **温馨提示**：这个自述文件和同目录脚本是一一对应关系。双击脚本后，会先打印本文件内容并阻塞等待回车，避免误操作。
+- 🔔 **温馨提示**：这个自述文件和同目录脚本是一一对应关系。双击脚本后，会先打印本文件内容并阻塞等待回车，避免误操作。
 
-* 脚本日志默认写入：
+- 脚本日志默认写入：
 
   ```shell
   /tmp/【MacOS】⚙️双击写入文件：不带#的字符串.log
@@ -30,9 +32,9 @@
 
 ## 二、🧩 适用场景 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-* 给 shell 配置文件追加 PATH。
-* 避免重复写入相同环境变量。
-* 忽略已经注释掉的旧配置。
+- 给 shell 配置文件追加 PATH。
+- 避免重复写入相同环境变量。
+- 忽略已经注释掉的旧配置。
 
 ## 三、🚀 快速开始 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
@@ -59,8 +61,8 @@ graph TD
 
 ## 五、⚠️ 注意事项 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-* 会修改目标文本文件。
-* 只做完全相同整行匹配，不做语义去重。
+- 会修改目标文本文件。
+- 只做完全相同整行匹配，不做语义去重。
 
 ## 六、📁 文件结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 

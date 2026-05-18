@@ -15,38 +15,40 @@
 
 ## 🔥 <font id=前言>前言</font>
 
+- 采用 Shell 脚本的原因：Shell 来自 [**macOS**](https://www.apple.com/macos/) 原生系统底层，虽然写法相对繁琐冗杂，但执行效率高，并且不需要额外介入 [**Ruby**](https://www.ruby-lang.org)、[**Python**](https://www.python.org) 等第三方运行环境，因此具备更好的移植性。
+
 > 当前总行数：
 
-* 🔧 **工欲善其事必先利其器**
+- 🔧 **工欲善其事必先利其器**
 
-* 🌋 **站在巨人的肩膀上，才能看得更远**
+- 🌋 **站在巨人的肩膀上，才能看得更远**
 
-* ✝️ **面向信仰编程**
+- ✝️ **面向信仰编程**
 
-* 📚 **参考来源**：[**Stirling-PDF**](https://www.stirling.com)｜[**Caddy**](https://caddyserver.com)｜[**Homebrew**](https://brew.sh/)
+- 📚 **参考来源**：[**Stirling-PDF**](https://www.stirling.com)｜[**Caddy**](https://caddyserver.com)｜[**Homebrew**](https://brew.sh/)
 
-* 🔔 **温馨提示**：本文较长，直接访问 [**Github**](https://github.com/) 可能无法完整阅读全文
+- 🔔 **温馨提示**：本文较长，直接访问 [**Github**](https://github.com/) 可能无法完整阅读全文
 
   * 推荐下载到本地阅读，推荐阅读器 ➤ [**Typora**](https://typora.io/)
 
   * 或者使用 [**Google Chrom**e](https://www.google.com/chrome/) 浏览器安装 `Markdown Preview Plus` 插件并启用
 
-* 本脚本用于在 macOS 上自动完成 [**Stirling-PDF**](https://www.stirling.com) 本地开发部署，并在服务启动完成后，可选接入 [**Caddy**](https://caddyserver.com) 本地域名 HTTPS 映射。
+- 本脚本用于在 macOS 上自动完成 [**Stirling-PDF**](https://www.stirling.com) 本地开发部署，并在服务启动完成后，可选接入 [**Caddy**](https://caddyserver.com) 本地域名 HTTPS 映射。
 
-* [**Caddy**](https://caddyserver.com) 映射启动后会在后台运行，关闭终端窗口不会影响映射继续生效。若需要结束映射，可重新运行脚本；脚本在用户确认自述文件后，会优先关闭旧的后台映射。
+- [**Caddy**](https://caddyserver.com) 映射启动后会在后台运行，关闭终端窗口不会影响映射继续生效。若需要结束映射，可重新运行脚本；脚本在用户确认自述文件后，会优先关闭旧的后台映射。
 
 ## 一、🎯 项目白皮书 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 这个脚本解决的是完整的本地部署与本地域名访问链路：
 
-* 自动准备 macOS 开发依赖
-* 自动选择、创建或复用 [**Stirling-PDF**](https://www.stirling.com) 本地仓库
-* 自动校验官方仓库来源
-* 自动修正远程仓库地址为 HTTPS
-* 自动拉取或更新代码
-* 自动执行安装与检查任务
-* 自动后台启动前端与后端开发服务
-* 可选使用 [**Caddy**](https://caddyserver.com) 把本地端口映射成本地域名 HTTPS 访问地址
+- 自动准备 macOS 开发依赖
+- 自动选择、创建或复用 [**Stirling-PDF**](https://www.stirling.com) 本地仓库
+- 自动校验官方仓库来源
+- 自动修正远程仓库地址为 HTTPS
+- 自动拉取或更新代码
+- 自动执行安装与检查任务
+- 自动后台启动前端与后端开发服务
+- 可选使用 [**Caddy**](https://caddyserver.com) 把本地端口映射成本地域名 HTTPS 访问地址
 
 最终本地服务默认如下：
 
@@ -119,17 +121,17 @@ graph TD
 
 脚本会自检：
 
-* <font Color=red>**X**</font>code <font Color=blue>**C**</font>ommand Line <font Color=green>**T**</font>ools
-* `git`
-* `clang`
-* `make`
-* [**Homebrew**](https://brew.sh/)
-* `node`
-* `jenv`
-* `openjdk@21`
-* `uv`
-* `go-task`
-* [**Caddy**](https://caddyserver.com)
+- <font Color=red>**X**</font>code <font Color=blue>**C**</font>ommand Line <font Color=green>**T**</font>ools
+- `git`
+- `clang`
+- `make`
+- [**Homebrew**](https://brew.sh/)
+- `node`
+- `jenv`
+- `openjdk@21`
+- `uv`
+- `go-task`
+- [**Caddy**](https://caddyserver.com)
 
 其中 [**Homebrew**](https://brew.sh/) 未安装时会按芯片架构自动安装；已安装时会询问是否升级。
 
@@ -150,10 +152,10 @@ graph TD
 
 目录选择逻辑：
 
-* 直接按回车：继续询问，不会误用空路径
-* 输入一个空格后回车：使用桌面目录
-* 输入或拖入路径：校验父目录是否存在
-* 末级项目目录不存在时：自动创建
+- 直接按回车：继续询问，不会误用空路径
+- 输入一个空格后回车：使用桌面目录
+- 输入或拖入路径：校验父目录是否存在
+- 末级项目目录不存在时：自动创建
 
 ### 6、官方仓库校验
 
@@ -407,10 +409,10 @@ tail -n 120 ~/Library/Logs/Stirling-PDF-Dev/frontend.log
 
 核心目标是：
 
-* 让本地环境从零到可访问
-* 让前端、后端服务自动启动
-* 让本地域名 HTTPS 映射可选启用
-* 让 [**Caddy**](https://caddyserver.com) 后台运行，关闭终端也不影响映射
-* 让再次运行脚本时可以自动清理旧映射，避免历史配置干扰
+- 让本地环境从零到可访问
+- 让前端、后端服务自动启动
+- 让本地域名 HTTPS 映射可选启用
+- 让 [**Caddy**](https://caddyserver.com) 后台运行，关闭终端也不影响映射
+- 让再次运行脚本时可以自动清理旧映射，避免历史配置干扰
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>
