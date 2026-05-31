@@ -1,6 +1,6 @@
 # `【MacOS】⚙️『 已损坏，无法打开: 来自身份不明的开发者』等问题修复工具.command` <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-![Jobs倾情奉献](https://picsum.photos/1500/400 "Jobs出品，必属精品")
+![Jobs出品，必属精品](https://picsum.photos/1500/400)
 
 [toc]
 

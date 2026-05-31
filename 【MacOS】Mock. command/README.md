@@ -10,7 +10,7 @@
 
 > 将本地电脑作为一个轻量级 **Mock JSON HTTP 服务**，让前端、iOS、Android、Flutter、调试页面都可以像请求真实接口一样读取本地 JSON 数据。脚本启动后服务在后台运行，终端窗口可以直接关闭。
 
-![Jobs倾情奉献](https://picsum.photos/1500/400 "Jobs出品，必属精品")
+![Jobs出品，必属精品](https://picsum.photos/1500/400)
 
 [toc]
 
