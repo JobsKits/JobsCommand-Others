@@ -8,7 +8,7 @@
   <a><img src="https://img.shields.io/badge/Localhost-ReverseProxy-blueviolet" alt="Reverse Proxy"/></a>
 </p>
 
-![Jobs倾情奉献](https://picsum.photos/1500/400 "Jobs出品，必属精品")
+![Jobs出品，必属精品](https://picsum.photos/1500/400)
 
 [toc]
 
