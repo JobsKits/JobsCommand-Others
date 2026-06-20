@@ -15,26 +15,39 @@ JSON_DIR_NAME="jsons"
 
 # ================================== 日志与彩色输出 ==================================
 
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 color_echo()     { log "\033[1;32m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 info_echo()      { log "\033[1;34mℹ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 success_echo()   { log "\033[1;32m✔ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 warn_echo()      { log "\033[1;33m⚠ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 note_echo()      { log "\033[1;35m➤ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 error_echo()     { log "\033[1;31m✖ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 highlight_echo() { log "\033[1;36m🔹 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 gray_echo()      { log "\033[0;90m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 bold_echo()      { log "\033[1m$1\033[0m"; }
 
+# 封装 print_divider 对应的独立处理逻辑。
 print_divider() {
   gray_echo "=================================================="
 }
 
+# 封装 pause_enter 对应的独立处理逻辑。
 pause_enter() {
   echo -n $'\n'"按回车继续..."$'\n' | tee -a "$LOG_FILE"
   IFS= read -r _
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 prompt_optional_upgrade() {
   local name="$1"
   local choice=""
@@ -45,6 +58,7 @@ prompt_optional_upgrade() {
 
 # ================================== 通用工具 ==================================
 
+# 封装 require_macos 对应的独立处理逻辑。
 require_macos() {
   if [[ "$(uname -s)" != "Darwin" ]]; then
     error_echo "该脚本当前仅针对 macOS 设计，检测到系统不是 macOS"
@@ -52,6 +66,7 @@ require_macos() {
   fi
 }
 
+# 封装 require_basic_commands 对应的独立处理逻辑。
 require_basic_commands() {
   local missing=()
   local cmd
@@ -66,18 +81,22 @@ require_basic_commands() {
   fi
 }
 
+# 封装 command_exists 对应的独立处理逻辑。
 command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+# 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   [[ "$(uname -m)" == "arm64" ]] && echo "arm64" || echo "x86_64"
 }
 
+# 解析并返回后续流程需要的目标信息。
 get_shell_name() {
   echo "${SHELL##*/}"
 }
 
+# 解析并返回后续流程需要的目标信息。
 get_shell_profile_file() {
   local shell_name
   shell_name="$(get_shell_name)"
@@ -89,6 +108,7 @@ get_shell_profile_file() {
   esac
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_file_exists() {
   local file="$1"
   mkdir -p "$(dirname "$file")"
@@ -100,6 +120,7 @@ ensure_file_exists() {
 
 # ================================== 幂等环境注入 ==================================
 
+# 封装 append_block_if_missing 对应的独立处理逻辑。
 append_block_if_missing() {
   local file="$1"
   local block_id="$2"
@@ -125,6 +146,7 @@ append_block_if_missing() {
   success_echo "已写入配置块：$block_id -> $file"
 }
 
+# 封装 apply_shellenv_now 对应的独立处理逻辑。
 apply_shellenv_now() {
   local shellenv_cmd="$1"
   eval "$shellenv_cmd"
@@ -133,6 +155,7 @@ apply_shellenv_now() {
 
 # ================================== Homebrew 环境处理 ==================================
 
+# 封装 brew_bin_candidates 对应的独立处理逻辑。
 brew_bin_candidates() {
   cat <<'BREWEOF'
 /opt/homebrew/bin/brew
@@ -140,6 +163,7 @@ brew_bin_candidates() {
 BREWEOF
 }
 
+# 解析并返回后续流程需要的目标信息。
 detect_brew_bin() {
   local candidate
 
@@ -158,6 +182,7 @@ detect_brew_bin() {
   return 1
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_brew_env() {
   local brew_bin=""
 
@@ -169,6 +194,7 @@ ensure_brew_env() {
   return 1
 }
 
+# 封装 inject_brew_shellenv_if_needed 对应的独立处理逻辑。
 inject_brew_shellenv_if_needed() {
   local brew_bin="$1"
   local profile_file shellenv_cmd
@@ -182,6 +208,7 @@ inject_brew_shellenv_if_needed() {
 
 # ================================== Homebrew 检查/安装/升级 ==================================
 
+# 执行对应的环境配置或同步处理。
 install_homebrew() {
   local arch brew_bin
 
@@ -216,6 +243,7 @@ install_homebrew() {
   success_echo "Homebrew 安装完成：$(command -v brew)"
 }
 
+# 执行对应的环境配置或同步处理。
 upgrade_brew_if_needed() {
   if prompt_optional_upgrade "brew"; then
     note_echo "开始执行 brew update"
@@ -232,6 +260,7 @@ upgrade_brew_if_needed() {
   fi
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_brew() {
   print_divider
   bold_echo "第 1 步：检查 Homebrew"
@@ -252,6 +281,7 @@ ensure_brew() {
 
 # ================================== 通用 brew 包检查/安装/升级 ==================================
 
+# 封装 brew_install_or_upgrade_pkg 对应的独立处理逻辑。
 brew_install_or_upgrade_pkg() {
   local command_name="$1"
   local brew_pkg_name="$2"
@@ -288,27 +318,32 @@ brew_install_or_upgrade_pkg() {
   fi
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_python3() {
   brew_install_or_upgrade_pkg "python3" "python" "python3"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_fzf() {
   brew_install_or_upgrade_pkg "fzf" "fzf" "fzf"
 }
 
 # ================================== 目录与服务 ==================================
 
+# 封装 cd_to_script_dir 对应的独立处理逻辑。
 cd_to_script_dir() {
   cd "$SCRIPT_DIR"
   success_echo "已切换到脚本所在目录：$SCRIPT_DIR"
 }
 
+# 解析并返回后续流程需要的目标信息。
 find_port_owner() {
   if command_exists lsof; then
     lsof -nP -iTCP:"$PORT" -sTCP:LISTEN 2>/dev/null || true
   fi
 }
 
+# 解析并返回后续流程需要的目标信息。
 get_pid_from_file() {
   [[ -f "$PID_FILE" ]] || return 1
   local pid
@@ -317,11 +352,13 @@ get_pid_from_file() {
   printf "%s" "$pid"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 is_pid_running() {
   local pid="$1"
   ps -p "$pid" >/dev/null 2>&1
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 is_server_running() {
   local pid=""
 
@@ -335,6 +372,7 @@ is_server_running() {
   return 1
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 check_port_available_for_new_server() {
   if command_exists lsof && lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
     if is_server_running; then
@@ -351,6 +389,7 @@ check_port_available_for_new_server() {
   return 0
 }
 
+# 封装 wait_for_http_server_ready 对应的独立处理逻辑。
 wait_for_http_server_ready() {
   local url="http://${HOST}:${PORT}/"
   local i
@@ -365,6 +404,7 @@ wait_for_http_server_ready() {
   return 1
 }
 
+# 封装 start_local_http_server_detached 对应的独立处理逻辑。
 start_local_http_server_detached() {
   local pid=""
 
@@ -398,6 +438,7 @@ start_local_http_server_detached() {
   gray_echo "现在可以直接关闭这个终端，服务不会跟着退出"
 }
 
+# 封装 stop_local_http_server 对应的独立处理逻辑。
 stop_local_http_server() {
   local pid=""
 
@@ -427,6 +468,7 @@ stop_local_http_server() {
   success_echo "本地 HTTP 服务已停止"
 }
 
+# 封装 show_status 对应的独立处理逻辑。
 show_status() {
   print_divider
   bold_echo "服务状态"
@@ -445,6 +487,7 @@ show_status() {
 
 # ================================== JSON 选择与 URL 处理 ==================================
 
+# 解析并返回后续流程需要的目标信息。
 get_json_search_root() {
   if [[ -d "$SCRIPT_DIR/$JSON_DIR_NAME" ]]; then
     printf "%s" "$SCRIPT_DIR/$JSON_DIR_NAME"
@@ -453,6 +496,7 @@ get_json_search_root() {
   fi
 }
 
+# 解析并返回后续流程需要的目标信息。
 find_json_files() {
   local search_root relative_prefix
 
@@ -470,6 +514,7 @@ find_json_files() {
   done | sort
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_json_files_exist() {
   if [[ -z "$(find_json_files)" ]]; then
     warn_echo "未找到任何 JSON 文件"
@@ -484,6 +529,7 @@ ensure_json_files_exist() {
   fi
 }
 
+# 封装 pick_json_file 对应的独立处理逻辑。
 pick_json_file() {
   local selected_json
 
@@ -499,6 +545,7 @@ pick_json_file() {
   printf "%s" "$selected_json"
 }
 
+# 封装 url_encode_with_python 对应的独立处理逻辑。
 url_encode_with_python() {
   local raw="$1"
   python3 - <<'PY' "$raw"
@@ -508,6 +555,7 @@ print(urllib.parse.quote(sys.argv[1]))
 PY
 }
 
+# 封装 open_url 对应的独立处理逻辑。
 open_url() {
   local url="$1"
 
@@ -519,6 +567,7 @@ open_url() {
   fi
 }
 
+# 封装 open_json_in_browser 对应的独立处理逻辑。
 open_json_in_browser() {
   local json_file="$1"
   local encoded_path url
@@ -536,6 +585,7 @@ open_json_in_browser() {
 
 # ================================== 自述说明 ==================================
 
+# 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_intro() {
   print_divider
   bold_echo "本脚本将执行以下流程："
@@ -553,6 +603,7 @@ show_intro() {
   pause_enter
 }
 
+# 封装 show_runtime_summary 对应的独立处理逻辑。
 show_runtime_summary() {
   print_divider
   success_echo "当前流程已完成，服务仍在后台运行"
@@ -564,6 +615,7 @@ show_runtime_summary() {
   gray_echo "关闭终端是安全的；下次停止服务可运行：$(basename "$0") stop"
 }
 
+# 封装 show_usage 对应的独立处理逻辑。
 show_usage() {
   print_divider
   bold_echo "用法"
@@ -576,6 +628,7 @@ show_usage() {
 
 # ================================== 主流程 ==================================
 
+# 封装 main_start_flow 对应的独立处理逻辑。
 main_start_flow() {
   show_intro
   ensure_brew
@@ -591,7 +644,8 @@ main_start_flow() {
   show_runtime_summary
 }
 
-main() {
+# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
+run_main_flow() {
   require_macos
   require_basic_commands
 
@@ -622,6 +676,12 @@ main() {
       exit 1
       ;;
   esac
+}
+
+# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+main() {
+  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
+  run_main_flow "$@"
 }
 
 main "$@"

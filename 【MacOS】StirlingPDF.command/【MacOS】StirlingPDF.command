@@ -81,18 +81,31 @@ mkdir -p "$STATE_DIR" "$SERVICE_LOG_DIR"
 # 彩色打印函数
 # ----------------------------
 log()            { printf "%b\n" "$1" | tee -a "$LOG_FILE"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 color_echo()     { log "\033[1;32m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 info_echo()      { log "\033[1;34mℹ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 success_echo()   { log "\033[1;32m✔ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 warn_echo()      { log "\033[1;33m⚠ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 warm_echo()      { log "\033[1;33m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 note_echo()      { log "\033[1;35m➤ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 error_echo()     { log "\033[1;31m✖ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 err_echo()       { log "\033[1;31m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 debug_echo()     { log "\033[1;35m🐞 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 highlight_echo() { log "\033[1;36m🔹 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 gray_echo()      { log "\033[0;90m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 bold_echo()      { log "\033[1m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 underline_echo() { log "\033[4m$1\033[0m"; }
 
 # ----------------------------
@@ -103,6 +116,7 @@ disable_debug_trace() {
   set +xv 2>/dev/null || true
 }
 
+# 封装 read_input 对应的独立处理逻辑。
 read_input() {
   disable_debug_trace
   INPUT_VALUE=""
@@ -110,12 +124,14 @@ read_input() {
   disable_debug_trace
 }
 
+# 封装 pause_enter 对应的独立处理逻辑。
 pause_enter() {
   local prompt="${1:-按 [Enter] 继续...}"
   printf "%b" "\033[1;33m${prompt}\033[0m"
   read_input
 }
 
+# 执行已经拆分完成的独立业务步骤。
 run_cmd() {
   info_echo "执行命令：$*"
   "$@" 2>&1 | tee -a "$LOG_FILE"
@@ -129,6 +145,7 @@ run_cmd() {
   return "$exit_code"
 }
 
+# 封装 trim_text 对应的独立处理逻辑。
 trim_text() {
   local text="$1"
 
@@ -146,6 +163,7 @@ trim_text() {
   printf "%s" "$text"
 }
 
+# 封装 input_is_space_skip 对应的独立处理逻辑。
 input_is_space_skip() {
   local raw="$1"
   local trimmed=""
@@ -154,6 +172,7 @@ input_is_space_skip() {
   [[ -n "$raw" && -z "$trimmed" ]]
 }
 
+# 封装 unwrap_input_text 对应的独立处理逻辑。
 unwrap_input_text() {
   local raw="$1"
   raw="$(trim_text "$raw")"
@@ -171,6 +190,7 @@ unwrap_input_text() {
   printf "%s" "$raw"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 is_cancel_input() {
   local value="$1"
 
@@ -184,6 +204,7 @@ is_cancel_input() {
   esac
 }
 
+# 封装 looks_like_path_input 对应的独立处理逻辑。
 looks_like_path_input() {
   local value="$1"
 
@@ -197,6 +218,7 @@ looks_like_path_input() {
   return 1
 }
 
+# 封装 normalize_local_path 对应的独立处理逻辑。
 normalize_local_path() {
   local raw="$1"
   local path
@@ -214,6 +236,7 @@ normalize_local_path() {
   printf "%s" "$path"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 is_dir_empty() {
   local dir="$1"
 
@@ -226,6 +249,7 @@ is_dir_empty() {
   return 1
 }
 
+# 封装 derive_repo_paths_from_user_path 对应的独立处理逻辑。
 derive_repo_paths_from_user_path() {
   local chosen_path="$1"
 
@@ -238,6 +262,7 @@ derive_repo_paths_from_user_path() {
   fi
 }
 
+# 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   local machine
   machine="$(uname -m)"
@@ -255,6 +280,7 @@ get_cpu_arch() {
   echo "x86_64"
 }
 
+# 解析并返回后续流程需要的目标信息。
 get_profile_file() {
   local shell_path="${SHELL##*/}"
 
@@ -265,6 +291,7 @@ get_profile_file() {
   esac
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 ask_upgrade() {
   local name="$1"
 
@@ -277,6 +304,7 @@ ask_upgrade() {
   [[ -n "$INPUT_VALUE" ]]
 }
 
+# 封装 inject_shellenv_block 对应的独立处理逻辑。
 inject_shellenv_block() {
   local id="$1"
   local profile_file="$2"
@@ -310,6 +338,7 @@ inject_shellenv_block() {
   success_echo "当前终端已生效：$id"
 }
 
+# 封装 require_clone_confirmation 对应的独立处理逻辑。
 require_clone_confirmation() {
   local title="$1"
   local detail="$2"
@@ -366,6 +395,7 @@ require_clone_confirmation() {
   done
 }
 
+# 封装 require_yes_for_stash 对应的独立处理逻辑。
 require_yes_for_stash() {
   while true; do
     warn_echo "检测到本地存在未提交改动。"
@@ -400,6 +430,7 @@ require_yes_for_stash() {
   done
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 ask_repo_remote_update() {
   echo ""
   info_echo "检测到已有 Stirling-PDF 本地仓库。是否拉取远程更新？"
@@ -419,6 +450,7 @@ ask_repo_remote_update() {
   return 0
 }
 
+# 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_readme() {
   clear
   bold_echo "MacOS Stirling-PDF 本地部署 + Caddy 本地端口域名映射"
@@ -474,6 +506,7 @@ is_pid_running() {
   kill -0 "$pid" >/dev/null 2>&1
 }
 
+# 封装 kill_process_tree 对应的独立处理逻辑。
 kill_process_tree() {
   local pid="$1"
 
@@ -490,6 +523,7 @@ kill_process_tree() {
   kill "$pid" >/dev/null 2>&1 || true
 }
 
+# 封装 force_kill_process_tree 对应的独立处理逻辑。
 force_kill_process_tree() {
   local pid="$1"
 
@@ -506,6 +540,7 @@ force_kill_process_tree() {
   kill -9 "$pid" >/dev/null 2>&1 || true
 }
 
+# 封装 kill_pid_if_running 对应的独立处理逻辑。
 kill_pid_if_running() {
   local pid="$1"
   local reason="${2:-进程}"
@@ -527,6 +562,7 @@ kill_pid_if_running() {
   fi
 }
 
+# 封装 stop_by_pid_file 对应的独立处理逻辑。
 stop_by_pid_file() {
   local name="$1"
   local pid_file="$2"
@@ -549,6 +585,7 @@ stop_by_pid_file() {
   rm -f "$pid_file"
 }
 
+# 封装 kill_processes_by_port 对应的独立处理逻辑。
 kill_processes_by_port() {
   local port="$1"
   local label="$2"
@@ -569,6 +606,7 @@ kill_processes_by_port() {
   done
 }
 
+# 封装 kill_matching_stirling_processes 对应的独立处理逻辑。
 kill_matching_stirling_processes() {
   local pattern="$1"
   local label="$2"
@@ -590,6 +628,7 @@ kill_matching_stirling_processes() {
   done
 }
 
+# 封装 stop_all_stirling_pdf_processes 对应的独立处理逻辑。
 stop_all_stirling_pdf_processes() {
   highlight_echo "主动清理旧的 Stirling-PDF 后台服务"
 
@@ -607,11 +646,13 @@ stop_all_stirling_pdf_processes() {
   success_echo "旧后台服务清理完成"
 }
 
+# 封装 stop_services 对应的独立处理逻辑。
 stop_services() {
   stop_all_stirling_pdf_processes
   stop_stirling_caddy_mapping
 }
 
+# 封装 status_services 对应的独立处理逻辑。
 status_services() {
   highlight_echo "Stirling-PDF 后台服务状态"
 
@@ -678,6 +719,7 @@ write_record_file() {
   gray_echo "SSH 下载地址：$STIRLING_PDF_SSH_CLONE_URL"
 }
 
+# 封装 load_record_file 对应的独立处理逻辑。
 load_record_file() {
   if [[ ! -f "$RECORD_FILE" ]]; then
     return 1
@@ -687,6 +729,7 @@ load_record_file() {
   return 0
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 validate_record_fields() {
   local ok="1"
 
@@ -728,6 +771,7 @@ canonical_github_repo_key() {
   printf "%s" "${url:l}"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 is_expected_stirling_remote_url() {
   local remote_url="$1"
   local actual_key
@@ -739,11 +783,13 @@ is_expected_stirling_remote_url() {
   [[ "$actual_key" == "$expected_key" ]]
 }
 
+# 解析并返回后续流程需要的目标信息。
 get_origin_remote_url() {
   local repo_dir="$1"
   git -C "$repo_dir" remote get-url origin 2>/dev/null || true
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 validate_stirling_repo_dir() {
   local repo_dir="$1"
 
@@ -763,6 +809,7 @@ validate_stirling_repo_dir() {
   return 1
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_origin_https_remote() {
   local repo_dir="$1"
   local origin_url
@@ -790,6 +837,7 @@ ensure_origin_https_remote() {
   return 1
 }
 
+# 封装 print_repo_validation_failure 对应的独立处理逻辑。
 print_repo_validation_failure() {
   local repo_dir="$1"
 
@@ -874,6 +922,7 @@ check_xcode_license() {
   success_echo "Xcode / Command Line Tools license 已接受"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_xcode_command_line_tools() {
   highlight_echo "自检 Xcode Command Line Tools"
 
@@ -926,6 +975,7 @@ ensure_xcode_command_line_tools() {
   success_echo "Xcode Command Line Tools 自检完成"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_git() {
   highlight_echo "自检 git"
 
@@ -956,6 +1006,7 @@ find_brew_bin() {
   fi
 }
 
+# 执行对应的环境配置或同步处理。
 install_homebrew() {
   local arch
   arch="$(get_cpu_arch)"
@@ -1011,6 +1062,7 @@ install_homebrew() {
   fi
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 is_formula_installed() {
   local formula="$1"
   local short_name="${formula:t}"
@@ -1021,6 +1073,7 @@ is_formula_installed() {
   return 1
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_brew_formula() {
   local formula="$1"
   local display_name="${2:-$formula}"
@@ -1045,6 +1098,7 @@ ensure_brew_formula() {
   fi
 }
 
+# 执行对应的环境配置或同步处理。
 setup_java_and_jenv_env() {
   local profile_file
   profile_file="$(get_profile_file)"
@@ -1091,6 +1145,7 @@ fi"
   java -version 2>&1 | tee -a "$LOG_FILE"
 }
 
+# 执行对应的环境配置或同步处理。
 install_dependencies() {
   highlight_echo "开始自检依赖"
 
@@ -1142,6 +1197,7 @@ try_use_recorded_repo_dir() {
   return 1
 }
 
+# 封装 set_repo_target_from_user_path 对应的独立处理逻辑。
 set_repo_target_from_user_path() {
   local user_value="$1"
   local chosen_path
@@ -1202,6 +1258,7 @@ set_repo_target_from_user_path() {
   return 0
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 choose_download_dir_manually() {
   local default_parent="$HOME/Desktop"
 
@@ -1258,6 +1315,7 @@ choose_download_dir_manually() {
   done
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 choose_download_dir() {
   local mode="${1:-normal}"
 
@@ -1287,6 +1345,7 @@ get_remote_default_branch() {
   echo "$branch"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_clean_or_stash() {
   local status_output
   status_output="$(git -C "$REPO_DIR" status --porcelain 2>/dev/null || true)"
@@ -1306,6 +1365,7 @@ ensure_clean_or_stash() {
   return 0
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_branch_ready_for_update() {
   UPDATE_CURRENT_BRANCH=""
 
@@ -1348,6 +1408,7 @@ ensure_branch_ready_for_update() {
   return 0
 }
 
+# 执行对应的环境配置或同步处理。
 update_existing_repo_to_latest() {
   if ! validate_stirling_repo_dir "$REPO_DIR"; then
     print_repo_validation_failure "$REPO_DIR"
@@ -1440,6 +1501,7 @@ update_existing_repo_to_latest() {
   fi
 }
 
+# 封装 clone_or_update_repo 对应的独立处理逻辑。
 clone_or_update_repo() {
   highlight_echo "准备 Stirling-PDF 源码"
 
@@ -1516,6 +1578,7 @@ run_stirling_checks() {
   success_echo "Stirling-PDF 自检完成"
 }
 
+# 封装 start_background_task 对应的独立处理逻辑。
 start_background_task() {
   local name="$1"
   local pid_file="$2"
@@ -1546,6 +1609,7 @@ start_background_task() {
   fi
 }
 
+# 封装 start_dev_services 对应的独立处理逻辑。
 start_dev_services() {
   highlight_echo "启动 Stirling-PDF 后端和前端"
 
@@ -1566,6 +1630,7 @@ start_dev_services() {
   success_echo "后端和前端已在后台运行"
 }
 
+# 封装 wait_for_port 对应的独立处理逻辑。
 wait_for_port() {
   local port="$1"
   local max_seconds="${2:-60}"
@@ -1587,6 +1652,7 @@ wait_for_port() {
   return 1
 }
 
+# 封装 open_frontend 对应的独立处理逻辑。
 open_frontend() {
   wait_for_port 5173 60 || true
 
@@ -1607,11 +1673,13 @@ escape_sed_pattern() {
   printf "%s" "$1" | sed 's/[.[\*^$()+?{}|\\]/\\&/g'
 }
 
+# 封装 read_caddy_state_domains 对应的独立处理逻辑。
 read_caddy_state_domains() {
   [[ -f "$CADDY_STATE_FILE" ]] || return 0
   grep '^MAP_DOMAIN=' "$CADDY_STATE_FILE" 2>/dev/null | sed 's/^MAP_DOMAIN=//' || true
 }
 
+# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
 remove_hosts_domain() {
   local domain="$1"
   domain="$(trim_text "$domain")"
@@ -1622,6 +1690,7 @@ remove_hosts_domain() {
   sudo sed -i '' "/[[:space:]]${escaped_domain}$/d" /etc/hosts 2>/dev/null || true
 }
 
+# 封装 stop_stirling_caddy_mapping 对应的独立处理逻辑。
 stop_stirling_caddy_mapping() {
   highlight_echo "关闭旧的 Caddy 后台映射"
 
@@ -1653,6 +1722,7 @@ stop_stirling_caddy_mapping() {
   success_echo "旧 Caddy 后台映射清理完成"
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 ensure_caddy() {
   highlight_echo "自检 Caddy"
   ensure_brew_formula "$CADDY_FORMULA" "Caddy"
@@ -1666,6 +1736,7 @@ ensure_caddy() {
   caddy version 2>&1 | tee -a "$LOG_FILE"
 }
 
+# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
 normalize_caddy_domain() {
   local raw="$1"
   raw="$(trim_text "$raw")"
@@ -1682,6 +1753,7 @@ normalize_caddy_domain() {
   printf "%s" "$raw"
 }
 
+# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
 prompt_caddy_domain() {
   local label="$1"
   local local_url="${2:-}"
@@ -1732,6 +1804,7 @@ prompt_caddy_domain() {
   done
 }
 
+# 封装 caddy_target_upstream 对应的独立处理逻辑。
 caddy_target_upstream() {
   local target_key="$1"
   case "$target_key" in
@@ -1741,6 +1814,7 @@ caddy_target_upstream() {
   esac
 }
 
+# 封装 caddy_target_url 对应的独立处理逻辑。
 caddy_target_url() {
   local target_key="$1"
   case "$target_key" in
@@ -1750,6 +1824,7 @@ caddy_target_url() {
   esac
 }
 
+# 封装 caddy_target_label 对应的独立处理逻辑。
 caddy_target_label() {
   local target_key="$1"
   case "$target_key" in
@@ -1759,6 +1834,7 @@ caddy_target_label() {
   esac
 }
 
+# 封装 caddy_target_check_path 对应的独立处理逻辑。
 caddy_target_check_path() {
   local target_key="$1"
   case "$target_key" in
@@ -1768,6 +1844,7 @@ caddy_target_check_path() {
   esac
 }
 
+# 检查当前运行条件是否满足后续流程要求。
 check_caddy_local_service_once() {
   local target_key="$1"
   local label local_url check_url http_code
@@ -1791,6 +1868,7 @@ check_caddy_local_service_once() {
   return 1
 }
 
+# 封装 add_caddy_mapping 对应的独立处理逻辑。
 add_caddy_mapping() {
   local target_key="$1"
   local label upstream local_url check_path domain
@@ -1815,6 +1893,7 @@ add_caddy_mapping() {
   return 0
 }
 
+# 封装 collect_caddy_mappings 对应的独立处理逻辑。
 collect_caddy_mappings() {
   local target_key=""
 
@@ -1836,6 +1915,7 @@ collect_caddy_mappings() {
   (( ${#CADDY_MAP_DOMAINS[@]} > 0 ))
 }
 
+# 封装 write_caddy_hosts 对应的独立处理逻辑。
 write_caddy_hosts() {
   highlight_echo "写入 /etc/hosts"
 
@@ -1854,6 +1934,7 @@ write_caddy_hosts() {
   sudo killall -HUP mDNSResponder 2>/dev/null || true
 }
 
+# 执行对应的环境配置或同步处理。
 sync_caddy_proxy_bypass() {
   highlight_echo "同步系统代理绕过列表"
 
@@ -1911,12 +1992,14 @@ sync_caddy_proxy_bypass() {
   done <<< "$services"
 }
 
+# 封装 generate_stirling_caddyfile 对应的独立处理逻辑。
 generate_stirling_caddyfile() {
   highlight_echo "生成 Caddyfile"
 
   {
     cat <<'EOF_CADDY_HEAD'
 {
+	# 封装 servers 对应的独立处理逻辑。
 	servers {
 		protocols h1 h2
 	}
@@ -1933,6 +2016,7 @@ EOF_CADDY_HEAD
 ${domain} {
 	tls internal
 
+	# 封装 header 对应的独立处理逻辑。
 	header {
 		-Alt-Svc
 	}
@@ -1955,6 +2039,7 @@ EOF_CADDY_SITE
   gray_echo "----------------------------------------"
 }
 
+# 封装 save_stirling_caddy_state 对应的独立处理逻辑。
 save_stirling_caddy_state() {
   {
     local total idx
@@ -1969,6 +2054,7 @@ save_stirling_caddy_state() {
   } > "$CADDY_STATE_FILE"
 }
 
+# 执行已经拆分完成的独立业务步骤。
 run_caddy_command_with_timeout() {
   local seconds="$1"
   shift
@@ -1994,6 +2080,7 @@ run_caddy_command_with_timeout() {
   return $?
 }
 
+# 封装 wait_for_caddy_443 对应的独立处理逻辑。
 wait_for_caddy_443() {
   local waited=0
   while (( waited < 10 )); do
@@ -2006,6 +2093,7 @@ wait_for_caddy_443() {
   return 1
 }
 
+# 封装 start_stirling_caddy_background 对应的独立处理逻辑。
 start_stirling_caddy_background() {
   highlight_echo "启动 Caddy HTTPS 反向代理"
   info_echo "正在后台启动 Caddy，详细日志写入：$LOG_FILE"
@@ -2042,6 +2130,7 @@ start_stirling_caddy_background() {
   return 0
 }
 
+# 封装 post_check_stirling_caddy_mappings 对应的独立处理逻辑。
 post_check_stirling_caddy_mappings() {
   highlight_echo "Caddy 映射自检"
 
@@ -2068,6 +2157,7 @@ post_check_stirling_caddy_mappings() {
   done
 }
 
+# 封装 open_caddy_mapping_urls 对应的独立处理逻辑。
 open_caddy_mapping_urls() {
   local domain
   for domain in "${CADDY_MAP_DOMAINS[@]}"; do
@@ -2075,6 +2165,7 @@ open_caddy_mapping_urls() {
   done
 }
 
+# 封装 restart_frontend_for_caddy_allowed_hosts_if_needed 对应的独立处理逻辑。
 restart_frontend_for_caddy_allowed_hosts_if_needed() {
   local -a domains
   domains=()
@@ -2109,6 +2200,7 @@ restart_frontend_for_caddy_allowed_hosts_if_needed() {
   success_echo "frontend:dev 已按 Caddy 映射域名重新启动"
 }
 
+# 执行已经拆分完成的独立业务步骤。
 run_caddy_mapping_flow() {
   echo ""
 
@@ -2142,6 +2234,7 @@ run_caddy_mapping_flow() {
   fi
 }
 
+# 封装 show_usage 对应的独立处理逻辑。
 show_usage() {
   bold_echo "用法："
   gray_echo "  双击运行：先清理旧进程 / 验证记录 / clone 或更新 / 自检 / 启动"
@@ -2150,7 +2243,8 @@ show_usage() {
   gray_echo "  ${SCRIPT_PATH} --help      查看帮助"
 }
 
-main() {
+# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
+run_main_flow() {
   case "${1:-}" in
     --stop)
       stop_services
@@ -2216,6 +2310,12 @@ main() {
 
   # 10. Stirling-PDF 已经启动完成后，再询问是否配置 Caddy 本地域名 HTTPS 映射。
   run_caddy_mapping_flow
+}
+
+# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+main() {
+  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
+  run_main_flow "$@"
 }
 
 main "$@"
