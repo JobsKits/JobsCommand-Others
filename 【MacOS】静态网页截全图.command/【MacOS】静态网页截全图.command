@@ -294,7 +294,7 @@ EOF
 }
 
 # 主流程统一收口。
-main() {
+run_main_flow() {
   show_readme_and_wait
   ensure_node
   ensure_puppeteer
@@ -309,6 +309,11 @@ main() {
   success_echo "截图已保存：$output_path"
   open -R "$output_path" >/dev/null 2>&1 || true
   pause_to_exit
+}
+
+main() {
+  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
+  run_main_flow "$@"
 }
 
 main "$@"

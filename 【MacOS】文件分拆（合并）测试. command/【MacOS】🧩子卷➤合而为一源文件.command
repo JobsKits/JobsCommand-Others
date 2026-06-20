@@ -5,27 +5,43 @@ SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
 : > "$LOG_FILE"
 
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 color_echo()     { log "\033[1;32m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 info_echo()      { log "\033[1;34mℹ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 success_echo()   { log "\033[1;32m✔ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 warn_echo()      { log "\033[1;33m⚠ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 warm_echo()      { log "\033[1;33m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 note_echo()      { log "\033[1;35m➤ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 error_echo()     { log "\033[1;31m✖ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 err_echo()       { log "\033[1;31m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 debug_echo()     { log "\033[1;35m🐞 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 highlight_echo() { log "\033[1;36m🔹 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 gray_echo()      { log "\033[0;90m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 bold_echo()      { log "\033[1m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 underline_echo() { log "\033[4m$1\033[0m"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
+# 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   [[ $(uname -m) == "arm64" ]] && echo "arm64" || echo "x86_64"
 }
 
+# 封装 inject_shellenv_block 对应的独立处理逻辑。
 inject_shellenv_block() {
   local profile_file="$1"
   local shellenv_cmd="$2"
@@ -50,6 +66,7 @@ inject_shellenv_block() {
   fi
 }
 
+# 执行对应的环境配置或同步处理。
 install_homebrew() {
   local arch
   arch="$(get_cpu_arch)"
@@ -108,6 +125,7 @@ install_homebrew() {
   fi
 }
 
+# 执行对应的环境配置或同步处理。
 install_fzf() {
   if ! command -v fzf &>/dev/null; then
     note_echo "📦 未检测到 fzf，正在通过 Homebrew 安装..."
@@ -136,11 +154,13 @@ TARGET_IS_VOLUME_DIR=0
 VOLUME_DIRS=()
 SELECTED_DIRS=()
 
+# 封装 collect_volume_chunks 对应的独立处理逻辑。
 collect_volume_chunks() {
   local dir="$1"
   find "$dir" -maxdepth 1 -type f -name '*@*of*' -print 2>/dev/null | LC_ALL=C sort
 }
 
+# 封装 infer_original_name_from_dir 对应的独立处理逻辑。
 infer_original_name_from_dir() {
   local dir="$1"
   local first_filename
@@ -151,6 +171,7 @@ infer_original_name_from_dir() {
   printf '%s\n' "$original_name"
 }
 
+# 封装 merge_one_dir_to_output_dir 对应的独立处理逻辑。
 merge_one_dir_to_output_dir() {
   local dir="$1"
   local output_dir="$2"
@@ -210,6 +231,7 @@ merge_one_dir_to_output_dir() {
   printf '%s\n' "$output_file"
 }
 
+# 执行已经拆分完成的独立业务步骤。
 run_jobs_noninteractive_merge() {
   local volume_dir="$1"
   local output_dir="$2"
@@ -236,6 +258,7 @@ if [[ "${1:-}" == "--jobs-noninteractive" ]]; then
   exit $?
 fi
 
+# 展示脚本用途和影响范围，并在执行前等待用户确认。
 print_intro() {
   bold_echo "======== 子卷合并脚本（${SCRIPT_BASENAME}）========"
   note_echo "功能概要："
@@ -249,6 +272,7 @@ print_intro() {
   IFS= read -r _
 }
 
+# 执行已经拆分完成的独立业务步骤。
 run_self_check_interactive() {
   echo ""
   note_echo "是否进行环境自检？"
@@ -266,6 +290,7 @@ run_self_check_interactive() {
   fi
 }
 
+# 封装 normalize_input_path 对应的独立处理逻辑。
 normalize_input_path() {
   local value="$1"
   value="${value%$'\r'}"
@@ -283,6 +308,7 @@ normalize_input_path() {
 ' "$value"
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 choose_target_directory() {
   echo ""
   note_echo "请拖入要处理的【目标目录】或【子卷目录】，然后回车。"
@@ -308,6 +334,7 @@ choose_target_directory() {
   info_echo "本次操作的目标目录为：$TARGET_DIR"
 }
 
+# 解析并返回后续流程需要的目标信息。
 find_volume_dirs() {
   VOLUME_DIRS=()
   TARGET_IS_VOLUME_DIR=0
@@ -337,6 +364,7 @@ find_volume_dirs() {
   done
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 select_volume_dirs() {
   local options=()
   local dir
@@ -371,6 +399,7 @@ select_volume_dirs() {
   fi
 }
 
+# 封装 merge_one_dir 对应的独立处理逻辑。
 merge_one_dir() {
   local dir="$1"
   local name
@@ -419,6 +448,7 @@ merge_one_dir() {
   fi
 }
 
+# 封装 merge_selected_dirs 对应的独立处理逻辑。
 merge_selected_dirs() {
   local dir
   for dir in "${SELECTED_DIRS[@]}"; do
@@ -429,13 +459,20 @@ merge_selected_dirs() {
   success_echo "所有选定的子卷目录合并流程已结束。"
 }
 
-main() {
+# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
+run_main_flow() {
   print_intro
   run_self_check_interactive
   choose_target_directory "${1:-}"
   find_volume_dirs
   select_volume_dirs
   merge_selected_dirs
+}
+
+# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+main() {
+  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
+  run_main_flow "$@"
 }
 
 main "$@"

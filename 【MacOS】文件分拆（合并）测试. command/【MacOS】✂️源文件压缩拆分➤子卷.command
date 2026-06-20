@@ -5,27 +5,43 @@ SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
 : > "$LOG_FILE"
 
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 color_echo()     { log "\033[1;32m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 info_echo()      { log "\033[1;34mℹ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 success_echo()   { log "\033[1;32m✔ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 warn_echo()      { log "\033[1;33m⚠ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 warm_echo()      { log "\033[1;33m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 note_echo()      { log "\033[1;35m➤ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 error_echo()     { log "\033[1;31m✖ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 err_echo()       { log "\033[1;31m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 debug_echo()     { log "\033[1;35m🐞 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 highlight_echo() { log "\033[1;36m🔹 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 gray_echo()      { log "\033[0;90m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 bold_echo()      { log "\033[1m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
 underline_echo() { log "\033[4m$1\033[0m"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
+# 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   [[ $(uname -m) == "arm64" ]] && echo "arm64" || echo "x86_64"
 }
 
+# 封装 inject_shellenv_block 对应的独立处理逻辑。
 inject_shellenv_block() {
   local profile_file="$1"
   local shellenv_cmd="$2"
@@ -50,6 +66,7 @@ inject_shellenv_block() {
   fi
 }
 
+# 执行对应的环境配置或同步处理。
 install_homebrew() {
   local arch
   arch="$(get_cpu_arch)"
@@ -108,6 +125,7 @@ install_homebrew() {
   fi
 }
 
+# 执行对应的环境配置或同步处理。
 install_fzf() {
   if ! command -v fzf &>/dev/null; then
     note_echo "📦 未检测到 fzf，正在通过 Homebrew 安装..."
@@ -136,11 +154,13 @@ MAX_CHUNK_LABEL="50 MB"
 TARGET_DIR=""
 TARGET_FILE=""
 
+# 封装 format_mb_to_gb 对应的独立处理逻辑。
 format_mb_to_gb() {
   local mb="$1"
   awk -v mb="$mb" 'BEGIN { printf "%.3f", mb / 1024 }'
 }
 
+# 封装 format_bytes_human 对应的独立处理逻辑。
 format_bytes_human() {
   local bytes="$1"
   awk -v b="$bytes" 'BEGIN {
@@ -155,11 +175,13 @@ format_bytes_human() {
   }'
 }
 
+# 封装 mb_to_bytes 对应的独立处理逻辑。
 mb_to_bytes() {
   local mb="$1"
   awk -v mb="$mb" 'BEGIN { printf "%.0f", mb * 1024 * 1024 }'
 }
 
+# 解析并返回后续流程需要的目标信息。
 get_file_size_bytes() {
   if stat -f %z "$1" >/dev/null 2>&1; then
     stat -f %z "$1"
@@ -168,6 +190,7 @@ get_file_size_bytes() {
   fi
 }
 
+# 封装 calc_balanced_chunk_size_bytes 对应的独立处理逻辑。
 calc_balanced_chunk_size_bytes() {
   local file_size_bytes="$1"
   local limit_bytes="$2"
@@ -188,6 +211,7 @@ calc_balanced_chunk_size_bytes() {
   echo "$chunk_size_bytes"
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 choose_split_standard() {
   local selected_key=""
 
@@ -285,6 +309,7 @@ choose_split_standard() {
   esac
 }
 
+# 展示脚本用途和影响范围，并在执行前等待用户确认。
 print_intro() {
   bold_echo "======== 大文件拆分为子卷脚本（${SCRIPT_BASENAME}）========"
   note_echo "功能概要："
@@ -303,6 +328,7 @@ print_intro() {
   IFS= read -r _
 }
 
+# 执行已经拆分完成的独立业务步骤。
 run_self_check_interactive() {
   echo ""
   note_echo "是否进行环境自检？"
@@ -320,6 +346,7 @@ run_self_check_interactive() {
   fi
 }
 
+# 封装 normalize_input_path 对应的独立处理逻辑。
 normalize_input_path() {
   local value="$1"
   value="${value%$'\r'}"
@@ -337,6 +364,7 @@ normalize_input_path() {
 ' "$value"
 }
 
+# 收集并校验用户输入，决定后续执行路径。
 choose_target_directory() {
   echo ""
   note_echo "请拖入要处理的【目标目录】或【单个待拆分文件】，然后回车。"
@@ -375,6 +403,7 @@ choose_target_directory() {
   fi
 }
 
+# 封装 split_one_file 对应的独立处理逻辑。
 split_one_file() {
   local file="$1"
   local filename
@@ -471,6 +500,7 @@ split_one_file() {
   fi
 }
 
+# 封装 split_large_files 对应的独立处理逻辑。
 split_large_files() {
   local large_files=()
   local f
@@ -518,12 +548,19 @@ split_large_files() {
   success_echo "所有大文件拆分流程已结束。"
 }
 
-main() {
+# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
+run_main_flow() {
   print_intro
   run_self_check_interactive
   choose_split_standard
   choose_target_directory "${1:-}"
   split_large_files
+}
+
+# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+main() {
+  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
+  run_main_flow "$@"
 }
 
 main "$@"
