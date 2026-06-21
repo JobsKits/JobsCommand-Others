@@ -1,11 +1,13 @@
 #!/bin/zsh
+# 脚本自述：
+# - 脚本名称：【MacOS】📦Fastfile.command
+# - 核心用途：执行“📦Fastfile”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
-setopt NO_NOMATCH
 
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')   # 当前脚本名（去掉扩展名）
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"                  # 设置对应的日志文件路径
-: > "$LOG_FILE"
-
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -37,11 +39,16 @@ underline_echo() { log "\033[4m$1\033[0m"; }            # 🔗 下划线
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
 SCRIPT_PATH="${SCRIPT_DIR}/$(basename -- "$0")"
-
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_readme_and_wait() {
   local readme_path="${SCRIPT_DIR}/README.md"
   clear
+  print -r -- '============================== 脚本内置自述 =============================='
+  print -r -- '脚本名称：【MacOS】📦Fastfile.command'
+  print -r -- '核心用途：执行“📦Fastfile”对应的自动化任务。'
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
+  print -r -- '============================================================================'
   if [[ -f "$readme_path" ]]; then
     highlight_echo "============================== README.md =============================="
     cat "$readme_path" | tee -a "$LOG_FILE"
@@ -52,13 +59,11 @@ show_readme_and_wait() {
   echo ""
   read -r "?👉 已阅读自述文件，按回车继续执行；按 Ctrl+C 取消：" _
 }
-
 # 封装 pause_to_exit 对应的独立处理逻辑。
 pause_to_exit() {
   echo ""
   read -r "?🔚 按回车退出..." _
 }
-
 # 收集并校验用户输入，决定后续执行路径。
 ask_any_to_run() {
   local message="$1"
@@ -66,7 +71,6 @@ ask_any_to_run() {
   read -r "?${message}（直接回车跳过；输入任意字符后回车执行）：" answer
   [[ -n "$answer" ]]
 }
-
 # 封装 strip_outer_quotes 对应的独立处理逻辑。
 strip_outer_quotes() {
   local value="$1"
@@ -83,12 +87,10 @@ PROJECT_TYPE="unknown"
 PROJECT_ROOT="$SCRIPT_DIR"
 FASTLANE_DIR="$SCRIPT_DIR/fastlane"
 FASTFILE_PATH="$FASTLANE_DIR/Fastfile"
-
 # 判断芯片架构。
 get_cpu_arch() {
   [[ "$(uname -m)" == "arm64" ]] && echo "arm64" || echo "x86_64"
 }
-
 # 查找 brew 可执行文件。
 find_brew_bin() {
   if command -v brew >/dev/null 2>&1; then
@@ -99,7 +101,6 @@ find_brew_bin() {
     echo "/usr/local/bin/brew"
   fi
 }
-
 # 根据当前 shell 选择配置文件。
 get_profile_file() {
   local shell_path="${SHELL##*/}"
@@ -109,38 +110,7 @@ get_profile_file() {
     *)    echo "$HOME/.profile" ;;
   esac
 }
-
 # 写入 Homebrew shellenv，避免重复追加。
-inject_shellenv_block() {
-  local profile_file="$1"
-  local shellenv_cmd="$2"
-  local header="# >>> Jobs Homebrew shellenv >>>"
-  local footer="# <<< Jobs Homebrew shellenv <<<"
-
-  if [[ -z "$profile_file" || -z "$shellenv_cmd" ]]; then
-    error_echo "缺少参数：inject_shellenv_block <profile_file> <shellenv_cmd>"
-    return 1
-  fi
-
-  mkdir -p "$(dirname "$profile_file")"
-  touch "$profile_file"
-
-  if grep -Fq "$shellenv_cmd" "$profile_file"; then
-    info_echo "Homebrew shellenv 已存在：$profile_file"
-  else
-    {
-      echo ""
-      echo "$header"
-      echo "$shellenv_cmd"
-      echo "$footer"
-    } >> "$profile_file"
-    success_echo "已写入 Homebrew shellenv：$profile_file"
-  fi
-
-  eval "$shellenv_cmd"
-  success_echo "Homebrew shellenv 已在当前终端生效"
-}
-
 # 安装或接入 Homebrew；已安装时按规范选择是否更新。
 install_homebrew() {
   local arch="$(get_cpu_arch)"
@@ -200,12 +170,10 @@ install_homebrew() {
   brew -v      || { warn_echo  "打印 brew 版本失败，可忽略"; }
   success_echo "Homebrew 已更新"
 }
-
 # 兼容脚本主流程里的命名。
 ensure_homebrew() {
   install_homebrew
 }
-
 # 检查工程类型并确定 Fastfile 目录。
 detect_project_type() {
   if [[ -f "$SCRIPT_DIR/pubspec.yaml" && -d "$SCRIPT_DIR/ios" ]]; then
@@ -224,7 +192,6 @@ detect_project_type() {
     warn_echo "未识别到 Flutter / iOS 工程，将按当前目录处理。"
   fi
 }
-
 # 安装或按需升级 brew 包。
 ensure_brew_formula() {
   local formula="$1"
@@ -243,7 +210,6 @@ ensure_brew_formula() {
     }
   fi
 }
-
 # 创建默认 Fastfile。
 create_default_fastfile() {
   mkdir -p "$FASTLANE_DIR"
@@ -264,7 +230,6 @@ end
 EOF
   success_echo "已创建 Fastfile：$FASTFILE_PATH"
 }
-
 # 选择编辑器打开 Fastfile。
 open_fastfile() {
   local editor=""
@@ -294,24 +259,61 @@ open_fastfile() {
     *) info_echo "已跳过打开 Fastfile。" ;;
   esac
 }
-
-# 主流程统一收口。
-run_main_flow() {
-  show_readme_and_wait
-  detect_project_type
-  ensure_homebrew
-  ensure_brew_formula "fzf"
-  ensure_brew_formula "fastlane"
-  create_default_fastfile
-  open_fastfile
-  success_echo "处理完成。"
-  pause_to_exit
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+# 将 Homebrew shellenv 写入用户配置并在当前终端生效。
+inject_shellenv_block() {
+  local profile_file="$1"
+  local shellenv_cmd="$2"
+  local header="# >>> Jobs Homebrew shellenv >>>"
+  local footer="# <<< Jobs Homebrew shellenv <<<"
+  if [[ -z "$profile_file" || -z "$shellenv_cmd" ]]; then
+    error_echo "缺少参数：inject_shellenv_block <profile_file> <shellenv_cmd>"
+    return 1
+  fi
+  mkdir -p "$(dirname "$profile_file")"
+  touch "$profile_file"
+  if grep -Fq "$shellenv_cmd" "$profile_file"; then
+    info_echo "Homebrew shellenv 已存在：$profile_file"
+  else
+    {
+      echo ""
+      echo "$header"
+      echo "$shellenv_cmd"
+      echo "$footer"
+    } >> "$profile_file"
+    success_echo "已写入 Homebrew shellenv：$profile_file"
+  fi
+  eval "$shellenv_cmd"
+  success_echo "Homebrew shellenv 已在当前终端生效"
 }
-
-# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+# 初始化脚本运行环境和后续流程所需状态。
+initialize_script_runtime() {
+  setopt NO_NOMATCH
+  : > "$LOG_FILE"
+}
+# 编排脚本的高层业务流程。
 main() {
-  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
-  run_main_flow "$@"
+  # 展示脚本内置自述，并按运行入口完成防误触确认。
+  show_readme_and_wait
+  # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  initialize_script_runtime
+  # 解析当前任务所需的路径、参数或运行上下文。
+  detect_project_type
+  # 检查当前环境与执行条件是否满足脚本要求。
+  ensure_homebrew
+  # 检查当前环境与执行条件是否满足脚本要求。
+  ensure_brew_formula "fzf"
+  # 检查当前环境与执行条件是否满足脚本要求。
+  ensure_brew_formula "fastlane"
+  # 执行 create_default_fastfile 对应的核心业务步骤。
+  create_default_fastfile
+  # 执行 open_fastfile 对应的独立业务步骤。
+  open_fastfile
+  # 输出脚本执行结果、摘要和日志位置。
+  success_echo "处理完成。"
+  # 执行 pause_to_exit 对应的独立业务步骤。
+  pause_to_exit
 }
 
 main "$@"

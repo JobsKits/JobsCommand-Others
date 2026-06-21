@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# 脚本自述：
+# - 脚本名称：【MacOS】✂️源文件压缩拆分➤子卷.command
+# - 核心用途：执行“✂️源文件压缩拆分➤子卷”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
-: > "$LOG_FILE"
-
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -35,37 +37,11 @@ bold_echo()      { log "\033[1m$1\033[0m"; }
 underline_echo() { log "\033[4m$1\033[0m"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-
 # 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   [[ $(uname -m) == "arm64" ]] && echo "arm64" || echo "x86_64"
 }
-
 # 封装 inject_shellenv_block 对应的独立处理逻辑。
-inject_shellenv_block() {
-  local profile_file="$1"
-  local shellenv_cmd="$2"
-
-  [[ -z "$profile_file" || -z "$shellenv_cmd" ]] && return 0
-
-  if [[ ! -f "$profile_file" ]]; then
-    touch "$profile_file"
-    note_echo "已创建配置文件：$profile_file"
-  fi
-
-  if grep -Fq "$shellenv_cmd" "$profile_file"; then
-    note_echo "已在 $profile_file 中检测到 Homebrew shellenv 配置，跳过注入"
-  else
-    {
-      echo ""
-      echo "# >>> Homebrew shellenv (added by ${SCRIPT_BASENAME}) >>>"
-      echo "$shellenv_cmd"
-      echo "# <<< Homebrew shellenv <<<"
-    } >>"$profile_file"
-    success_echo "已向 $profile_file 写入 Homebrew shellenv 配置"
-  fi
-}
-
 # 执行对应的环境配置或同步处理。
 install_homebrew() {
   local arch
@@ -124,7 +100,6 @@ install_homebrew() {
     fi
   fi
 }
-
 # 执行对应的环境配置或同步处理。
 install_fzf() {
   if ! command -v fzf &>/dev/null; then
@@ -153,13 +128,11 @@ MAX_CHUNK_BYTES=$((50 * 1024 * 1024))
 MAX_CHUNK_LABEL="50 MB"
 TARGET_DIR=""
 TARGET_FILE=""
-
 # 封装 format_mb_to_gb 对应的独立处理逻辑。
 format_mb_to_gb() {
   local mb="$1"
   awk -v mb="$mb" 'BEGIN { printf "%.3f", mb / 1024 }'
 }
-
 # 封装 format_bytes_human 对应的独立处理逻辑。
 format_bytes_human() {
   local bytes="$1"
@@ -174,13 +147,11 @@ format_bytes_human() {
     else printf "%.2f %s", b, u[i]
   }'
 }
-
 # 封装 mb_to_bytes 对应的独立处理逻辑。
 mb_to_bytes() {
   local mb="$1"
   awk -v mb="$mb" 'BEGIN { printf "%.0f", mb * 1024 * 1024 }'
 }
-
 # 解析并返回后续流程需要的目标信息。
 get_file_size_bytes() {
   if stat -f %z "$1" >/dev/null 2>&1; then
@@ -189,7 +160,6 @@ get_file_size_bytes() {
     stat -c %s "$1"
   fi
 }
-
 # 封装 calc_balanced_chunk_size_bytes 对应的独立处理逻辑。
 calc_balanced_chunk_size_bytes() {
   local file_size_bytes="$1"
@@ -210,7 +180,6 @@ calc_balanced_chunk_size_bytes() {
 
   echo "$chunk_size_bytes"
 }
-
 # 收集并校验用户输入，决定后续执行路径。
 choose_split_standard() {
   local selected_key=""
@@ -308,7 +277,6 @@ choose_split_standard() {
       ;;
   esac
 }
-
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 print_intro() {
   bold_echo "======== 大文件拆分为子卷脚本（${SCRIPT_BASENAME}）========"
@@ -327,7 +295,6 @@ print_intro() {
   note_echo "按 [Enter] 继续，或 Ctrl+C 退出..."
   IFS= read -r _
 }
-
 # 执行已经拆分完成的独立业务步骤。
 run_self_check_interactive() {
   echo ""
@@ -345,7 +312,6 @@ run_self_check_interactive() {
     note_echo "已跳过环境自检"
   fi
 }
-
 # 封装 normalize_input_path 对应的独立处理逻辑。
 normalize_input_path() {
   local value="$1"
@@ -363,7 +329,6 @@ normalize_input_path() {
   printf '%s
 ' "$value"
 }
-
 # 收集并校验用户输入，决定后续执行路径。
 choose_target_directory() {
   echo ""
@@ -402,7 +367,6 @@ choose_target_directory() {
     info_echo "本次操作的目标目录为：$TARGET_DIR"
   fi
 }
-
 # 封装 split_one_file 对应的独立处理逻辑。
 split_one_file() {
   local file="$1"
@@ -499,7 +463,6 @@ split_one_file() {
     note_echo "已选择保留源文件：$filename"
   fi
 }
-
 # 封装 split_large_files 对应的独立处理逻辑。
 split_large_files() {
   local large_files=()
@@ -547,21 +510,64 @@ split_large_files() {
 
   success_echo "所有大文件拆分流程已结束。"
 }
-
-# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
-run_main_flow() {
+# 打印脚本内置自述，并按运行入口决定是否等待用户确认。
+show_script_intro_and_wait() {
+  print -r -- '============================== 脚本内置自述 =============================='
+  print -r -- '脚本名称：【MacOS】✂️源文件压缩拆分➤子卷.command'
+  print -r -- '核心用途：执行“✂️源文件压缩拆分➤子卷”对应的自动化任务。'
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
+  print -r -- '============================================================================'
+  if [[ ! -t 0 ]]; then
+    print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
+    return 1
+  fi
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+}
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+# 将 Homebrew shellenv 写入用户配置并在当前终端生效。
+inject_shellenv_block() {
+  local profile_file="$1"
+  local shellenv_cmd="$2"
+  [[ -z "$profile_file" || -z "$shellenv_cmd" ]] && return 0
+  if [[ ! -f "$profile_file" ]]; then
+    touch "$profile_file"
+    note_echo "已创建配置文件：$profile_file"
+  fi
+  if grep -Fq "$shellenv_cmd" "$profile_file"; then
+    note_echo "已在 $profile_file 中检测到 Homebrew shellenv 配置，跳过注入"
+  else
+    {
+      echo ""
+      echo "# >>> Homebrew shellenv (added by ${SCRIPT_BASENAME}) >>>"
+      echo "$shellenv_cmd"
+      echo "# <<< Homebrew shellenv <<<"
+    } >>"$profile_file"
+    success_echo "已向 $profile_file 写入 Homebrew shellenv 配置"
+  fi
+}
+# 初始化脚本运行环境和后续流程所需状态。
+initialize_script_runtime() {
+  set -euo pipefail
+  : > "$LOG_FILE"
+}
+# 编排脚本的高层业务流程。
+main() {
+  # 展示脚本内置自述，并按运行入口完成防误触确认。
+  show_script_intro_and_wait
+  # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  initialize_script_runtime
+  # 执行 print_intro 对应的独立业务步骤。
   print_intro
+  # 检查当前环境与执行条件是否满足脚本要求。
   run_self_check_interactive
+  # 执行 choose_split_standard 对应的独立业务步骤。
   choose_split_standard
+  # 执行 choose_target_directory 对应的独立业务步骤。
   choose_target_directory "${1:-}"
+  # 执行 split_large_files 对应的独立业务步骤。
   split_large_files
 }
 
-# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
-main() {
-  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
-  run_main_flow "$@"
-}
-
 main "$@"
-

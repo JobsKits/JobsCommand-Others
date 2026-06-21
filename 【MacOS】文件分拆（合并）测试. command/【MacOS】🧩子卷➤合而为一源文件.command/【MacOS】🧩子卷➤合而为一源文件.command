@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# 脚本自述：
+# - 脚本名称：【MacOS】🧩子卷➤合而为一源文件.command
+# - 核心用途：执行“🧩子卷➤合而为一源文件”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
-: > "$LOG_FILE"
-
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -35,37 +37,11 @@ bold_echo()      { log "\033[1m$1\033[0m"; }
 underline_echo() { log "\033[4m$1\033[0m"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-
 # 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   [[ $(uname -m) == "arm64" ]] && echo "arm64" || echo "x86_64"
 }
-
 # 封装 inject_shellenv_block 对应的独立处理逻辑。
-inject_shellenv_block() {
-  local profile_file="$1"
-  local shellenv_cmd="$2"
-
-  [[ -z "$profile_file" || -z "$shellenv_cmd" ]] && return 0
-
-  if [[ ! -f "$profile_file" ]]; then
-    touch "$profile_file"
-    note_echo "已创建配置文件：$profile_file"
-  fi
-
-  if grep -Fq "$shellenv_cmd" "$profile_file"; then
-    note_echo "已在 $profile_file 中检测到 Homebrew shellenv 配置，跳过注入"
-  else
-    {
-      echo ""
-      echo "# >>> Homebrew shellenv (added by ${SCRIPT_BASENAME}) >>>"
-      echo "$shellenv_cmd"
-      echo "# <<< Homebrew shellenv <<<"
-    } >>"$profile_file"
-    success_echo "已向 $profile_file 写入 Homebrew shellenv 配置"
-  fi
-}
-
 # 执行对应的环境配置或同步处理。
 install_homebrew() {
   local arch
@@ -124,7 +100,6 @@ install_homebrew() {
     fi
   fi
 }
-
 # 执行对应的环境配置或同步处理。
 install_fzf() {
   if ! command -v fzf &>/dev/null; then
@@ -153,13 +128,11 @@ TARGET_DIR=""
 TARGET_IS_VOLUME_DIR=0
 VOLUME_DIRS=()
 SELECTED_DIRS=()
-
 # 封装 collect_volume_chunks 对应的独立处理逻辑。
 collect_volume_chunks() {
   local dir="$1"
   find "$dir" -maxdepth 1 -type f -name '*@*of*' -print 2>/dev/null | LC_ALL=C sort
 }
-
 # 封装 infer_original_name_from_dir 对应的独立处理逻辑。
 infer_original_name_from_dir() {
   local dir="$1"
@@ -170,7 +143,6 @@ infer_original_name_from_dir() {
   [[ -n "$original_name" ]] || return 1
   printf '%s\n' "$original_name"
 }
-
 # 封装 merge_one_dir_to_output_dir 对应的独立处理逻辑。
 merge_one_dir_to_output_dir() {
   local dir="$1"
@@ -230,7 +202,6 @@ merge_one_dir_to_output_dir() {
   success_echo "已完成合并：$output_file"
   printf '%s\n' "$output_file"
 }
-
 # 执行已经拆分完成的独立业务步骤。
 run_jobs_noninteractive_merge() {
   local volume_dir="$1"
@@ -248,16 +219,6 @@ run_jobs_noninteractive_merge() {
 
   merge_one_dir_to_output_dir "$volume_dir" "$output_dir" >/dev/null
 }
-
-if [[ "${1:-}" == "--jobs-noninteractive" ]]; then
-  if [[ $# -lt 3 ]]; then
-    error_echo "用法：$0 --jobs-noninteractive 子卷目录 输出目录"
-    exit 1
-  fi
-  run_jobs_noninteractive_merge "$2" "$3"
-  exit $?
-fi
-
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 print_intro() {
   bold_echo "======== 子卷合并脚本（${SCRIPT_BASENAME}）========"
@@ -271,7 +232,6 @@ print_intro() {
   note_echo "按 [Enter] 继续，或 Ctrl+C 退出..."
   IFS= read -r _
 }
-
 # 执行已经拆分完成的独立业务步骤。
 run_self_check_interactive() {
   echo ""
@@ -289,7 +249,6 @@ run_self_check_interactive() {
     note_echo "已跳过环境自检"
   fi
 }
-
 # 封装 normalize_input_path 对应的独立处理逻辑。
 normalize_input_path() {
   local value="$1"
@@ -307,7 +266,6 @@ normalize_input_path() {
   printf '%s
 ' "$value"
 }
-
 # 收集并校验用户输入，决定后续执行路径。
 choose_target_directory() {
   echo ""
@@ -333,7 +291,6 @@ choose_target_directory() {
 
   info_echo "本次操作的目标目录为：$TARGET_DIR"
 }
-
 # 解析并返回后续流程需要的目标信息。
 find_volume_dirs() {
   VOLUME_DIRS=()
@@ -363,7 +320,6 @@ find_volume_dirs() {
     echo "  - $(basename "$d")"
   done
 }
-
 # 收集并校验用户输入，决定后续执行路径。
 select_volume_dirs() {
   local options=()
@@ -398,7 +354,6 @@ select_volume_dirs() {
     info_echo "已选择子卷目录：$(basename "$selected_token")"
   fi
 }
-
 # 封装 merge_one_dir 对应的独立处理逻辑。
 merge_one_dir() {
   local dir="$1"
@@ -447,7 +402,6 @@ merge_one_dir() {
     note_echo "已保留子卷目录：$name"
   fi
 }
-
 # 封装 merge_selected_dirs 对应的独立处理逻辑。
 merge_selected_dirs() {
   local dir
@@ -458,21 +412,74 @@ merge_selected_dirs() {
 
   success_echo "所有选定的子卷目录合并流程已结束。"
 }
-
-# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
-run_main_flow() {
-  print_intro
-  run_self_check_interactive
-  choose_target_directory "${1:-}"
-  find_volume_dirs
-  select_volume_dirs
-  merge_selected_dirs
+# 打印脚本内置自述，并按运行入口决定是否等待用户确认。
+show_script_intro_and_wait() {
+  print -r -- '============================== 脚本内置自述 =============================='
+  print -r -- '脚本名称：【MacOS】🧩子卷➤合而为一源文件.command'
+  print -r -- '核心用途：执行“🧩子卷➤合而为一源文件”对应的自动化任务。'
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
+  print -r -- '============================================================================'
+  if [[ ! -t 0 ]]; then
+    print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
+    return 1
+  fi
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
 }
-
-# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+# 将 Homebrew shellenv 写入用户配置并在当前终端生效。
+inject_shellenv_block() {
+  local profile_file="$1"
+  local shellenv_cmd="$2"
+  [[ -z "$profile_file" || -z "$shellenv_cmd" ]] && return 0
+  if [[ ! -f "$profile_file" ]]; then
+    touch "$profile_file"
+    note_echo "已创建配置文件：$profile_file"
+  fi
+  if grep -Fq "$shellenv_cmd" "$profile_file"; then
+    note_echo "已在 $profile_file 中检测到 Homebrew shellenv 配置，跳过注入"
+  else
+    {
+      echo ""
+      echo "# >>> Homebrew shellenv (added by ${SCRIPT_BASENAME}) >>>"
+      echo "$shellenv_cmd"
+      echo "# <<< Homebrew shellenv <<<"
+    } >>"$profile_file"
+    success_echo "已向 $profile_file 写入 Homebrew shellenv 配置"
+  fi
+}
+# 初始化脚本运行环境和后续流程所需状态。
+initialize_script_runtime() {
+  set -euo pipefail
+  : > "$LOG_FILE"
+  if [[ "${1:-}" == "--jobs-noninteractive" ]]; then
+    if [[ $# -lt 3 ]]; then
+      error_echo "用法：$0 --jobs-noninteractive 子卷目录 输出目录"
+      exit 1
+    fi
+    run_jobs_noninteractive_merge "$2" "$3"
+    exit $?
+  fi
+}
+# 编排脚本的高层业务流程。
 main() {
-  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
-  run_main_flow "$@"
+  # 展示脚本内置自述，并按运行入口完成防误触确认。
+  show_script_intro_and_wait
+  # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  initialize_script_runtime
+  # 执行 print_intro 对应的独立业务步骤。
+  print_intro
+  # 检查当前环境与执行条件是否满足脚本要求。
+  run_self_check_interactive
+  # 执行 choose_target_directory 对应的独立业务步骤。
+  choose_target_directory "${1:-}"
+  # 解析当前任务所需的路径、参数或运行上下文。
+  find_volume_dirs
+  # 执行 select_volume_dirs 对应的独立业务步骤。
+  select_volume_dirs
+  # 执行 merge_selected_dirs 对应的独立业务步骤。
+  merge_selected_dirs
 }
 
 main "$@"

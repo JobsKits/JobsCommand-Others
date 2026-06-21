@@ -1,5 +1,9 @@
 #!/bin/zsh
-set -euo pipefail
+# 脚本自述：
+# - 脚本名称：【MacOS】Mock.command
+# - 核心用途：执行“Mock”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
 # ================================== 基础信息 ==================================
 
@@ -12,9 +16,7 @@ PID_FILE="/tmp/${SCRIPT_BASENAME}_http_server.pid"
 PORT="8080"
 HOST="127.0.0.1"
 JSON_DIR_NAME="jsons"
-
 # ================================== 日志与彩色输出 ==================================
-
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -35,18 +37,15 @@ highlight_echo() { log "\033[1;36m🔹 $1\033[0m"; }
 gray_echo()      { log "\033[0;90m$1\033[0m"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 bold_echo()      { log "\033[1m$1\033[0m"; }
-
 # 封装 print_divider 对应的独立处理逻辑。
 print_divider() {
   gray_echo "=================================================="
 }
-
 # 封装 pause_enter 对应的独立处理逻辑。
 pause_enter() {
   echo -n $'\n'"按回车继续..."$'\n' | tee -a "$LOG_FILE"
   IFS= read -r _
 }
-
 # 收集并校验用户输入，决定后续执行路径。
 prompt_optional_upgrade() {
   local name="$1"
@@ -55,9 +54,7 @@ prompt_optional_upgrade() {
   read -r -p "检测到已安装 ${name}，输入任意字符升级，直接回车跳过： " choice
   [[ -n "$choice" ]]
 }
-
 # ================================== 通用工具 ==================================
-
 # 封装 require_macos 对应的独立处理逻辑。
 require_macos() {
   if [[ "$(uname -s)" != "Darwin" ]]; then
@@ -65,7 +62,6 @@ require_macos() {
     exit 1
   fi
 }
-
 # 封装 require_basic_commands 对应的独立处理逻辑。
 require_basic_commands() {
   local missing=()
@@ -80,22 +76,18 @@ require_basic_commands() {
     exit 1
   fi
 }
-
 # 封装 command_exists 对应的独立处理逻辑。
 command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
-
 # 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   [[ "$(uname -m)" == "arm64" ]] && echo "arm64" || echo "x86_64"
 }
-
 # 解析并返回后续流程需要的目标信息。
 get_shell_name() {
   echo "${SHELL##*/}"
 }
-
 # 解析并返回后续流程需要的目标信息。
 get_shell_profile_file() {
   local shell_name
@@ -107,7 +99,6 @@ get_shell_profile_file() {
     *)    echo "$HOME/.profile" ;;
   esac
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 ensure_file_exists() {
   local file="$1"
@@ -117,9 +108,7 @@ ensure_file_exists() {
     return 1
   }
 }
-
 # ================================== 幂等环境注入 ==================================
-
 # 封装 append_block_if_missing 对应的独立处理逻辑。
 append_block_if_missing() {
   local file="$1"
@@ -145,16 +134,13 @@ append_block_if_missing() {
 
   success_echo "已写入配置块：$block_id -> $file"
 }
-
 # 封装 apply_shellenv_now 对应的独立处理逻辑。
 apply_shellenv_now() {
   local shellenv_cmd="$1"
   eval "$shellenv_cmd"
   success_echo "环境已在当前终端生效"
 }
-
 # ================================== Homebrew 环境处理 ==================================
-
 # 封装 brew_bin_candidates 对应的独立处理逻辑。
 brew_bin_candidates() {
   cat <<'BREWEOF'
@@ -162,7 +148,6 @@ brew_bin_candidates() {
 /usr/local/bin/brew
 BREWEOF
 }
-
 # 解析并返回后续流程需要的目标信息。
 detect_brew_bin() {
   local candidate
@@ -181,7 +166,6 @@ detect_brew_bin() {
 
   return 1
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 ensure_brew_env() {
   local brew_bin=""
@@ -193,7 +177,6 @@ ensure_brew_env() {
 
   return 1
 }
-
 # 封装 inject_brew_shellenv_if_needed 对应的独立处理逻辑。
 inject_brew_shellenv_if_needed() {
   local brew_bin="$1"
@@ -205,9 +188,7 @@ inject_brew_shellenv_if_needed() {
   append_block_if_missing "$profile_file" "homebrew-shellenv" "$shellenv_cmd"
   apply_shellenv_now "$shellenv_cmd"
 }
-
 # ================================== Homebrew 检查/安装/升级 ==================================
-
 # 执行对应的环境配置或同步处理。
 install_homebrew() {
   local arch brew_bin
@@ -242,7 +223,6 @@ install_homebrew() {
 
   success_echo "Homebrew 安装完成：$(command -v brew)"
 }
-
 # 执行对应的环境配置或同步处理。
 upgrade_brew_if_needed() {
   if prompt_optional_upgrade "brew"; then
@@ -259,7 +239,6 @@ upgrade_brew_if_needed() {
     gray_echo "已跳过 brew 升级"
   fi
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 ensure_brew() {
   print_divider
@@ -278,9 +257,7 @@ ensure_brew() {
     exit 1
   }
 }
-
 # ================================== 通用 brew 包检查/安装/升级 ==================================
-
 # 封装 brew_install_or_upgrade_pkg 对应的独立处理逻辑。
 brew_install_or_upgrade_pkg() {
   local command_name="$1"
@@ -317,32 +294,26 @@ brew_install_or_upgrade_pkg() {
     gray_echo "已跳过 ${display_name} 升级"
   fi
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 ensure_python3() {
   brew_install_or_upgrade_pkg "python3" "python" "python3"
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 ensure_fzf() {
   brew_install_or_upgrade_pkg "fzf" "fzf" "fzf"
 }
-
 # ================================== 目录与服务 ==================================
-
 # 封装 cd_to_script_dir 对应的独立处理逻辑。
 cd_to_script_dir() {
   cd "$SCRIPT_DIR"
   success_echo "已切换到脚本所在目录：$SCRIPT_DIR"
 }
-
 # 解析并返回后续流程需要的目标信息。
 find_port_owner() {
   if command_exists lsof; then
     lsof -nP -iTCP:"$PORT" -sTCP:LISTEN 2>/dev/null || true
   fi
 }
-
 # 解析并返回后续流程需要的目标信息。
 get_pid_from_file() {
   [[ -f "$PID_FILE" ]] || return 1
@@ -351,13 +322,11 @@ get_pid_from_file() {
   [[ -n "$pid" ]] || return 1
   printf "%s" "$pid"
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 is_pid_running() {
   local pid="$1"
   ps -p "$pid" >/dev/null 2>&1
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 is_server_running() {
   local pid=""
@@ -371,7 +340,6 @@ is_server_running() {
 
   return 1
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 check_port_available_for_new_server() {
   if command_exists lsof && lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
@@ -388,7 +356,6 @@ check_port_available_for_new_server() {
 
   return 0
 }
-
 # 封装 wait_for_http_server_ready 对应的独立处理逻辑。
 wait_for_http_server_ready() {
   local url="http://${HOST}:${PORT}/"
@@ -403,7 +370,6 @@ wait_for_http_server_ready() {
 
   return 1
 }
-
 # 封装 start_local_http_server_detached 对应的独立处理逻辑。
 start_local_http_server_detached() {
   local pid=""
@@ -437,7 +403,6 @@ start_local_http_server_detached() {
   success_echo "本地 HTTP 服务已后台启动：http://${HOST}:${PORT}（PID: ${pid}）"
   gray_echo "现在可以直接关闭这个终端，服务不会跟着退出"
 }
-
 # 封装 stop_local_http_server 对应的独立处理逻辑。
 stop_local_http_server() {
   local pid=""
@@ -467,7 +432,6 @@ stop_local_http_server() {
   rm -f "$PID_FILE"
   success_echo "本地 HTTP 服务已停止"
 }
-
 # 封装 show_status 对应的独立处理逻辑。
 show_status() {
   print_divider
@@ -484,9 +448,7 @@ show_status() {
     warn_echo "当前未运行"
   fi
 }
-
 # ================================== JSON 选择与 URL 处理 ==================================
-
 # 解析并返回后续流程需要的目标信息。
 get_json_search_root() {
   if [[ -d "$SCRIPT_DIR/$JSON_DIR_NAME" ]]; then
@@ -495,7 +457,6 @@ get_json_search_root() {
     printf "%s" "$SCRIPT_DIR"
   fi
 }
-
 # 解析并返回后续流程需要的目标信息。
 find_json_files() {
   local search_root relative_prefix
@@ -513,7 +474,6 @@ find_json_files() {
     printf "%s%s\n" "$relative_prefix" "$file"
   done | sort
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 ensure_json_files_exist() {
   if [[ -z "$(find_json_files)" ]]; then
@@ -528,7 +488,6 @@ ensure_json_files_exist() {
     exit 0
   fi
 }
-
 # 封装 pick_json_file 对应的独立处理逻辑。
 pick_json_file() {
   local selected_json
@@ -544,7 +503,6 @@ pick_json_file() {
 
   printf "%s" "$selected_json"
 }
-
 # 封装 url_encode_with_python 对应的独立处理逻辑。
 url_encode_with_python() {
   local raw="$1"
@@ -554,7 +512,6 @@ import urllib.parse
 print(urllib.parse.quote(sys.argv[1]))
 PY
 }
-
 # 封装 open_url 对应的独立处理逻辑。
 open_url() {
   local url="$1"
@@ -566,7 +523,6 @@ open_url() {
     return 1
   fi
 }
-
 # 封装 open_json_in_browser 对应的独立处理逻辑。
 open_json_in_browser() {
   local json_file="$1"
@@ -582,9 +538,7 @@ open_json_in_browser() {
   open_url "$url"
   success_echo "浏览器已打开"
 }
-
 # ================================== 自述说明 ==================================
-
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_intro() {
   print_divider
@@ -602,7 +556,6 @@ show_intro() {
   print_divider
   pause_enter
 }
-
 # 封装 show_runtime_summary 对应的独立处理逻辑。
 show_runtime_summary() {
   print_divider
@@ -614,7 +567,6 @@ show_runtime_summary() {
   gray_echo "PID 文件：$PID_FILE"
   gray_echo "关闭终端是安全的；下次停止服务可运行：$(basename "$0") stop"
 }
-
 # 封装 show_usage 对应的独立处理逻辑。
 show_usage() {
   print_divider
@@ -625,9 +577,7 @@ show_usage() {
   log "$(basename "$0") status  -> 查看后台服务状态"
   log "$(basename "$0") restart -> 重启后台服务并交互选择 JSON"
 }
-
 # ================================== 主流程 ==================================
-
 # 封装 main_start_flow 对应的独立处理逻辑。
 main_start_flow() {
   show_intro
@@ -643,45 +593,86 @@ main_start_flow() {
 
   show_runtime_summary
 }
-
-# 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
-run_main_flow() {
+# 打印脚本内置自述，并按运行入口决定是否等待用户确认。
+show_script_intro_and_wait() {
+  print -r -- '============================== 脚本内置自述 =============================='
+  print -r -- '脚本名称：【MacOS】Mock.command'
+  print -r -- '核心用途：执行“Mock”对应的自动化任务。'
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
+  print -r -- '============================================================================'
+  if [[ ! -t 0 ]]; then
+    print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
+    return 1
+  fi
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+}
+# 执行入口下沉后的完整业务流程和控制逻辑。
+run_main_business_flow() {
+  # 检查当前步骤所需的环境、路径或输入条件。
   require_macos
+  # 检查当前步骤所需的环境、路径或输入条件。
   require_basic_commands
 
+  # 执行当前流程中的独立业务步骤：处理当前语句。
   : > "$LOG_FILE"
 
+  # 初始化当前流程后续步骤需要使用的变量。
   local action="${1:-start}"
 
+  # 根据当前条件选择对应的执行分支。
   case "$action" in
+    # 执行当前流程中的独立业务步骤：start。
     start)
+      # 执行当前流程中的独立业务步骤：main_start_flow。
       main_start_flow
       ;;
+    # 执行当前流程中的独立业务步骤：stop。
     stop)
+      # 执行当前流程中的独立业务步骤：stop_local_http_server。
       stop_local_http_server
       ;;
+    # 执行当前流程中的独立业务步骤：status。
     status)
+      # 执行当前流程中的独立业务步骤：show_status。
       show_status
       ;;
+    # 执行当前流程中的独立业务步骤：restart。
     restart)
+      # 执行当前流程中的独立业务步骤：stop_local_http_server。
       stop_local_http_server || true
+      # 执行当前流程中的独立业务步骤：main_start_flow。
       main_start_flow
       ;;
+    # 执行当前流程中的独立业务步骤：help。
     help|-h|--help)
+      # 执行当前流程中的独立业务步骤：show_usage。
       show_usage
       ;;
+    # 执行当前流程中的独立业务步骤：处理当前语句。
     *)
+      # 执行当前流程中的独立业务步骤：error_echo。
       error_echo "不支持的参数：$action"
+      # 执行当前流程中的独立业务步骤：show_usage。
       show_usage
+      # 执行当前流程中的独立业务步骤：exit。
       exit 1
       ;;
   esac
 }
-
-# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+initialize_script_runtime() {
+  set -euo pipefail
+}
+# 编排脚本的高层业务流程。
 main() {
-  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
-  run_main_flow "$@"
+  # 展示脚本内置自述，并按运行入口完成防误触确认。
+  show_script_intro_and_wait
+  # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  initialize_script_runtime
+  # 执行入口下沉后的完整业务流程。
+  run_main_business_flow "$@"
 }
 
 main "$@"
