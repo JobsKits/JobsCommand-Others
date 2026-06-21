@@ -1,4 +1,9 @@
 #!/bin/zsh
+# 脚本自述：
+# - 脚本名称：【MacOS】Caddy本地域名映射.command
+# - 核心用途：执行“Caddy本地域名映射”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
 # ============================================================
 # Caddy macOS 本地域名 HTTPS 映射脚本
@@ -11,10 +16,6 @@ LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
 CADDYFILE="/tmp/${SCRIPT_BASENAME}.Caddyfile"
 STATE_DIR="$HOME/.caddy-local-mapper"
 STATE_FILE="${STATE_DIR}/${SCRIPT_BASENAME}.state"
-
-mkdir -p "$STATE_DIR"
-: > "$LOG_FILE"
-
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -50,24 +51,20 @@ LOCAL_UPSTREAM=""
 LOCAL_URL=""
 MAP_DOMAIN=""
 STOP_ONLY="0"
-
 # ------------------------------------------------------------
 # 基础工具
 # ------------------------------------------------------------
 trim_text() {
   printf '%s' "$1" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'
 }
-
 # 封装 escape_sed_pattern 对应的独立处理逻辑。
 escape_sed_pattern() {
   printf '%s' "$1" | sed 's/[.[\*^$()+?{}|\\]/\\&/g'
 }
-
 # 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   uname -m
 }
-
 # 封装 pause_to_exit 对应的独立处理逻辑。
 pause_to_exit() {
   echo ""
@@ -76,7 +73,6 @@ pause_to_exit() {
   local _pause
   IFS= read -r _pause
 }
-
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_readme() {
   clear
@@ -151,7 +147,6 @@ EOF_README
   local _confirm
   IFS= read -r _confirm
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 ensure_sudo() {
   info_echo "即将需要管理员权限，用于停止旧 Caddy、写入 hosts、启动 443 HTTPS。"
@@ -160,7 +155,6 @@ ensure_sudo() {
     exit 1
   }
 }
-
 # ------------------------------------------------------------
 # 旧映射清理
 # ------------------------------------------------------------
@@ -168,7 +162,6 @@ read_state_domain() {
   [[ -f "$STATE_FILE" ]] || return 0
   grep '^MAP_DOMAIN=' "$STATE_FILE" 2>/dev/null | tail -n 1 | sed 's/^MAP_DOMAIN=//'
 }
-
 # 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
 remove_hosts_domain() {
   local domain="$1"
@@ -179,7 +172,6 @@ remove_hosts_domain() {
   escaped_domain="$(escape_sed_pattern "$domain")"
   sudo sed -i '' "/[[:space:]]${escaped_domain}$/d" /etc/hosts 2>/dev/null || true
 }
-
 # 执行对应的清理操作，并保留必要的安全检查。
 cleanup_old_mapping() {
   highlight_echo "关闭旧的后台映射"
@@ -221,7 +213,6 @@ cleanup_old_mapping() {
 
   success_echo "旧映射清理完成"
 }
-
 # 封装 maybe_stop_only_after_cleanup 对应的独立处理逻辑。
 maybe_stop_only_after_cleanup() {
   if [[ "$STOP_ONLY" == "1" ]]; then
@@ -247,7 +238,6 @@ maybe_stop_only_after_cleanup() {
       ;;
   esac
 }
-
 # ------------------------------------------------------------
 # Homebrew / Caddy 自检
 # ------------------------------------------------------------
@@ -281,7 +271,6 @@ inject_shellenv_block() {
   eval "$shellenv"
   success_echo "当前终端已生效：$id"
 }
-
 # 执行对应的环境配置或同步处理。
 install_homebrew() {
   local arch="$(get_cpu_arch)"
@@ -346,7 +335,6 @@ install_homebrew() {
     note_echo "已跳过 Homebrew 更新"
   fi
 }
-
 # 执行对应的环境配置或同步处理。
 install_caddy() {
   highlight_echo "自检 Caddy"
@@ -378,7 +366,6 @@ install_caddy() {
     note_echo "已跳过 Caddy 升级"
   fi
 }
-
 # ------------------------------------------------------------
 # 输入与校验
 # ------------------------------------------------------------
@@ -415,7 +402,6 @@ parse_local_target() {
   LOCAL_URL="http://${LOCAL_UPSTREAM}/"
   return 0
 }
-
 # 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
 parse_map_domain() {
   local raw="$1"
@@ -433,7 +419,6 @@ parse_map_domain() {
   MAP_DOMAIN="$raw"
   return 0
 }
-
 # 收集并校验用户输入，决定后续执行路径。
 prompt_local_target() {
   local input="${1:-}"
@@ -467,7 +452,6 @@ prompt_local_target() {
     input=""
   done
 }
-
 # 编排完整业务流程，复杂步骤继续下沉到职责明确的函数。
 prompt_map_domain() {
   local input="${1:-}"
@@ -501,7 +485,6 @@ prompt_map_domain() {
     input=""
   done
 }
-
 # 封装 handle_args 对应的独立处理逻辑。
 handle_args() {
   if [[ "${1:-}" == "--stop" || "${1:-}" == "stop" ]]; then
@@ -525,7 +508,6 @@ handle_args() {
     fi
   fi
 }
-
 # ------------------------------------------------------------
 # 本地服务、hosts、代理、Caddyfile
 # ------------------------------------------------------------
@@ -541,7 +523,6 @@ check_local_service_once() {
   warn_echo "当前无法访问：$LOCAL_URL（HTTP $code）"
   return 1
 }
-
 # 检查当前运行条件是否满足后续流程要求。
 ensure_local_service() {
   highlight_echo "检查本地服务"
@@ -588,7 +569,6 @@ ensure_local_service() {
     esac
   done
 }
-
 # 封装 write_hosts 对应的独立处理逻辑。
 write_hosts() {
   highlight_echo "写入 /etc/hosts"
@@ -603,7 +583,6 @@ write_hosts() {
   sudo killall -HUP mDNSResponder 2>/dev/null || true
   dscacheutil -q host -a name "$MAP_DOMAIN" 2>&1 | tee -a "$LOG_FILE" || true
 }
-
 # 执行对应的环境配置或同步处理。
 sync_proxy_bypass() {
   highlight_echo "同步系统代理绕过列表"
@@ -659,7 +638,6 @@ sync_proxy_bypass() {
     fi
   done <<< "$services"
 }
-
 # 封装 generate_caddyfile 对应的独立处理逻辑。
 generate_caddyfile() {
   highlight_echo "生成 Caddyfile"
@@ -694,7 +672,6 @@ EOF_CADDY
   cat "$CADDYFILE" | tee -a "$LOG_FILE"
   gray_echo "----------------------------------------"
 }
-
 # 封装 save_state 对应的独立处理逻辑。
 save_state() {
   cat > "$STATE_FILE" <<EOF_STATE
@@ -703,7 +680,6 @@ LOCAL_UPSTREAM=$LOCAL_UPSTREAM
 CADDYFILE=$CADDYFILE
 EOF_STATE
 }
-
 # ------------------------------------------------------------
 # Caddy 后台启动与自检
 # ------------------------------------------------------------
@@ -730,7 +706,6 @@ run_with_timeout() {
   wait "$cmd_pid"
   return $?
 }
-
 # 封装 wait_for_caddy_443 对应的独立处理逻辑。
 wait_for_caddy_443() {
   local waited=0
@@ -743,7 +718,6 @@ wait_for_caddy_443() {
   done
   return 1
 }
-
 # 封装 start_caddy_background 对应的独立处理逻辑。
 start_caddy_background() {
   highlight_echo "准备启动后台映射"
@@ -798,7 +772,6 @@ start_caddy_background() {
   success_echo "Caddy 已在后台运行"
   sudo lsof -nP -iTCP:443 -sTCP:LISTEN 2>/dev/null | tee -a "$LOG_FILE" || true
 }
-
 # 封装 post_check 对应的独立处理逻辑。
 post_check() {
   highlight_echo "映射自检"
@@ -830,51 +803,96 @@ post_check() {
   echo "sudo lsof -nP -iTCP:443 -sTCP:LISTEN"
   echo "cat ${CADDYFILE}"
 }
-
 # 封装 open_target_url 对应的独立处理逻辑。
 open_target_url() {
   open "https://${MAP_DOMAIN}/" >/dev/null 2>&1 || true
 }
-
+# 打印脚本内置自述，并按运行入口决定是否等待用户确认。
+show_script_intro_and_wait() {
+  print -r -- '============================== 脚本内置自述 =============================='
+  print -r -- '脚本名称：【MacOS】Caddy本地域名映射.command'
+  print -r -- '核心用途：执行“Caddy本地域名映射”对应的自动化任务。'
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
+  print -r -- '============================================================================'
+  if [[ ! -t 0 ]]; then
+    print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
+    return 1
+  fi
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+}
 # ------------------------------------------------------------
 # main 收口
-# ------------------------------------------------------------
-run_main_flow() {
+# 执行入口下沉后的完整业务流程和控制逻辑。
+run_main_business_flow() {
+  # 展示脚本说明并等待用户确认影响范围。
   show_readme
 
+  # 执行当前流程中的独立业务步骤：highlight_echo。
   highlight_echo "开始 Caddy 本地域名映射"
+  # 执行当前流程中的独立业务步骤：info_echo。
   info_echo "脚本目录：$SCRIPT_DIR"
+  # 执行当前流程中的独立业务步骤：info_echo。
   info_echo "脚本路径：$SCRIPT_PATH"
+  # 执行当前流程中的独立业务步骤：info_echo。
   info_echo "日志文件：$LOG_FILE"
 
+  # 执行当前流程中的独立业务步骤：handle_args。
   handle_args "$@"
+  # 检查当前步骤所需的环境、路径或输入条件。
   ensure_sudo
+  # 清理本次流程产生的临时内容或指定缓存。
   cleanup_old_mapping
+  # 清理本次流程产生的临时内容或指定缓存。
   maybe_stop_only_after_cleanup
 
+  # 执行当前流程中的独立业务步骤：处理当前语句。
   [[ -n "$LOCAL_URL" ]] || prompt_local_target ""
+  # 执行当前流程中的独立业务步骤：处理当前语句。
   [[ -n "$MAP_DOMAIN" ]] || prompt_map_domain ""
 
+  # 执行安装步骤，并保留命令失败信息供后续排查。
   install_homebrew
+  # 执行安装步骤，并保留命令失败信息供后续排查。
   install_caddy
+  # 检查当前步骤所需的环境、路径或输入条件。
   ensure_local_service
+  # 执行当前流程中的独立业务步骤：write_hosts。
   write_hosts
+  # 同步或复制当前流程要求的目标内容。
   sync_proxy_bypass
+  # 执行当前流程中的独立业务步骤：generate_caddyfile。
   generate_caddyfile
+  # 执行当前流程中的独立业务步骤：save_state。
   save_state
+  # 执行当前流程中的独立业务步骤：start_caddy_background。
   start_caddy_background
+  # 检查当前步骤所需的环境、路径或输入条件。
   post_check
+  # 执行当前流程中的独立业务步骤：open_target_url。
   open_target_url
 
+  # 输出当前流程的完成状态、摘要和日志位置。
   success_echo "全部完成"
+  # 执行当前流程中的独立业务步骤：note_echo。
   note_echo "现在可以安全关闭终端；Caddy 后台映射仍会继续运行。"
+  # 执行当前流程中的独立业务步骤：pause_to_exit。
   pause_to_exit
 }
-
-# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+initialize_script_runtime() {
+  mkdir -p "$STATE_DIR"
+  : > "$LOG_FILE"
+}
+# 编排脚本的高层业务流程。
 main() {
-  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
-  run_main_flow "$@"
+  # 展示脚本内置自述，并按运行入口完成防误触确认。
+  show_script_intro_and_wait
+  # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  initialize_script_runtime
+  # 执行入口下沉后的完整业务流程。
+  run_main_business_flow "$@"
 }
 
 main "$@"

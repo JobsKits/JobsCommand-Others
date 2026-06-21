@@ -1,11 +1,13 @@
 #!/bin/zsh
+# 脚本自述：
+# - 脚本名称：【MacOS】⏬下载Mock数据.command
+# - 核心用途：执行“⏬下载Mock数据”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
-setopt NO_NOMATCH
 
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')   # 当前脚本名（去掉扩展名）
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"                  # 设置对应的日志文件路径
-: > "$LOG_FILE"
-
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -37,11 +39,16 @@ underline_echo() { log "\033[4m$1\033[0m"; }            # 🔗 下划线
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
 SCRIPT_PATH="${SCRIPT_DIR}/$(basename -- "$0")"
-
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_readme_and_wait() {
   local readme_path="${SCRIPT_DIR}/README.md"
   clear
+  print -r -- '============================== 脚本内置自述 =============================='
+  print -r -- '脚本名称：【MacOS】⏬下载Mock数据.command'
+  print -r -- '核心用途：执行“⏬下载Mock数据”对应的自动化任务。'
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
+  print -r -- '============================================================================'
   if [[ -f "$readme_path" ]]; then
     highlight_echo "============================== README.md =============================="
     cat "$readme_path" | tee -a "$LOG_FILE"
@@ -52,13 +59,11 @@ show_readme_and_wait() {
   echo ""
   read -r "?👉 已阅读自述文件，按回车继续执行；按 Ctrl+C 取消：" _
 }
-
 # 封装 pause_to_exit 对应的独立处理逻辑。
 pause_to_exit() {
   echo ""
   read -r "?🔚 按回车退出..." _
 }
-
 # 收集并校验用户输入，决定后续执行路径。
 ask_any_to_run() {
   local message="$1"
@@ -66,7 +71,6 @@ ask_any_to_run() {
   read -r "?${message}（直接回车跳过；输入任意字符后回车执行）：" answer
   [[ -n "$answer" ]]
 }
-
 # 封装 strip_outer_quotes 对应的独立处理逻辑。
 strip_outer_quotes() {
   local value="$1"
@@ -82,7 +86,6 @@ strip_outer_quotes() {
 REPO_URL="https://github.com/JobsKits/JobsMockData.git"
 REPO_NAME="JobsMockData"
 TARGET_DIR="${SCRIPT_DIR}/${REPO_NAME}"
-
 # 检查 git。
 ensure_git() {
   if ! command -v git >/dev/null 2>&1; then
@@ -90,7 +93,6 @@ ensure_git() {
     exit 1
   fi
 }
-
 # 校验本地仓库来源。
 validate_repo() {
   local origin=""
@@ -105,7 +107,6 @@ validate_repo() {
   error_echo "目标目录是 Git 仓库，但 origin 不是 JobsKits/JobsMockData：$origin"
   exit 1
 }
-
 # 克隆或按需更新 Mock 数据仓库。
 clone_or_update_repo() {
   info_echo "脚本目录：$SCRIPT_DIR"
@@ -135,20 +136,26 @@ clone_or_update_repo() {
     success_echo "Mock 数据仓库已下载。"
   fi
 }
-
-# 主流程统一收口。
-run_main_flow() {
-  show_readme_and_wait
-  ensure_git
-  clone_or_update_repo
-  success_echo "处理完成。"
-  pause_to_exit
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+initialize_script_runtime() {
+  setopt NO_NOMATCH
+  : > "$LOG_FILE"
 }
-
-# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+# 编排脚本的高层业务流程。
 main() {
-  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
-  run_main_flow "$@"
+  # 展示脚本内置自述，并按运行入口完成防误触确认。
+  show_readme_and_wait
+  # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  initialize_script_runtime
+  # 检查当前环境与执行条件是否满足脚本要求。
+  ensure_git
+  # 执行 clone_or_update_repo 对应的核心业务步骤。
+  clone_or_update_repo
+  # 输出脚本执行结果、摘要和日志位置。
+  success_echo "处理完成。"
+  # 执行 pause_to_exit 对应的独立业务步骤。
+  pause_to_exit
 }
 
 main "$@"

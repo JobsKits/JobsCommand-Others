@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# 脚本自述：
+# - 脚本名称：【MacOS】🧬MD5.command
+# - 核心用途：执行“🧬MD5”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
 # ======================== 基础信息 ========================
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
-: > "$LOG_FILE"
-
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -36,7 +38,6 @@ bold_echo()      { log "\033[1m$1\033[0m"; }
 underline_echo() { log "\033[4m$1\033[0m"; }
 
 MD5_TOOL=""
-
 # ======================== 自述 ========================
 print_intro() {
   bold_echo "======== 文件 MD5 计算助手（${SCRIPT_BASENAME}）========"
@@ -49,7 +50,6 @@ print_intro() {
   note_echo "按 [Enter] 开始使用，或 Ctrl+C 取消..."
   IFS= read -r _
 }
-
 # ======================== 检测 MD5 工具 ========================
 detect_md5_tool() {
   if command -v md5 &>/dev/null; then
@@ -62,7 +62,6 @@ detect_md5_tool() {
   fi
   info_echo "已选择 MD5 工具：$MD5_TOOL"
 }
-
 # ======================== 计算单个文件的 MD5 ========================
 calc_md5_for_file() {
   local file="$1"
@@ -91,7 +90,6 @@ calc_md5_for_file() {
   success_echo "文件：$file"
   highlight_echo "MD5：$hash"
 }
-
 # ======================== 主循环：反复要文件 ========================
 interactive_loop() {
   while true; do
@@ -142,18 +140,38 @@ interactive_loop() {
     # 计算完自动回到 while true 的下一轮，继续等下一个文件
   done
 }
-
-# ======================== main ========================
-run_main_flow() {
-  print_intro
-  detect_md5_tool
-  interactive_loop
+# 打印脚本内置自述，并按运行入口决定是否等待用户确认。
+show_script_intro_and_wait() {
+  print -r -- '============================== 脚本内置自述 =============================='
+  print -r -- '脚本名称：【MacOS】🧬MD5.command'
+  print -r -- '核心用途：执行“🧬MD5”对应的自动化任务。'
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
+  print -r -- '============================================================================'
+  if [[ ! -t 0 ]]; then
+    print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
+    return 1
+  fi
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
 }
-
-# 统一收口脚本入口，仅委托已经拆分完成的业务流程。
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+initialize_script_runtime() {
+  set -euo pipefail
+  : > "$LOG_FILE"
+}
+# 编排脚本的高层业务流程。
 main() {
-  # 主入口只负责委托完整业务流程，复杂逻辑统一下沉。
-  run_main_flow "$@"
+  # 展示脚本内置自述，并按运行入口完成防误触确认。
+  show_script_intro_and_wait
+  # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  initialize_script_runtime
+  # 执行 print_intro 对应的独立业务步骤。
+  print_intro
+  # 解析当前任务所需的路径、参数或运行上下文。
+  detect_md5_tool
+  # 执行 interactive_loop 对应的独立业务步骤。
+  interactive_loop
 }
 
 main "$@"
