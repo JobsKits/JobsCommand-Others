@@ -228,7 +228,7 @@ jobs.pdf.test
 api.pdf.test
 ```
 
-`.com` 是公网 TLD，本机开发依赖 `/etc/hosts`，长期本地开发更建议使用 `.test`。
+`.com` 是公网 TLD，本机开发依赖 `$SYSTEM_CONFIG_DIR/hosts`，长期本地开发更建议使用 `.test`。
 
 ### 3、hosts 写入
 
@@ -398,7 +398,7 @@ sudo caddy stop
 ### 3、查看日志
 
 ```shell
-cat /tmp/StirlingPDF.log
+cat $TMPDIR/StirlingPDF.log
 tail -n 120 ~/Library/Logs/Stirling-PDF-Dev/backend.log
 tail -n 120 ~/Library/Logs/Stirling-PDF-Dev/frontend.log
 ```

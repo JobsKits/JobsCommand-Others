@@ -117,13 +117,13 @@ q
 ### 2、命令行传参 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
-"/path/to/【MacOS】Caddy本地域名映射.command" "localhost:5173" "jobs.pdf.com"
+"<path-to>/【MacOS】Caddy本地域名映射.command" "localhost:5173" "jobs.pdf.com"
 ```
 
 ### 3、只停止旧映射 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
-"/path/to/【MacOS】Caddy本地域名映射.command" --stop
+"<path-to>/【MacOS】Caddy本地域名映射.command" --stop
 ```
 
 或者双击运行脚本，确认自述文件后，在旧映射清理完成提示处输入：
@@ -137,7 +137,7 @@ q
 如果目标服务是 Vite，建议启动服务时仍显式加入 allowed host：
 
 ```shell
-cd /Users/jobs/Documents/Github/Stirling-PDF
+cd ../../../Stirling-PDF
 __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=jobs.pdf.com task frontend:dev
 ```
 
@@ -219,17 +219,17 @@ curl -I http://127.0.0.1:5173/
 
 - Caddy 只负责映射，不负责启动你的本地项目。
 - 本地服务必须先启动，脚本才会继续创建映射。
-- 如果使用 `.com`，必须依赖 `/etc/hosts` 指向本机。
+- 如果使用 `.com`，必须依赖 `$SYSTEM_CONFIG_DIR/hosts` 指向本机。
 - 如果浏览器走系统代理，脚本会自动把映射域名加入代理绕过列表。
 - 如果目标服务是 Vite，仍建议显式设置 allowed host。
 - Caddy 启动后是后台服务，关闭终端不会影响映射。
 
 ## 八、日志文件
 
-运行日志默认写入 `/tmp`，文件名通常来自脚本名去掉扩展名：
+运行日志默认写入 `$TMPDIR`，文件名通常来自脚本名去掉扩展名：
 
 ```shell
-/tmp/【MacOS】Caddy本地域名映射.log
+$TMPDIR/【MacOS】Caddy本地域名映射.log
 ```
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>

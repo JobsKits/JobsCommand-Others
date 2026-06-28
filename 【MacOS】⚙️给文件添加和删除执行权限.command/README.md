@@ -21,7 +21,7 @@
 - 脚本日志默认写入：
 
   ```shell
-  /tmp/【MacOS】⚙️给文件添加和删除执行权限.log
+  $TMPDIR/【MacOS】⚙️给文件添加和删除执行权限.log
   ```
 
 ## 一、🎯 脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
@@ -74,7 +74,7 @@ graph TD
 ## 七、🪵 日志位置 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
-/tmp/【MacOS】⚙️给文件添加和删除执行权限.log
+$TMPDIR/【MacOS】⚙️给文件添加和删除执行权限.log
 ```
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>
