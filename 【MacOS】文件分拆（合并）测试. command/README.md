@@ -206,15 +206,15 @@ command -v brew
 如果没有检测到 Homebrew，会根据 CPU 架构执行官方安装脚本：
 
 ```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+$SYSTEM_BIN_DIR/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 安装路径按架构区分：
 
 | Mac 类型 | Homebrew 常见路径 |
 |---|---|
-| Apple Silicon | `/opt/homebrew/bin/brew` |
-| Intel | `/usr/local/bin/brew` |
+| Apple Silicon | `$(brew --prefix)/bin/brew` |
+| Intel | `$(brew --prefix)/bin/brew` |
 
 安装完成后，脚本会向当前 Shell 的配置文件注入 `brew shellenv`：
 
@@ -227,13 +227,13 @@ command -v brew
 写入内容类似：
 
 ```shell
-eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$($(brew --prefix)/bin/brew shellenv)"
 ```
 
 或：
 
 ```shell
-eval "$(/usr/local/bin/brew shellenv)"
+eval "$($(brew --prefix)/bin/brew shellenv)"
 ```
 
 如果 Homebrew 已安装，脚本会询问是否更新：
@@ -1010,16 +1010,16 @@ Good/
 
 ## 八、日志文件
 
-三个脚本都会把运行日志写入 `/tmp`。
+三个脚本都会把运行日志写入 `$TMPDIR`。
 
 日志文件名来自脚本文件名去掉 `.command` 后拼接 `.log`。
 
 例如：
 
 ```text
-/tmp/【MacOS】✂️源文件压缩拆分➤子卷.log
-/tmp/【MacOS】🧩子卷➤合而为一源文件.log
-/tmp/【MacOS】🧬MD5.log
+$TMPDIR/【MacOS】✂️源文件压缩拆分➤子卷.log
+$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log
+$TMPDIR/【MacOS】🧬MD5.log
 ```
 
 排查问题时，优先查看终端最后一个 `✖` 报错，再查看对应日志。
@@ -1027,9 +1027,9 @@ Good/
 示例：
 
 ```shell
-cat '/tmp/【MacOS】✂️源文件压缩拆分➤子卷.log'
-cat '/tmp/【MacOS】🧩子卷➤合而为一源文件.log'
-cat '/tmp/【MacOS】🧬MD5.log'
+cat '$TMPDIR/【MacOS】✂️源文件压缩拆分➤子卷.log'
+cat '$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log'
+cat '$TMPDIR/【MacOS】🧬MD5.log'
 ```
 
 ---
@@ -1106,14 +1106,14 @@ Ctrl+C
 4. 子卷目录是否已经存在同名文件。
 5. 目标磁盘空间是否足够。
 6. 文件名是否包含特殊字符。
-7. `/tmp/【MacOS】✂️源文件压缩拆分➤子卷.log` 中最后一个错误。
+7. `$TMPDIR/【MacOS】✂️源文件压缩拆分➤子卷.log` 中最后一个错误。
 
 常用命令：
 
 ```shell
 ls -lah '/你的目标目录'
 df -h
-cat '/tmp/【MacOS】✂️源文件压缩拆分➤子卷.log'
+cat '$TMPDIR/【MacOS】✂️源文件压缩拆分➤子卷.log'
 ```
 
 ---
@@ -1128,13 +1128,13 @@ cat '/tmp/【MacOS】✂️源文件压缩拆分➤子卷.log'
 4. 子卷文件名是否被手动改过。
 5. 目标目录是否已经有同名输出文件。
 6. 多子卷目录场景下是否安装了 fzf。
-7. `/tmp/【MacOS】🧩子卷➤合而为一源文件.log` 中最后一个错误。
+7. `$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log` 中最后一个错误。
 
 常用命令：
 
 ```shell
 find '/你的目标目录' -maxdepth 2 -type f -name '*@*' | sort
-cat '/tmp/【MacOS】🧩子卷➤合而为一源文件.log'
+cat '$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log'
 ```
 
 ---
@@ -1147,14 +1147,14 @@ cat '/tmp/【MacOS】🧩子卷➤合而为一源文件.log'
 2. 路径是否存在。
 3. 文件是否有读取权限。
 4. 系统是否存在 `md5` 或 `md5sum`。
-5. `/tmp/【MacOS】🧬MD5.log` 中最后一个错误。
+5. `$TMPDIR/【MacOS】🧬MD5.log` 中最后一个错误。
 
 常用命令：
 
 ```shell
 command -v md5
 command -v md5sum
-cat '/tmp/【MacOS】🧬MD5.log'
+cat '$TMPDIR/【MacOS】🧬MD5.log'
 ```
 
 ---
@@ -1265,7 +1265,7 @@ Ctrl+C
 - 删除源文件、覆盖目标文件、删除子卷目录都必须交互确认。
 - 多目录选择交给 fzf，减少输入路径错误。
 - MD5 独立成单独脚本，不强塞进拆分 / 合并主流程。
-- 日志统一写入 `/tmp`，方便排查。
+- 日志统一写入 `$TMPDIR`，方便排查。
 - 当前实现优先保证简单直接，不做复杂归档、压缩、加密和自动校验。
 
 ---

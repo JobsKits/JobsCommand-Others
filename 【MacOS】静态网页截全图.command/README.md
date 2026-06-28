@@ -21,7 +21,7 @@
 - 脚本日志默认写入：
 
   ```shell
-  /tmp/【MacOS】静态网页截全图.log
+  $TMPDIR/【MacOS】静态网页截全图.log
   ```
 
 ## 一、🎯 脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
@@ -76,7 +76,7 @@ graph TD
 ## 七、🪵 日志位置 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
-/tmp/【MacOS】静态网页截全图.log
+$TMPDIR/【MacOS】静态网页截全图.log
 ```
 
 ## 八、🍺 Homebrew 自检标准 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
@@ -85,7 +85,7 @@ graph TD
 
 | 场景 | 行为 |
 |---|---|
-| 未检测到 Homebrew | 按 CPU 架构安装：Apple Silicon 使用 `/opt/homebrew`，Intel 使用 `/usr/local` |
+| 未检测到 Homebrew | 按 CPU 架构安装：Apple Silicon 使用 `$(brew --prefix)`，Intel 使用 `$(brew --prefix)` |
 | 已检测到 Homebrew | 先写入并激活 `brew shellenv` |
 | 询问是否更新 | 直接按 `[Enter]` = 跳过更新 |
 | 询问是否更新 | 输入任意字符后回车 = 执行更新流程 |

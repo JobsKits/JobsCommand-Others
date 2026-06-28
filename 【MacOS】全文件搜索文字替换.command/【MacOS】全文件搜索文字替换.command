@@ -40,8 +40,7 @@ underline_echo() { log "\033[4m$1\033[0m"; }            # 🔗 下划线
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
 SCRIPT_PATH="${SCRIPT_DIR}/$(basename -- "$0")"
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
-show_readme_and_wait() {
-  local readme_path="${SCRIPT_DIR}/README.md"
+show_script_intro_and_wait() {
   clear
   print -r -- '============================== 脚本内置自述 =============================='
   print -r -- '脚本名称：【MacOS】全文件搜索文字替换.command'
@@ -49,15 +48,8 @@ show_readme_and_wait() {
   print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
   print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
   print -r -- '============================================================================'
-  if [[ -f "$readme_path" ]]; then
-    highlight_echo "============================== README.md =============================="
-    cat "$readme_path" | tee -a "$LOG_FILE"
-    highlight_echo "======================================================================="
-  else
-    warn_echo "未找到 README.md，继续执行内置流程说明。"
-  fi
   echo ""
-  read -r "?👉 已阅读自述文件，按回车继续执行；按 Ctrl+C 取消：" _
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
 }
 # 封装 pause_to_exit 对应的独立处理逻辑。
 pause_to_exit() {
@@ -165,7 +157,7 @@ initialize_script_runtime() {
 # 编排脚本的高层业务流程。
 main() {
   # 展示脚本内置自述，并按运行入口完成防误触确认。
-  show_readme_and_wait
+  show_script_intro_and_wait
   # 初始化 Shell 选项、日志、依赖和入口运行状态。
   initialize_script_runtime
   # 执行入口下沉后的完整业务流程。

@@ -21,7 +21,7 @@
 - 脚本日志默认写入：
 
   ```shell
-  /tmp/【MacOS】⚙️『 已损坏，无法打开: 来自身份不明的开发者』等问题修复工具.log
+  $TMPDIR/【MacOS】⚙️『 已损坏，无法打开: 来自身份不明的开发者』等问题修复工具.log
   ```
 
 ## 一、🎯 脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
@@ -75,7 +75,7 @@ graph TD
 ## 七、🪵 日志位置 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
-/tmp/【MacOS】⚙️『 已损坏，无法打开: 来自身份不明的开发者』等问题修复工具.log
+$TMPDIR/【MacOS】⚙️『 已损坏，无法打开: 来自身份不明的开发者』等问题修复工具.log
 ```
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>

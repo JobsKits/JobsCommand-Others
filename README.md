@@ -20,8 +20,8 @@
 
 ## 二、✅ 统一升级点 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-- 统一使用 `#!/bin/zsh`。
-- 统一使用彩色日志函数和 `/tmp/脚本名.log`。
+- 统一使用 `# shell: zsh`。
+- 统一使用彩色日志函数和 `$TMPDIR/脚本名.log`。
 - 统一使用 `SCRIPT_DIR` / `SCRIPT_PATH` 定位脚本路径。
 - 统一在 `main "$@"` 收口执行。
 - 双击脚本时先打印同目录 README，并等待回车继续。

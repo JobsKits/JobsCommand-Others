@@ -346,13 +346,13 @@ uname -s
 | 检测路径 | 说明 |
 |---|---|
 | `command -v brew` | 当前环境已经能直接找到 `brew` |
-| `/opt/homebrew/bin/brew` | Apple Silicon 常见路径 |
-| `/usr/local/bin/brew` | Intel 常见路径 |
+| `$(brew --prefix)/bin/brew` | Apple Silicon 常见路径 |
+| `$(brew --prefix)/bin/brew` | Intel 常见路径 |
 
 如果未检测到 [**Homebrew**](https://brew.sh/)，脚本会使用官方安装命令安装：
 
 ```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+$SYSTEM_BIN_DIR/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 安装或检测到 brew 后，会把 shellenv 写入当前 Shell 对应配置文件：
@@ -366,7 +366,7 @@ uname -s
 写入内容类似：
 
 ```shell
-eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$($(brew --prefix)/bin/brew shellenv)"
 ```
 
 脚本使用带标记的配置块写入，避免重复追加同一段配置。
@@ -473,13 +473,13 @@ http://127.0.0.1:8080/jsons/products.json
 
 ## 八、🧾 日志与运行文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-脚本会把日志和 PID 文件写在 `/tmp` 目录：
+脚本会把日志和 PID 文件写在 `$TMPDIR` 目录：
 
 | 文件 | 说明 |
 |---|---|
-| `/tmp/【MacOS】Mock.log` | 主脚本日志 |
-| `/tmp/【MacOS】Mock_http_server.log` | Python HTTP 服务日志 |
-| `/tmp/【MacOS】Mock_http_server.pid` | 后台服务 PID 文件 |
+| `$TMPDIR/【MacOS】Mock.log` | 主脚本日志 |
+| `$TMPDIR/【MacOS】Mock_http_server.log` | Python HTTP 服务日志 |
+| `$TMPDIR/【MacOS】Mock_http_server.pid` | 后台服务 PID 文件 |
 
 实际文件名由脚本自身文件名决定。如果你重命名了 `【MacOS】Mock.command`，日志文件名也会跟着变化。
 
@@ -492,13 +492,13 @@ http://127.0.0.1:8080/jsons/products.json
 查看 HTTP 服务日志：
 
 ```shell
-tail -f /tmp/【MacOS】Mock_http_server.log
+tail -f $TMPDIR/【MacOS】Mock_http_server.log
 ```
 
 查看主脚本日志：
 
 ```shell
-tail -f /tmp/【MacOS】Mock.log
+tail -f $TMPDIR/【MacOS】Mock.log
 ```
 
 ---
