@@ -1,0 +1,383 @@
+{
+  "builtTestProducts" : [
+
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.JobsScheduler-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/sources",
+      "importPath" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/SchedulerTask.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/SupportingViews.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "JobsScheduler",
+      "moduleOutputPath" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsScheduler.swiftmodule",
+      "objects" : [
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths.swift.o",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ContentView.swift.o",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsSchedulerApp.swift.o",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LaunchdManager.swift.o",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SchedulerTask.swift.o",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SupportingViews.swift.o",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskEditorView.swift.o",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskRunner.swift.o",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "10",
+        "-serialize-diagnostics",
+        "-O",
+        "-j10",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "JobsScheduler_main",
+        "-swift-version",
+        "6",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "jobs计划任务_command"
+      ],
+      "outputFileMapPath" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsSchedulerApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LaunchdManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SchedulerTask.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SupportingViews.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskEditorView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskRunner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsScheduler.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift",
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift",
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift",
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift",
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/SchedulerTask.swift",
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/SupportingViews.swift",
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift",
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift",
+        "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift"
+      ],
+      "tempsPath" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build",
+      "wholeModuleOptimization" : true
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "JobsScheduler" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "JobsScheduler",
+      "-package-name",
+      "jobs计划任务_command",
+      "-c",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/SchedulerTask.swift",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/SupportingViews.swift",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift",
+      "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift",
+      "-I",
+      "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "10",
+      "-serialize-diagnostics",
+      "-O",
+      "-j10",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "JobsScheduler_main",
+      "-swift-version",
+      "6",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "jobs计划任务_command",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "JobsScheduler" : [
+
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "traitConfiguration" : {
+    "default" : {
+
+    }
+  },
+  "writeCommands" : {
+    "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/SchedulerTask.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/SupportingViews.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/sources"
+    },
+    "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsSchedulerApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LaunchdManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SchedulerTask.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SupportingViews.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskEditorView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskRunner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.product/Objects.LinkFileList"
+    },
+    "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/jobs/Desktop/Jobs计划任务.command/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+    }
+  }
+}
