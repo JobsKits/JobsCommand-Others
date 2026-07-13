@@ -10,6 +10,8 @@
     <string>JobsScheduler</string>
     <key>CFBundleIdentifier</key>
     <string>com.jobs.scheduler</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
@@ -17,13 +19,13 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>2.0.0</string>
+    <string>2.1.1</string>
     <key>CFBundleVersion</key>
-    <string>200</string>
+    <string>211</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
     <key>LSUIElement</key>
-    <true/>
+    <false/>
     <key>NSHumanReadableCopyright</key>
     <string>Jobs</string>
     <key>NSUserNotificationUsageDescription</key>

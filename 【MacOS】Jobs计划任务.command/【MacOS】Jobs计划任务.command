@@ -63,6 +63,7 @@ build_and_install_app() {
   mkdir -p "$INSTALL_DIR" "$APP_PATH/Contents/MacOS" "$APP_PATH/Contents/Resources"
   cp "$BUILD_BINARY" "$APP_PATH/Contents/MacOS/JobsScheduler"
   cp "$SCRIPT_DIR/Resources/Info.plist" "$APP_PATH/Contents/Info.plist"
+  cp "$SCRIPT_DIR/Resources/AppIcon.icns" "$APP_PATH/Contents/Resources/AppIcon.icns"
   chmod 755 "$APP_PATH/Contents/MacOS/JobsScheduler"
   if ! codesign --force --deep --sign - "$APP_PATH" 2>&1 | tee -a "$LOG_FILE"; then
     error_echo "App 临时签名失败。"

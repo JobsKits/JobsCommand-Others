@@ -44,7 +44,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 NSApp.terminate(nil)
             };return
         }
-        NSApp.setActivationPolicy(.accessory)
+        NSApp.applicationIconImage = makeAlarmAppIcon()
+        prepareStatusItemPosition()
         configureStatusItem()
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -68,8 +69,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         let alert = NSAlert()
         alert.messageText = "关闭 Jobs 计划任务？"
-        alert.informativeText = "关闭窗口后可以继续驻留菜单栏，也可以退出 UI。已经注册的计划任务仍由 launchd 执行。"
-        alert.addButton(withTitle: "最小化到菜单栏")
+        alert.informativeText = "可以关闭管理窗口并驻留到屏幕顶部菜单栏，也可以退出 UI。已经注册的计划任务仍由 launchd 执行。"
+        alert.addButton(withTitle: "驻留到顶部菜单栏")
         alert.addButton(withTitle: "退出 UI")
         alert.addButton(withTitle: "取消")
         switch alert.runModal() {
@@ -87,7 +88,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     private func configureStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        item.button?.image = NSImage(systemSymbolName: "calendar.badge.clock", accessibilityDescription: "Jobs 计划任务")
+        item.autosaveName = "com.jobs.scheduler.statusItem"
+        item.isVisible = true
+        let statusImage = NSImage(systemSymbolName: "alarm.fill", accessibilityDescription: "Jobs 计划任务")?
+            .withSymbolConfiguration(
+                NSImage.SymbolConfiguration(pointSize: 15, weight: .bold)
+                    .applying(NSImage.SymbolConfiguration(paletteColors: [NSColor.systemRed]))
+            )
+        statusImage?.isTemplate = false
+        item.button?.image = statusImage
+        item.button?.isHidden = false
+        item.button?.alphaValue = 1
+        item.button?.title = ""
+        item.button?.toolTip = "Jobs 计划任务"
         let menu = NSMenu()
         let openItem = menu.addItem(withTitle: "打开任务中心", action: #selector(openMainWindow), keyEquivalent: "")
         openItem.target = self
@@ -103,6 +116,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         quitItem.target = self
         item.menu = menu
         statusItem = item
+    }
+
+    private func prepareStatusItemPosition() {
+        let key = "NSStatusItem Preferred Position com.jobs.scheduler.statusItem"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            UserDefaults.standard.set(200.0, forKey: key)
+        }
+    }
+
+    private func makeAlarmAppIcon() -> NSImage {
+        let size = NSSize(width: 128, height: 128)
+        let image = NSImage(size: size)
+        image.lockFocus()
+        NSColor.systemRed.setFill()
+        NSBezierPath(roundedRect: NSRect(x: 4, y: 4, width: 120, height: 120), xRadius: 28, yRadius: 28).fill()
+        let text = NSAttributedString(
+            string: "⏰",
+            attributes: [.font: NSFont.systemFont(ofSize: 76)]
+        )
+        let textSize = text.size()
+        text.draw(at: NSPoint(x: (size.width - textSize.width) / 2, y: (size.height - textSize.height) / 2))
+        image.unlockFocus();return image
     }
 
     @objc private func openMainWindow() {
