@@ -95,7 +95,7 @@ struct PreferencesView: View {
             Section("关闭窗口") {
                 Picker("默认行为", selection: $store.preferences.closeBehavior) {
                     Text("每次询问").tag("ask")
-                    Text("最小化到菜单栏").tag("hide")
+                    Text("关闭窗口并驻留到顶部菜单栏").tag("hide")
                     Text("退出 UI").tag("quit")
                 }
                 Text("退出 UI 不会取消已经注册的计划任务。").font(.caption).foregroundStyle(.secondary)
