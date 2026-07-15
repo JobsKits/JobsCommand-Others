@@ -4,6 +4,12 @@
     "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsScheduler.o",
     "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/primary.swiftdeps"
   },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ANSITextSanitizer.swift": {
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer.dia"
+  },
   "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift": {
     "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths.swift.o",
     "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths~partial.swiftmodule",
@@ -63,5 +69,11 @@
     "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore~partial.swiftmodule",
     "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swiftdeps",
     "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/WheelTimePicker.swift": {
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker.dia"
   }
 }

@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import Combine
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -32,6 +33,8 @@ struct ContentView: View {
     @State private var editingTask: SchedulerTask?
     @State private var showingEditor = false
     @State private var search = ""
+    @State private var requestedLogTaskID: UUID?
+    private let taskRefreshTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         NavigationSplitView {
@@ -46,7 +49,7 @@ struct ContentView: View {
             case .recycle:
                 RecycleBinView()
             case .logs:
-                ExecutionLogsView()
+                ExecutionLogsView(requestedTaskID: $requestedLogTaskID)
             case .settings:
                 PreferencesView()
             }
@@ -58,10 +61,20 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .newSchedulerTask)) { _ in newTask() }
         .onReceive(NotificationCenter.default.publisher(for: .showSchedulerPreferences)) { _ in selection = .settings }
+        .onReceive(taskRefreshTimer) { _ in store.reloadIfChanged() }
         .alert("操作失败", isPresented: Binding(get: { store.lastError != nil }, set: { if !$0 { store.lastError = nil } })) {
             Button("知道了") { store.lastError = nil }
         } message: {
             Text(store.lastError ?? "未知错误")
+        }
+        .preferredColorScheme(preferredColorScheme)
+    }
+
+    private var preferredColorScheme: ColorScheme? {
+        switch store.preferences.appearance ?? .system {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
         }
     }
 
@@ -77,7 +90,11 @@ struct ContentView: View {
             }
             .padding()
             List(filteredTasks) { task in
-                TaskRow(task: task, edit: { edit(task) })
+                TaskRow(
+                    task: task,
+                    edit: { edit(task) },
+                    showDetails: { showDetails(for: task) }
+                )
             }
             .overlay {
                 if filteredTasks.isEmpty {
@@ -101,12 +118,18 @@ struct ContentView: View {
         editingTask = task
         showingEditor = true
     }
+
+    private func showDetails(for task: SchedulerTask) {
+        requestedLogTaskID = task.id
+        selection = .logs
+    }
 }
 
 struct TaskRow: View {
     @EnvironmentObject private var store: TaskStore
     let task: SchedulerTask
     let edit: () -> Void
+    let showDetails: () -> Void
 
     var body: some View {
         HStack(spacing: 14) {
@@ -118,26 +141,69 @@ struct TaskRow: View {
                 Text("\(task.schedule.rawValue) · \(task.target)")
                     .lineLimit(1)
                     .foregroundStyle(.secondary)
+                Text("配置时间：\(configuredScheduleText)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    Text(nextRunText(at: context.date))
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(task.enabled ? Color.accentColor : Color.secondary)
+                }
                 Text(task.lastMessage).font(.caption).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
             Toggle("", isOn: Binding(get: { task.enabled }, set: { store.setEnabled(task, enabled: $0) }))
                 .labelsHidden()
             Button("立即运行") { LaunchdManager.runNow(task) }
-            Button("编辑", action: edit)
-            Menu {
-                Button("在 Finder 中显示目标") {
-                    NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: task.target)])
-                }
-                Button("查看日志") { NSWorkspace.shared.open(AppPaths.log(for: task)) }
-                Divider()
-                Button("移入回收站", role: .destructive) { store.moveToRecycleBin(task) }
-            } label: {
-                Image(systemName: "ellipsis.circle")
+            Button("显示详情", action: showDetails)
+            Button(action: edit) {
+                Image(systemName: "gearshape")
             }
-            .menuStyle(.borderlessButton)
-            .frame(width: 28)
+            .accessibilityLabel("编辑任务")
+            .help("编辑任务")
         }
         .padding(.vertical, 6)
+        .contentShape(Rectangle())
+        .contextMenu {
+            Button("在 Finder 中显示目标") {
+                NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: task.target)])
+            }
+            Button("查看日志", action: showDetails)
+            Divider()
+            Button("移入回收站", role: .destructive) { store.moveToRecycleBin(task) }
+        }
+    }
+
+    private var configuredScheduleText: String {
+        let time = task.fireDate.formatted(date: .omitted, time: .shortened)
+        switch task.schedule {
+        case .once:
+            return task.fireDate.formatted(date: .numeric, time: .shortened)
+        case .daily:
+            return "每天 \(time)"
+        case .weekly:
+            let weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+            let index = min(max(task.weekday - 1, 0), weekdays.count - 1)
+            return "\(weekdays[index]) \(time)"
+        case .interval:
+            return "每 \(task.intervalMinutes) 分钟"
+        case .login:
+            return "用户登录后"
+        }
+    }
+
+    private func nextRunText(at now: Date) -> String {
+        guard task.enabled else { return "最近执行：任务已停用" }
+        guard task.schedule != .login else { return "最近执行：下次用户登录时" }
+        guard let nextRun = task.nextRunDate(after: now) else {
+            return task.schedule == .once ? "最近执行：一次性计划时间已过" : "最近执行：待系统计算"
+        }
+        let remaining = max(Int(nextRun.timeIntervalSince(now)), 0)
+        let hours = remaining / 3_600
+        let minutes = remaining % 3_600 / 60
+        let seconds = remaining % 60
+        let countdown = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        let nextRunDescription = nextRun.formatted(date: .abbreviated, time: .standard)
+        return "最近执行：\(nextRunDescription) · 倒计时：\(countdown)"
     }
 }

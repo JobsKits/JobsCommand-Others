@@ -1,0 +1,75 @@
+{
+  "": {
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/primary.swiftdeps"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/AppPaths.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/AppPaths.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/AppPaths~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/AppPaths.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/AppPaths.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/ContentView.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/ContentView.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/ContentView~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/ContentView.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/ContentView.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/JobsSchedulerApp.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/JobsSchedulerApp.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/JobsSchedulerApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/JobsSchedulerApp.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/JobsSchedulerApp.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/LaunchdManager.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/LaunchdManager.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/LaunchdManager~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/LaunchdManager.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/LaunchdManager.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/SchedulerTask.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SchedulerTask.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SchedulerTask.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SchedulerTask~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SchedulerTask.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SchedulerTask.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/StatusMenuView.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/StatusMenuView.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/StatusMenuView.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/StatusMenuView~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/StatusMenuView.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/StatusMenuView.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/SupportingViews.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SupportingViews.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SupportingViews.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SupportingViews~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SupportingViews.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/SupportingViews.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskEditorView.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskEditorView.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskEditorView~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskEditorView.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskEditorView.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskRunner.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskRunner.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskRunner~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskRunner.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskRunner.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskStore.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskStore.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskStore.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/debug/JobsScheduler.build/TaskStore.dia"
+  }
+}
