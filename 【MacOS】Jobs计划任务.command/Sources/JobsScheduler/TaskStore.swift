@@ -18,6 +18,7 @@ final class TaskStore: ObservableObject {
 
     var activeTasks: [SchedulerTask] { tasks.filter { !$0.isDeleted } }
     var recycledTasks: [SchedulerTask] { tasks.filter(\.isDeleted) }
+    private var tasksModificationDate: Date?
 
     private init() {
         load()
@@ -33,9 +34,15 @@ final class TaskStore: ObservableObject {
             if let data = try? Data(contentsOf: AppPaths.preferences) {
                 preferences = try JSONDecoder.jobs.decode(SchedulerPreferences.self, from: data)
             }
+            tasksModificationDate = currentTasksModificationDate()
         } catch {
             lastError = error.localizedDescription
         }
+    }
+
+    func reloadIfChanged() {
+        guard currentTasksModificationDate() != tasksModificationDate else { return }
+        load()
     }
 
     func save(_ task: SchedulerTask) {
@@ -83,6 +90,14 @@ final class TaskStore: ObservableObject {
         tasks[index].updatedAt = Date()
         persist()
         synchronize(tasks[index])
+    }
+
+    func markExecutionStarted(id: UUID) {
+        guard let index = tasks.firstIndex(where: { $0.id == id }) else { return }
+        tasks[index].lastRunAt = Date()
+        tasks[index].lastExitCode = nil
+        tasks[index].lastMessage = "正在执行…"
+        persist()
     }
 
     func updateExecution(id: UUID, exitCode: Int32, message: String) {
@@ -143,9 +158,14 @@ final class TaskStore: ObservableObject {
         do {
             try AppPaths.prepare()
             try JSONEncoder.jobs.encode(tasks).write(to: AppPaths.tasks, options: .atomic)
+            tasksModificationDate = currentTasksModificationDate()
         } catch {
             lastError = error.localizedDescription
         }
+    }
+
+    private func currentTasksModificationDate() -> Date? {
+        try? AppPaths.tasks.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
     }
 }
 

@@ -23,7 +23,10 @@ enum TaskRunner {
             return
         }
         defer { lock.release() }
+        await store.markExecutionStarted(id: task.id)
+        appendLog(task: task, message: "开始执行：\(task.target)")
         let result = execute(task)
+        sanitizeLog(task: task)
         appendLog(task: task, message: result.message)
         await store.updateExecution(id: task.id, exitCode: result.code, message: result.message)
         if (result.code == 0 && task.notifyOnSuccess) || (result.code != 0 && task.notifyOnFailure) {
@@ -33,7 +36,7 @@ enum TaskRunner {
 
     private static func execute(_ task: SchedulerTask) -> (code: Int32, message: String) {
         let process = Process()
-        let output = Pipe()
+        process.environment = commandEnvironment()
         switch task.action {
         case .open:
             process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
@@ -54,9 +57,17 @@ enum TaskRunner {
         if !task.workingDirectory.isEmpty {
             process.currentDirectoryURL = URL(fileURLWithPath: task.workingDirectory, isDirectory: true)
         }
-        process.standardOutput = output
-        process.standardError = output
         do {
+            try AppPaths.prepare()
+            let logURL = AppPaths.log(for: task)
+            if !AppPaths.fileManager.fileExists(atPath: logURL.path) {
+                try Data().write(to: logURL)
+            }
+            let outputHandle = try FileHandle(forWritingTo: logURL)
+            try outputHandle.seekToEnd()
+            process.standardOutput = outputHandle
+            process.standardError = outputHandle
+            defer { try? outputHandle.close() }
             try process.run()
             let deadline = Date().addingTimeInterval(TimeInterval(max(task.timeoutMinutes, 1) * 60))
             while process.isRunning && Date() < deadline {
@@ -66,13 +77,36 @@ enum TaskRunner {
                 process.terminate()
                 return (124, "任务超过 \(task.timeoutMinutes) 分钟，已终止")
             }
-            let data = output.fileHandleForReading.readDataToEndOfFile()
-            let text = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let message = text.isEmpty ? (process.terminationStatus == 0 ? "执行成功" : "执行失败") : text
-            return (process.terminationStatus, message)
+            try outputHandle.synchronize()
+            return (process.terminationStatus, process.terminationStatus == 0 ? "执行成功" : "执行失败，退出码：\(process.terminationStatus)")
         } catch {
             return (-1, error.localizedDescription)
         }
+    }
+
+    private static func commandEnvironment() -> [String: String] {
+        var environment = ProcessInfo.processInfo.environment
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        let preferredPaths = [
+            "\(home)/.local/bin",
+            "/opt/homebrew/bin",
+            "/opt/homebrew/sbin",
+            "/usr/local/bin",
+            "/usr/local/sbin",
+            "/usr/bin",
+            "/bin",
+            "/usr/sbin",
+            "/sbin"
+        ]
+        let inheritedPaths = environment["PATH", default: ""]
+            .split(separator: ":")
+            .map(String.init)
+        var paths: [String] = []
+        for path in preferredPaths + inheritedPaths where !paths.contains(path) {
+            paths.append(path)
+        }
+        environment["PATH"] = paths.joined(separator: ":")
+        return environment
     }
 
     private static func split(_ text: String) -> [String] {
@@ -90,6 +124,14 @@ enum TaskRunner {
         defer { try? handle.close() }
         _ = try? handle.seekToEnd()
         try? handle.write(contentsOf: Data(line.utf8))
+    }
+
+    private static func sanitizeLog(task: SchedulerTask) {
+        let url = AppPaths.log(for: task)
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        let cleaned = ANSITextSanitizer.clean(text)
+        guard cleaned != text else { return }
+        try? cleaned.write(to: url, atomically: true, encoding: .utf8)
     }
 
     private static func shouldSkipMissedRun(_ task: SchedulerTask) -> Bool {

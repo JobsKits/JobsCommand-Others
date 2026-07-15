@@ -24,6 +24,10 @@
       "inputs" : [
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ANSITextSanitizer.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift"
         },
         {
@@ -64,6 +68,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/WheelTimePicker.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
         },
         {
@@ -75,6 +83,7 @@
       "moduleName" : "JobsScheduler",
       "moduleOutputPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsScheduler.swiftmodule",
       "objects" : [
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ContentView.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsSchedulerApp.swift.o",
@@ -84,7 +93,8 @@
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SupportingViews.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskEditorView.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskRunner.swift.o",
-        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swift.o"
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swift.o",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker.swift.o"
       ],
       "otherArguments" : [
         "-target",
@@ -136,6 +146,10 @@
       "outputs" : [
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths.swift.o"
         },
         {
@@ -176,11 +190,16 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsScheduler.swiftmodule"
         }
       ],
       "prepareForIndexing" : false,
       "sources" : [
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ANSITextSanitizer.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift",
@@ -190,7 +209,8 @@
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/SupportingViews.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift",
-        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift"
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/WheelTimePicker.swift"
       ],
       "tempsPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build",
       "wholeModuleOptimization" : true
@@ -207,6 +227,7 @@
       "-package-name",
       "_macos_jobs计划任务_command",
       "-c",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ANSITextSanitizer.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift",
@@ -217,6 +238,7 @@
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/WheelTimePicker.swift",
       "-I",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules",
       "-target",
@@ -293,6 +315,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ANSITextSanitizer.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift"
         },
         {
@@ -330,6 +356,10 @@
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/WheelTimePicker.swift"
         }
       ],
       "outputFilePath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/sources"
@@ -340,6 +370,10 @@
         {
           "kind" : "virtual",
           "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer.swift.o"
         },
         {
           "kind" : "file",
@@ -380,6 +414,10 @@
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker.swift.o"
         }
       ],
       "outputFilePath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.product/Objects.LinkFileList"

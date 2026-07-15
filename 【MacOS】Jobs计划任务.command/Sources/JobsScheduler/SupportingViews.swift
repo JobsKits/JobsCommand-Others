@@ -6,18 +6,20 @@
 //
 
 import AppKit
+import Combine
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct RecycleBinView: View {
     @EnvironmentObject private var store: TaskStore
+    @State private var showingEmptyConfirmation = false
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
                 Text("删除的任务默认保留 \(store.preferences.recycleRetentionDays) 天").foregroundStyle(.secondary)
                 Spacer()
-                Button("清空回收站", role: .destructive) { store.emptyRecycleBin() }
+                Button("清空回收站", role: .destructive) { showingEmptyConfirmation = true }
                     .disabled(store.recycledTasks.isEmpty)
             }
             .padding()
@@ -40,42 +42,144 @@ struct RecycleBinView: View {
             }
         }
         .navigationTitle("回收站")
+        .alert("确认清空回收站？", isPresented: $showingEmptyConfirmation) {
+            Button("取消", role: .cancel) {}
+            Button("永久删除", role: .destructive) { store.emptyRecycleBin() }
+        } message: {
+            Text("这会永久删除回收站中的 \(store.recycledTasks.count) 个任务及其日志，删除后无法恢复。")
+        }
     }
 }
 
 struct ExecutionLogsView: View {
     @EnvironmentObject private var store: TaskStore
+    @Binding var requestedTaskID: UUID?
     @State private var selection: UUID?
     @State private var logText = "请选择一个任务查看日志。"
+    @State private var showingClearLogsConfirmation = false
+    @State private var loggedTaskIDs: Set<UUID> = []
+    @State private var followsLatestOutput = true
+    private let logRefreshTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         HSplitView {
-            List(store.tasks, selection: $selection) { task in
+            List(loggedTasks, selection: $selection) { task in
                 VStack(alignment: .leading, spacing: 3) {
                     Text(task.name)
                     Text(task.lastRunAt?.formatted() ?? "尚未执行").font(.caption).foregroundStyle(.secondary)
+                    Text(task.lastMessage).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 }
                 .tag(task.id)
             }
             .frame(minWidth: 240)
-            ScrollView {
-                Text(logText)
-                    .font(.system(.body, design: .monospaced))
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-                    .padding()
+            .contextMenu { clearLogsMenu }
+            .overlay {
+                if loggedTasks.isEmpty {
+                    ContentUnavailableView("暂无执行记录", systemImage: "doc.text.magnifyingglass", description: Text("任务执行后会在这里显示日志。"))
+                }
             }
+            ScrollViewReader { proxy in
+                ScrollView {
+                    Text(logText)
+                        .font(.system(.body, design: .monospaced))
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                        .padding()
+                    Color.clear.frame(height: 1).id("log-end")
+                }
+                .onChange(of: logText) { _, _ in
+                    guard followsLatestOutput else { return }
+                    proxy.scrollTo("log-end", anchor: .bottom)
+                }
+            }
+            .contextMenu { clearLogsMenu }
         }
         .navigationTitle("执行记录")
         .toolbar {
+            Toggle("跟随最新", isOn: $followsLatestOutput)
             Button("打开日志目录") {
                 try? AppPaths.prepare()
                 NSWorkspace.shared.open(AppPaths.logs)
             }
         }
         .onChange(of: selection) { _, value in
-            guard let value, let task = store.tasks.first(where: { $0.id == value }) else { return }
-            logText = (try? String(contentsOf: AppPaths.log(for: task), encoding: .utf8)) ?? "该任务暂无日志。"
+            guard value != nil else { return }
+            refreshSelectedLog()
+        }
+        .onChange(of: store.tasks) { _, _ in reloadLoggedTasks() }
+        .onChange(of: requestedTaskID) { _, _ in applyRequestedSelection() }
+        .onReceive(logRefreshTimer) { _ in
+            reloadLoggedTasks()
+            refreshSelectedLog()
+        }
+        .onAppear {
+            reloadLoggedTasks()
+            applyRequestedSelection()
+        }
+        .alert("清除全部日志？", isPresented: $showingClearLogsConfirmation) {
+            Button("取消", role: .cancel) {}
+            Button("清除", role: .destructive) { clearAllLogs() }
+        } message: {
+            Text("这会清空所有任务的执行日志，任务配置和调度不受影响。")
+        }
+    }
+
+    @ViewBuilder private var clearLogsMenu: some View {
+        Button("清除全部日志", role: .destructive) {
+            showingClearLogsConfirmation = true
+        }
+    }
+
+    private var loggedTasks: [SchedulerTask] {
+        store.tasks
+            .filter { loggedTaskIDs.contains($0.id) }
+            .sorted { ($0.lastRunAt ?? .distantPast) > ($1.lastRunAt ?? .distantPast) }
+    }
+
+    private func reloadLoggedTasks() {
+        loggedTaskIDs = Set(store.tasks.compactMap { task in
+            let values = try? AppPaths.log(for: task).resourceValues(forKeys: [.fileSizeKey])
+            return (values?.fileSize ?? 0) > 0 ? task.id : nil
+        })
+        if let requestedTaskID {
+            loggedTaskIDs.insert(requestedTaskID)
+        }
+        if let selection, !loggedTaskIDs.contains(selection) {
+            self.selection = nil
+        }
+    }
+
+    private func applyRequestedSelection() {
+        guard let requestedTaskID, store.tasks.contains(where: { $0.id == requestedTaskID }) else { return }
+        loggedTaskIDs.insert(requestedTaskID)
+        selection = requestedTaskID
+        refreshSelectedLog()
+        self.requestedTaskID = nil
+    }
+
+    private func refreshSelectedLog() {
+        guard let selection, let task = store.tasks.first(where: { $0.id == selection }) else { return }
+        guard let text = try? String(contentsOf: AppPaths.log(for: task), encoding: .utf8) else {
+            logText = "该任务暂无日志。"
+            return
+        }
+        logText = ANSITextSanitizer.clean(text)
+    }
+
+    private func clearAllLogs() {
+        do {
+            try AppPaths.prepare()
+            let urls = try AppPaths.fileManager.contentsOfDirectory(at: AppPaths.logs, includingPropertiesForKeys: nil)
+            for url in urls where url.pathExtension.lowercased() == "log" {
+                let handle = try FileHandle(forWritingTo: url)
+                try handle.truncate(atOffset: 0)
+                try handle.close()
+            }
+            selection = nil
+            loggedTaskIDs.removeAll()
+            logText = "全部日志已清除。"
+        } catch {
+            logText = "清除日志失败：\(error.localizedDescription)"
         }
     }
 }
@@ -88,6 +192,14 @@ struct PreferencesView: View {
 
     var body: some View {
         Form {
+            Section("外观") {
+                Picker("主题", selection: appearanceBinding) {
+                    ForEach(AppAppearance.allCases) { appearance in
+                        Text(appearance.rawValue).tag(appearance)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
             Section("回收站") {
                 Stepper("删除任务保留 \(store.preferences.recycleRetentionDays) 天", value: $store.preferences.recycleRetentionDays, in: 1...365)
                 Button("立即清理过期任务") { store.savePreferences() }
@@ -132,6 +244,7 @@ struct PreferencesView: View {
         }
         .formStyle(.grouped)
         .navigationTitle("用户偏好")
+        .onChange(of: store.preferences.appearance) { _, _ in store.savePreferences() }
         .onChange(of: store.preferences.recycleRetentionDays) { _, _ in store.savePreferences() }
         .onChange(of: store.preferences.closeBehavior) { _, _ in store.savePreferences() }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.json]) { result in
@@ -143,6 +256,13 @@ struct PreferencesView: View {
                 message = "导入失败：\(error.localizedDescription)"
             }
         }
+    }
+
+    private var appearanceBinding: Binding<AppAppearance> {
+        Binding(
+            get: { store.preferences.appearance ?? .system },
+            set: { store.preferences.appearance = $0 }
+        )
     }
 
     private func exportTasks() {

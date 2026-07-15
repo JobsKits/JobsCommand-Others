@@ -42,6 +42,14 @@ enum OverlapPolicy: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+enum AppAppearance: String, Codable, CaseIterable, Identifiable {
+    case system = "跟随系统"
+    case light = "浅色"
+    case dark = "深色"
+
+    var id: String { rawValue }
+}
+
 struct SchedulerTask: Codable, Identifiable, Hashable {
     var id = UUID()
     var name = "新计划任务"
@@ -68,12 +76,46 @@ struct SchedulerTask: Codable, Identifiable, Hashable {
 
     var label: String { "com.jobs.scheduler.task.\(id.uuidString.lowercased())" }
     var isDeleted: Bool { deletedAt != nil }
+
+    func nextRunDate(after now: Date, calendar: Calendar = .current) -> Date? {
+        guard enabled && !isDeleted else { return nil }
+        let time = calendar.dateComponents([.hour, .minute], from: fireDate)
+        switch schedule {
+        case .once:
+            return fireDate > now ? fireDate : nil
+        case .daily:
+            guard let scheduledToday = calendar.date(
+                bySettingHour: time.hour ?? 0,
+                minute: time.minute ?? 0,
+                second: 0,
+                of: now
+            ) else { return nil }
+            if scheduledToday >= now {
+                return scheduledToday
+            };return calendar.date(byAdding: .day, value: 1, to: scheduledToday)
+        case .weekly:
+            return calendar.nextDate(
+                after: now,
+                matching: DateComponents(hour: time.hour, minute: time.minute, second: 0, weekday: weekday),
+                matchingPolicy: .nextTime
+            )
+        case .interval:
+            let interval = TimeInterval(max(intervalMinutes, 1) * 60)
+            let anchor = lastRunAt ?? updatedAt
+            let elapsed = max(now.timeIntervalSince(anchor), 0)
+            let completedIntervals = floor(elapsed / interval)
+            return anchor.addingTimeInterval((completedIntervals + 1) * interval)
+        case .login:
+            return nil
+        }
+    }
 }
 
 struct SchedulerPreferences: Codable {
     var recycleRetentionDays = 30
     var closeBehavior = "ask"
     var notifyOnFailure = true
+    var appearance: AppAppearance?
 }
 
 struct SchedulerExport: Codable {

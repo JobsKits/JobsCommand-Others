@@ -27,11 +27,15 @@ struct TaskEditorView: View {
                 Spacer()
                 Button("取消") { dismiss() }
                 Button("保存") {
-                    save(task)
+                    var value = task
+                    if value.action == .command && value.target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        value.target = "update -t"
+                    }
+                    save(value)
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(task.name.trimmingCharacters(in: .whitespaces).isEmpty || task.target.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled(task.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || (task.action != .command && task.target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
             }
             .padding()
             Divider()
@@ -43,10 +47,17 @@ struct TaskEditorView: View {
                     }
                 }
                 Section("目标") {
-                    HStack {
-                        TextField(targetPlaceholder, text: $task.target)
-                        if [.open, .shell].contains(task.action) {
-                            Button("选择…") { selectingTarget = true }
+                    if task.action == .command {
+                        commandEditor
+                    } else {
+                        HStack {
+                            TextField(text: $task.target, prompt: Text(targetPlaceholder)) {
+                                EmptyView()
+                            }
+                            .accessibilityLabel("目标")
+                            if [.open, .shell].contains(task.action) {
+                                Button("选择…") { selectingTarget = true }
+                            }
                         }
                     }
                     if task.action == .shell {
@@ -56,12 +67,12 @@ struct TaskEditorView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .strokeBorder(dropTargeted ? Color.accentColor : Color.secondary.opacity(0.4), style: StrokeStyle(lineWidth: 2, dash: [7]))
                         .frame(height: 72)
-                        .overlay(Text("也可以把 App、脚本、文件、资料或文件夹拖到这里").foregroundStyle(.secondary))
+                        .overlay(Text("把 App、脚本、文件、资料或文件夹拖到这里，自动识别动作类型").foregroundStyle(.secondary))
                         .onDrop(of: [UTType.fileURL], isTargeted: $dropTargeted) { providers in
                             guard let provider = providers.first else { return false }
                             provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { data, _ in
                                 guard let data, let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
-                                DispatchQueue.main.async { task.target = url.path }
+                                DispatchQueue.main.async { applyFileTarget(url) }
                             };return true
                         }
                 }
@@ -69,8 +80,11 @@ struct TaskEditorView: View {
                     Picker("计划类型", selection: $task.schedule) {
                         ForEach(ScheduleKind.allCases) { Text($0.rawValue).tag($0) }
                     }
-                    if [.once, .daily, .weekly].contains(task.schedule) {
-                        DatePicker(task.schedule == .once ? "执行时间" : "执行时刻", selection: $task.fireDate, displayedComponents: task.schedule == .once ? [.date, .hourAndMinute] : [.hourAndMinute])
+                    if task.schedule == .once {
+                        DatePicker("执行日期", selection: $task.fireDate, displayedComponents: [.date])
+                        WheelTimePicker(title: "执行时刻", selection: $task.fireDate)
+                    } else if [.daily, .weekly].contains(task.schedule) {
+                        WheelTimePicker(title: "执行时刻", selection: $task.fireDate)
                     }
                     if task.schedule == .weekly {
                         Picker("星期", selection: $task.weekday) {
@@ -99,8 +113,39 @@ struct TaskEditorView: View {
         }
         .frame(width: 720, height: 700)
         .fileImporter(isPresented: $selectingTarget, allowedContentTypes: [.item], allowsMultipleSelection: false) { result in
-            if case let .success(urls) = result, let url = urls.first { task.target = url.path }
+            if case let .success(urls) = result, let url = urls.first { applyFileTarget(url) }
         }
+    }
+
+    private var commandEditor: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color(nsColor: .textBackgroundColor))
+            if task.target.isEmpty {
+                TextEditor(text: .constant(targetPlaceholder))
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundStyle(.tertiary)
+                    .scrollContentBackground(.hidden)
+                    .padding(.horizontal, 3)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            TextEditor(text: $task.target)
+                .font(.system(.body, design: .monospaced))
+                .scrollContentBackground(.hidden)
+                .padding(.horizontal, 3)
+                .accessibilityLabel("自定义命令")
+        }
+        .frame(maxWidth: .infinity, minHeight: 48, maxHeight: 72)
+        .overlay {
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.secondary.opacity(0.35))
+        }
+    }
+
+    private func applyFileTarget(_ url: URL) {
+        task.target = url.path
+        task.action = ["command", "sh", "zsh"].contains(url.pathExtension.lowercased()) ? .shell : .open
     }
 
     private var targetPlaceholder: String {
@@ -108,7 +153,7 @@ struct TaskEditorView: View {
         case .open: "文件、资料、文件夹或 App 路径"
         case .url: "https://…"
         case .shell: "Shell 或 .command 脚本路径"
-        case .command: "例如：update --unattended"
+        case .command: "默认：update -t（留空即执行）"
         case .shortcut: "快捷指令名称"
         }
     }
