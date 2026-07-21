@@ -59,6 +59,11 @@ struct ExecutionLogsView: View {
     @State private var showingClearLogsConfirmation = false
     @State private var loggedTaskIDs: Set<UUID> = []
     @State private var followsLatestOutput = true
+    @State private var logReader = ExecutionLogReader()
+    @State private var loggedTasksRefreshTask: Task<Void, Never>?
+    @State private var selectedLogRefreshTask: Task<Void, Never>?
+    @State private var loggedTasksRefreshRequestID: UUID?
+    @State private var selectedLogRefreshRequestID: UUID?
     private let logRefreshTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -104,7 +109,8 @@ struct ExecutionLogsView: View {
         }
         .onChange(of: selection) { _, value in
             guard value != nil else { return }
-            refreshSelectedLog()
+            logText = "正在加载日志…"
+            refreshSelectedLog(force: true)
         }
         .onChange(of: store.tasks) { _, _ in reloadLoggedTasks() }
         .onChange(of: requestedTaskID) { _, _ in applyRequestedSelection() }
@@ -115,6 +121,14 @@ struct ExecutionLogsView: View {
         .onAppear {
             reloadLoggedTasks()
             applyRequestedSelection()
+        }
+        .onDisappear {
+            loggedTasksRefreshTask?.cancel()
+            selectedLogRefreshTask?.cancel()
+            loggedTasksRefreshTask = nil
+            selectedLogRefreshTask = nil
+            loggedTasksRefreshRequestID = nil
+            selectedLogRefreshRequestID = nil
         }
         .alert("清除全部日志？", isPresented: $showingClearLogsConfirmation) {
             Button("取消", role: .cancel) {}
@@ -137,33 +151,67 @@ struct ExecutionLogsView: View {
     }
 
     private func reloadLoggedTasks() {
-        loggedTaskIDs = Set(store.tasks.compactMap { task in
-            let values = try? AppPaths.log(for: task).resourceValues(forKeys: [.fileSizeKey])
-            return (values?.fileSize ?? 0) > 0 ? task.id : nil
-        })
-        if let requestedTaskID {
-            loggedTaskIDs.insert(requestedTaskID)
-        }
-        if let selection, !loggedTaskIDs.contains(selection) {
-            self.selection = nil
+        guard loggedTasksRefreshTask == nil else { return }
+        let logFiles = Dictionary(uniqueKeysWithValues: store.tasks.map { ($0.id, AppPaths.log(for: $0)) })
+        let requestedTaskID = requestedTaskID
+        let selectedTaskID = selection
+        let reader = logReader
+        let requestID = UUID()
+        loggedTasksRefreshRequestID = requestID
+        loggedTasksRefreshTask = Task { @MainActor in
+            var taskIDs = await reader.taskIDsWithLogs(logFiles)
+            guard loggedTasksRefreshRequestID == requestID else { return }
+            loggedTasksRefreshTask = nil
+            loggedTasksRefreshRequestID = nil
+            guard !Task.isCancelled else { return }
+            if let requestedTaskID {
+                taskIDs.insert(requestedTaskID)
+            }
+            if let selectedTaskID {
+                taskIDs.insert(selectedTaskID)
+            }
+            loggedTaskIDs = taskIDs
         }
     }
 
     private func applyRequestedSelection() {
         guard let requestedTaskID, store.tasks.contains(where: { $0.id == requestedTaskID }) else { return }
         loggedTaskIDs.insert(requestedTaskID)
+        let shouldRefresh = selection == requestedTaskID
         selection = requestedTaskID
-        refreshSelectedLog()
         self.requestedTaskID = nil
+        if shouldRefresh {
+            logText = "正在加载日志…"
+            refreshSelectedLog(force: true)
+        }
     }
 
-    private func refreshSelectedLog() {
-        guard let selection, let task = store.tasks.first(where: { $0.id == selection }) else { return }
-        guard let text = try? String(contentsOf: AppPaths.log(for: task), encoding: .utf8) else {
-            logText = "该任务暂无日志。"
-            return
+    private func refreshSelectedLog(force: Bool = false) {
+        guard let selectedTaskID = selection,
+              let task = store.tasks.first(where: { $0.id == selectedTaskID }) else { return }
+        if !force, selectedLogRefreshTask != nil { return }
+        let logURL = AppPaths.log(for: task)
+        let reader = logReader
+        selectedLogRefreshTask?.cancel()
+        let requestID = UUID()
+        selectedLogRefreshRequestID = requestID
+        selectedLogRefreshTask = Task { @MainActor in
+            let result = await reader.read(taskID: selectedTaskID, from: logURL, force: force)
+            guard selectedLogRefreshRequestID == requestID else { return }
+            selectedLogRefreshTask = nil
+            selectedLogRefreshRequestID = nil
+            guard !Task.isCancelled, selection == selectedTaskID else { return }
+            switch result {
+            case .unchanged:
+                break
+            case let .loaded(text):
+                logText = text
+            case .missing:
+                logText = "该任务暂无日志。"
+            case let .failed(message):
+                logText = "读取日志失败：\(message)"
+            }
         }
-        logText = ANSITextSanitizer.clean(text)
     }
 
     private func clearAllLogs() {
