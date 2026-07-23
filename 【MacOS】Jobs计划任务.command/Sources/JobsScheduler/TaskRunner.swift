@@ -17,15 +17,15 @@ enum TaskRunner {
             await store.updateExecution(id: task.id, exitCode: 76, message: "计划时间已错过超过 10 分钟，按任务策略跳过")
             return
         }
-        let lock = TaskLock(task: task)
-        guard task.overlapPolicy == .parallel || lock.acquire(terminatePrevious: task.overlapPolicy == .terminatePrevious) else {
-            await store.updateExecution(id: task.id, exitCode: 75, message: "上次任务尚未结束，本次已跳过")
+        let lock = acquireLock(for: task)
+        guard task.overlapPolicy == .parallel || lock != nil else {
+            await store.updateExecution(id: task.id, exitCode: 75, message: "检测到同一任务实例正在运行，本次已按重叠策略跳过")
             return
         }
-        defer { lock.release() }
+        defer { lock?.release() }
         await store.markExecutionStarted(id: task.id)
         appendLog(task: task, message: "开始执行：\(task.target)")
-        let result = execute(task)
+        let result = execute(task, lock: lock)
         sanitizeLog(task: task)
         appendLog(task: task, message: result.message)
         await store.updateExecution(id: task.id, exitCode: result.code, message: result.message)
@@ -34,7 +34,7 @@ enum TaskRunner {
         }
     }
 
-    private static func execute(_ task: SchedulerTask) -> (code: Int32, message: String) {
+    private static func execute(_ task: SchedulerTask, lock: TaskLock?) -> (code: Int32, message: String) {
         let process = Process()
         process.environment = commandEnvironment()
         switch task.action {
@@ -69,6 +69,7 @@ enum TaskRunner {
             process.standardError = outputHandle
             defer { try? outputHandle.close() }
             try process.run()
+            lock?.recordChildProcess(process.processIdentifier)
             let deadline = Date().addingTimeInterval(TimeInterval(max(task.timeoutMinutes, 1) * 60))
             while process.isRunning && Date() < deadline {
                 Thread.sleep(forTimeInterval: 0.2)
@@ -111,6 +112,12 @@ enum TaskRunner {
 
     private static func split(_ text: String) -> [String] {
         text.split(whereSeparator: \.isWhitespace).map(String.init)
+    }
+
+    private static func acquireLock(for task: SchedulerTask) -> TaskLock? {
+        guard task.overlapPolicy != .parallel else { return nil }
+        let lock = TaskLock(task: task)
+        guard lock.acquire(terminatePrevious: task.overlapPolicy == .terminatePrevious) else { return nil };return lock
     }
 
     private static func appendLog(task: SchedulerTask, message: String) {
@@ -163,31 +170,5 @@ enum TaskRunner {
         content.title = result.code == 0 ? "计划任务执行成功" : "计划任务执行失败"
         content.body = "\(task.name)：\(result.message.prefix(180))"
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
-    }
-}
-
-final class TaskLock {
-    private let url: URL
-    private var descriptor: Int32 = -1
-
-    init(task: SchedulerTask) {
-        url = AppPaths.locks.appendingPathComponent("\(task.id.uuidString).lock")
-    }
-
-    func acquire(terminatePrevious: Bool) -> Bool {
-        try? AppPaths.prepare()
-        if terminatePrevious, let pid = try? String(contentsOf: url, encoding: .utf8), let value = Int32(pid) {
-            kill(value, SIGTERM)
-            try? AppPaths.fileManager.removeItem(at: url)
-        }
-        descriptor = open(url.path, O_CREAT | O_EXCL | O_WRONLY, S_IRUSR | S_IWUSR)
-        guard descriptor >= 0 else { return false }
-        let pid = "\(getpid())"
-        _ = pid.withCString { write(descriptor, $0, strlen($0)) };return true
-    }
-
-    func release() {
-        if descriptor >= 0 { close(descriptor) }
-        try? AppPaths.fileManager.removeItem(at: url)
     }
 }

@@ -193,10 +193,10 @@ struct TaskRow: View {
     }
 
     private func nextRunText(at now: Date) -> String {
-        guard task.enabled else { return "最近执行：任务已停用" }
-        guard task.schedule != .login else { return "最近执行：下次用户登录时" }
+        guard task.enabled else { return "下次执行：任务已停用" }
+        guard task.schedule != .login else { return "下次执行：用户下次登录时" }
         guard let nextRun = task.nextRunDate(after: now) else {
-            return task.schedule == .once ? "最近执行：一次性计划时间已过" : "最近执行：待系统计算"
+            return task.schedule == .once ? "下次执行：一次性计划时间已过" : "下次执行：待系统计算"
         }
         let remaining = max(Int(nextRun.timeIntervalSince(now)), 0)
         let hours = remaining / 3_600
@@ -204,6 +204,6 @@ struct TaskRow: View {
         let seconds = remaining % 60
         let countdown = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
         let nextRunDescription = nextRun.formatted(date: .abbreviated, time: .standard)
-        return "最近执行：\(nextRunDescription) · 倒计时：\(countdown)"
+        return "下次执行：\(nextRunDescription) · 倒计时：\(countdown)"
     }
 }

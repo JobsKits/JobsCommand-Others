@@ -1,6 +1,10 @@
 {
   "builtTestProducts" : [
-
+    {
+      "binaryPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.xctest/Contents/MacOS/JobsSchedulerPackageTests",
+      "packagePath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command",
+      "productName" : "JobsSchedulerPackageTests"
+    }
   ],
   "copyCommands" : {
 
@@ -36,11 +40,19 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ExecutionLogReader.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift"
         },
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LogTextView.swift"
         },
         {
           "kind" : "file",
@@ -57,6 +69,10 @@
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskLock.swift"
         },
         {
           "kind" : "file",
@@ -86,12 +102,15 @@
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ContentView.swift.o",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ExecutionLogReader.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsSchedulerApp.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LaunchdManager.swift.o",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LogTextView.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SchedulerTask.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/StatusMenuView.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SupportingViews.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskEditorView.swift.o",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskLock.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskRunner.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swift.o",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker.swift.o"
@@ -158,11 +177,19 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ExecutionLogReader.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsSchedulerApp.swift.o"
         },
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LaunchdManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LogTextView.swift.o"
         },
         {
           "kind" : "file",
@@ -179,6 +206,10 @@
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskEditorView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskLock.swift.o"
         },
         {
           "kind" : "file",
@@ -202,17 +233,217 @@
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ANSITextSanitizer.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ExecutionLogReader.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LogTextView.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/SchedulerTask.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/StatusMenuView.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/SupportingViews.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskLock.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift",
         "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/WheelTimePicker.swift"
       ],
       "tempsPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.JobsSchedulerPackageTests-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/sources",
+      "importPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.derived/runner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsSchedulerTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "JobsSchedulerPackageTests",
+      "moduleOutputPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsSchedulerPackageTests.swiftmodule",
+      "objects" : [
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/runner.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "10",
+        "-serialize-diagnostics",
+        "-O",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j10",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/include/JobsSchedulerPackageTests-Swift.h",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "_macos_jobs计划任务_command"
+      ],
+      "outputFileMapPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/runner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsSchedulerPackageTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.derived/runner.swift"
+      ],
+      "tempsPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.JobsSchedulerTests-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/sources",
+      "importPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/ExecutionLogReaderTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/TaskLockTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "JobsSchedulerTests",
+      "moduleOutputPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsSchedulerTests.swiftmodule",
+      "objects" : [
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/ExecutionLogReaderTests.swift.o",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/TaskLockTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "10",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/index/store",
+        "-O",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j10",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-swift-version",
+        "6",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "_macos_jobs计划任务_command"
+      ],
+      "outputFileMapPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/ExecutionLogReaderTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/TaskLockTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules/JobsSchedulerTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/ExecutionLogReaderTests.swift",
+        "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/TaskLockTests.swift"
+      ],
+      "tempsPath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build",
       "wholeModuleOptimization" : true
     }
   },
@@ -230,12 +461,15 @@
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ANSITextSanitizer.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/AppPaths.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ContentView.swift",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ExecutionLogReader.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LogTextView.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/SchedulerTask.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/StatusMenuView.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/SupportingViews.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskLock.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskRunner.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskStore.swift",
       "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/WheelTimePicker.swift",
@@ -287,18 +521,153 @@
       "_macos_jobs计划任务_command",
       "-driver-use-frontend-path",
       "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "JobsSchedulerPackageTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "JobsSchedulerPackageTests",
+      "-package-name",
+      "_macos_jobs计划任务_command",
+      "-c",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.derived/runner.swift",
+      "-I",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "10",
+      "-serialize-diagnostics",
+      "-O",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j10",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/include/JobsSchedulerPackageTests-Swift.h",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "_macos_jobs计划任务_command",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "JobsSchedulerTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "JobsSchedulerTests",
+      "-package-name",
+      "_macos_jobs计划任务_command",
+      "-c",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/ExecutionLogReaderTests.swift",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/TaskLockTests.swift",
+      "-I",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "10",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/index/store",
+      "-O",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j10",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-swift-version",
+      "6",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "_macos_jobs计划任务_command",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
     ]
   },
   "targetDependencyMap" : {
     "JobsScheduler" : [
 
+    ],
+    "JobsSchedulerPackageTests" : [
+      "JobsSchedulerTests",
+      "JobsScheduler"
+    ],
+    "JobsSchedulerTests" : [
+      "JobsScheduler"
     ]
   },
   "testDiscoveryCommands" : {
 
   },
   "testEntryPointCommands" : {
+    "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.derived/runner.swift" : {
+      "inputs" : [
 
+      ],
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.derived/runner.swift"
+        }
+      ]
+    }
   },
   "traitConfiguration" : {
     "default" : {
@@ -327,11 +696,19 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/ExecutionLogReader.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/JobsSchedulerApp.swift"
         },
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LaunchdManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/LogTextView.swift"
         },
         {
           "kind" : "file",
@@ -348,6 +725,10 @@
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskEditorView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Sources/JobsScheduler/TaskLock.swift"
         },
         {
           "kind" : "file",
@@ -385,11 +766,19 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ExecutionLogReader.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsSchedulerApp.swift.o"
         },
         {
           "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LaunchdManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LogTextView.swift.o"
         },
         {
           "kind" : "file",
@@ -409,6 +798,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskLock.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskRunner.swift.o"
         },
         {
@@ -421,6 +814,120 @@
         }
       ],
       "outputFilePath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.product/Objects.LinkFileList"
+    },
+    "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.derived/runner.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/sources"
+    },
+    "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ANSITextSanitizer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/AppPaths.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/ExecutionLogReader.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/JobsSchedulerApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LaunchdManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/LogTextView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SchedulerTask.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/StatusMenuView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/SupportingViews.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskEditorView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskLock.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskRunner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/TaskStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsScheduler.build/WheelTimePicker.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/runner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/ExecutionLogReaderTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/TaskLockTests.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.product/Objects.LinkFileList"
+    },
+    "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/ExecutionLogReaderTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/TaskLockTests.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/sources"
     },
     "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt" : {
       "alwaysOutOfDate" : true,

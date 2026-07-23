@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/JobsSchedulerPackageTests.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/JobsSchedulerPackageTests.o",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/primary.swiftdeps"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.derived/runner.swift": {
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/runner.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/runner~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/runner.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerPackageTests.build/runner.dia"
+  }
+}

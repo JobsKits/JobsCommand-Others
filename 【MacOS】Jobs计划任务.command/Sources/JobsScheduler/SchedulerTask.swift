@@ -40,6 +40,13 @@ enum OverlapPolicy: String, Codable, CaseIterable, Identifiable {
     case terminatePrevious = "终止旧任务后执行"
 
     var id: String { rawValue }
+    var displayName: String {
+        switch self {
+        case .skip: "已有实例运行则跳过"
+        case .parallel: "允许并行"
+        case .terminatePrevious: "终止运行中的实例后执行"
+        }
+    }
 }
 
 enum AppAppearance: String, Codable, CaseIterable, Identifiable {

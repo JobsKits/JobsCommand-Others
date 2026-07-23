@@ -1,0 +1,19 @@
+{
+  "": {
+    "dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/JobsSchedulerTests.d",
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/JobsSchedulerTests.o",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/primary.swiftdeps"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/ExecutionLogReaderTests.swift": {
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/ExecutionLogReaderTests.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/ExecutionLogReaderTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/ExecutionLogReaderTests.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/ExecutionLogReaderTests.dia"
+  },
+  "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/Tests/JobsSchedulerTests/TaskLockTests.swift": {
+    "object": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/TaskLockTests.swift.o",
+    "swiftmodule": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/TaskLockTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/TaskLockTests.swiftdeps",
+    "diagnostics": "/Users/jobs/Documents/Github/JobsGenesis/JobsCommand@Others/【MacOS】Jobs计划任务.command/.build/arm64-apple-macosx/release/JobsSchedulerTests.build/TaskLockTests.dia"
+  }
+}

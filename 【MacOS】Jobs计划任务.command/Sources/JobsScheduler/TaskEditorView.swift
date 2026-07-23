@@ -101,7 +101,7 @@ struct TaskEditorView: View {
                 }
                 Section("执行策略") {
                     Picker("重复运行", selection: $task.overlapPolicy) {
-                        ForEach(OverlapPolicy.allCases) { Text($0.rawValue).tag($0) }
+                        ForEach(OverlapPolicy.allCases) { Text($0.displayName).tag($0) }
                     }
                     Stepper("超时：\(task.timeoutMinutes) 分钟", value: $task.timeoutMinutes, in: 1...1440)
                     Toggle("成功时通知", isOn: $task.notifyOnSuccess)

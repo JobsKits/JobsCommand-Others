@@ -29,7 +29,11 @@ final class TaskStore: ObservableObject {
         do {
             try AppPaths.prepare()
             if let data = try? Data(contentsOf: AppPaths.tasks) {
-                tasks = try JSONDecoder.jobs.decode([SchedulerTask].self, from: data)
+                let decodedTasks = try JSONDecoder.jobs.decode([SchedulerTask].self, from: data)
+                tasks = decodedTasks.map(migratingLegacyExecutionMessage)
+                if tasks != decodedTasks {
+                    try JSONEncoder.jobs.encode(tasks).write(to: AppPaths.tasks, options: .atomic)
+                }
             }
             if let data = try? Data(contentsOf: AppPaths.preferences) {
                 preferences = try JSONDecoder.jobs.decode(SchedulerPreferences.self, from: data)
@@ -165,7 +169,15 @@ final class TaskStore: ObservableObject {
     }
 
     private func currentTasksModificationDate() -> Date? {
-        try? AppPaths.tasks.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
+        let attributes = try? AppPaths.fileManager.attributesOfItem(atPath: AppPaths.tasks.path)
+        return attributes?[.modificationDate] as? Date
+    }
+
+    private func migratingLegacyExecutionMessage(_ task: SchedulerTask) -> SchedulerTask {
+        guard task.lastExitCode == 75, task.lastMessage == "上次任务尚未结束，本次已跳过" else { return task }
+        var value = task
+        value.lastMessage = "旧版本曾因锁记录跳过；无法据此确认当时是否仍有实例运行"
+        return value
     }
 }
 
