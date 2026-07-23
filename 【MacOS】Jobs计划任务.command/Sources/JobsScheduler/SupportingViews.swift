@@ -56,6 +56,11 @@ struct ExecutionLogsView: View {
     @Binding var requestedTaskID: UUID?
     @State private var selection: UUID?
     @State private var logText = "请选择一个任务查看日志。"
+    @State private var logTextRevision = UUID()
+    @State private var scrollToEndRequestID = UUID()
+    @State private var logIsTruncated = false
+    @State private var logFileSize = 0
+    @State private var loadsFullLog = false
     @State private var showingClearLogsConfirmation = false
     @State private var loggedTaskIDs: Set<UUID> = []
     @State private var followsLatestOutput = true
@@ -83,25 +88,34 @@ struct ExecutionLogsView: View {
                     ContentUnavailableView("暂无执行记录", systemImage: "doc.text.magnifyingglass", description: Text("任务执行后会在这里显示日志。"))
                 }
             }
-            ScrollViewReader { proxy in
-                ScrollView {
-                    Text(logText)
-                        .font(.system(.body, design: .monospaced))
-                        .textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .topLeading)
-                        .padding()
-                    Color.clear.frame(height: 1).id("log-end")
+            VStack(spacing: 0) {
+                if logIsTruncated && !loadsFullLog {
+                    HStack(spacing: 12) {
+                        Text("为保持流畅，仅显示最近 \(ExecutionLogReader.tailLineLimit) 行（日志大小：\(formattedLogFileSize)）")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("加载完整日志", action: loadCompleteLog)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    Divider()
                 }
-                .onChange(of: logText) { _, _ in
-                    guard followsLatestOutput else { return }
-                    proxy.scrollTo("log-end", anchor: .bottom)
-                }
+                LogTextView(
+                    text: logText,
+                    contentRevision: logTextRevision,
+                    scrollToEndRequestID: scrollToEndRequestID,
+                    followsLatestOutput: followsLatestOutput
+                )
             }
             .contextMenu { clearLogsMenu }
         }
         .navigationTitle("执行记录")
         .toolbar {
             Toggle("跟随最新", isOn: $followsLatestOutput)
+            if loadsFullLog {
+                Button("只看最近 \(ExecutionLogReader.tailLineLimit) 行", action: loadRecentLog)
+            }
             Button("打开日志目录") {
                 try? AppPaths.prepare()
                 NSWorkspace.shared.open(AppPaths.logs)
@@ -109,7 +123,10 @@ struct ExecutionLogsView: View {
         }
         .onChange(of: selection) { _, value in
             guard value != nil else { return }
-            logText = "正在加载日志…"
+            loadsFullLog = false
+            logIsTruncated = false
+            scrollToEndRequestID = UUID()
+            updateLogText("正在加载日志…")
             refreshSelectedLog(force: true)
         }
         .onChange(of: store.tasks) { _, _ in reloadLoggedTasks() }
@@ -150,6 +167,10 @@ struct ExecutionLogsView: View {
             .sorted { ($0.lastRunAt ?? .distantPast) > ($1.lastRunAt ?? .distantPast) }
     }
 
+    private var formattedLogFileSize: String {
+        ByteCountFormatter.string(fromByteCount: Int64(logFileSize), countStyle: .file)
+    }
+
     private func reloadLoggedTasks() {
         guard loggedTasksRefreshTask == nil else { return }
         let logFiles = Dictionary(uniqueKeysWithValues: store.tasks.map { ($0.id, AppPaths.log(for: $0)) })
@@ -181,7 +202,10 @@ struct ExecutionLogsView: View {
         selection = requestedTaskID
         self.requestedTaskID = nil
         if shouldRefresh {
-            logText = "正在加载日志…"
+            loadsFullLog = false
+            logIsTruncated = false
+            scrollToEndRequestID = UUID()
+            updateLogText("正在加载日志…")
             refreshSelectedLog(force: true)
         }
     }
@@ -192,11 +216,12 @@ struct ExecutionLogsView: View {
         if !force, selectedLogRefreshTask != nil { return }
         let logURL = AppPaths.log(for: task)
         let reader = logReader
+        let loadAll = loadsFullLog
         selectedLogRefreshTask?.cancel()
         let requestID = UUID()
         selectedLogRefreshRequestID = requestID
         selectedLogRefreshTask = Task { @MainActor in
-            let result = await reader.read(taskID: selectedTaskID, from: logURL, force: force)
+            let result = await reader.read(taskID: selectedTaskID, from: logURL, force: force, loadAll: loadAll)
             guard selectedLogRefreshRequestID == requestID else { return }
             selectedLogRefreshTask = nil
             selectedLogRefreshRequestID = nil
@@ -204,14 +229,39 @@ struct ExecutionLogsView: View {
             switch result {
             case .unchanged:
                 break
-            case let .loaded(text):
-                logText = text
+            case let .loaded(snapshot):
+                logIsTruncated = snapshot.isTruncated
+                logFileSize = snapshot.fileSize
+                updateLogText(snapshot.text)
             case .missing:
-                logText = "该任务暂无日志。"
+                logIsTruncated = false
+                logFileSize = 0
+                updateLogText("该任务暂无日志。")
             case let .failed(message):
-                logText = "读取日志失败：\(message)"
+                logIsTruncated = false
+                updateLogText("读取日志失败：\(message)")
             }
         }
+    }
+
+    private func loadCompleteLog() {
+        loadsFullLog = true
+        logIsTruncated = false
+        scrollToEndRequestID = UUID()
+        updateLogText("正在加载完整日志…")
+        refreshSelectedLog(force: true)
+    }
+
+    private func loadRecentLog() {
+        loadsFullLog = false
+        scrollToEndRequestID = UUID()
+        updateLogText("正在加载最近日志…")
+        refreshSelectedLog(force: true)
+    }
+
+    private func updateLogText(_ text: String) {
+        logText = text
+        logTextRevision = UUID()
     }
 
     private func clearAllLogs() {
@@ -225,9 +275,13 @@ struct ExecutionLogsView: View {
             }
             selection = nil
             loggedTaskIDs.removeAll()
-            logText = "全部日志已清除。"
+            logIsTruncated = false
+            logFileSize = 0
+            loadsFullLog = false
+            updateLogText("全部日志已清除。")
+            Task { await logReader.reset() }
         } catch {
-            logText = "清除日志失败：\(error.localizedDescription)"
+            updateLogText("清除日志失败：\(error.localizedDescription)")
         }
     }
 }

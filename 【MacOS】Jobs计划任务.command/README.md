@@ -28,7 +28,7 @@
 ### 1.2、计划类型
 
 - 仅执行一次。
-- 每天指定时间；今天的设定时刻尚未过（包含恰好相等）时，最近执行时间取今天，已经过了才取明天。
+- 每天指定时间；今天的设定时刻尚未过（包含恰好相等）时，下次执行时间取今天，已经过了才取明天。
 - 每周指定星期和时间。
 - 时间使用小时、分钟双滚轮选择，支持类似 iOS Picker 的惯性滚动和吸附效果。
 - 每隔若干分钟执行。
@@ -39,14 +39,14 @@
 ### 1.3、任务治理
 
 - 设置任务超时时间。
-- 选择允许并行、跳过重叠或终止旧任务。
-- 任务列表直接显示已配置的计划时间、最近一次执行时间，以及按“时:分:秒”每秒刷新的倒计时。
+- 选择允许并行、跳过重叠或终止运行中的实例。
+- 任务列表直接显示已配置的计划时间、下次执行时间，以及按“时:分:秒”每秒刷新的倒计时；最近一次执行结果单独显示。
 - 保存执行时间、退出码、结果和完整日志。
 - 成功或失败时发送系统通知。
 - 删除任务先进入软件内部回收站，默认保留 `30` 天。
 - 支持恢复、彻底删除和清空回收站；清空前必须在二次确认对话框中确认永久删除。
 - 任务行使用齿轮图标进入编辑；右键任务可显示目标、查看日志或移入回收站。
-- 任务行的“显示详情”可切换到应用内执行记录，自动选中当前任务，每秒刷新并可跟随最新日志输出。
+- 任务行的“显示详情”可切换到应用内执行记录，自动选中当前任务；默认只加载最近 `2,000` 行，后续按新增字节增量刷新，并且只在用户原本位于底部时跟随最新输出。
 - 支持全部任务的 JSON 导入和导出。
 
 ## 二、目录结构
@@ -59,17 +59,25 @@ Jobs计划任务.command/
 ├── Resources/
 │   ├── AppIcon.icns
 │   └── Info.plist
-└── Sources/
-    └── JobsScheduler/
-        ├── AppPaths.swift
-        ├── ContentView.swift
-        ├── JobsSchedulerApp.swift
-        ├── LaunchdManager.swift
-        ├── SchedulerTask.swift
-        ├── SupportingViews.swift
-        ├── TaskEditorView.swift
-        ├── TaskRunner.swift
-        └── TaskStore.swift
+├── Sources/
+│   └── JobsScheduler/
+│       ├── ANSITextSanitizer.swift
+│       ├── AppPaths.swift
+│       ├── ContentView.swift
+│       ├── ExecutionLogReader.swift
+│       ├── JobsSchedulerApp.swift
+│       ├── LaunchdManager.swift
+│       ├── LogTextView.swift
+│       ├── SchedulerTask.swift
+│       ├── SupportingViews.swift
+│       ├── TaskEditorView.swift
+│       ├── TaskLock.swift
+│       ├── TaskRunner.swift
+│       └── TaskStore.swift
+└── Tests/
+    └── JobsSchedulerTests/
+        ├── ExecutionLogReaderTests.swift
+        └── TaskLockTests.swift
 ```
 
 ## 三、安装与启动
@@ -108,7 +116,7 @@ Jobs计划任务.command/
 
 ### 4.1、用户数据
 
-任务、偏好、锁文件和日志保存在当前用户的 `Library/Application Support/com.jobs.scheduler` 目录中。
+任务、偏好、互斥锁文件和日志保存在当前用户的 `Library/Application Support/com.jobs.scheduler` 目录中。锁文件只保存运行信息，是否正在执行由系统文件锁判断；文件残留本身不会再被当成“任务尚未结束”。
 
 ### 4.2、LaunchAgent
 
@@ -158,13 +166,17 @@ pmset -g sched
 
 ### 7.1、重叠任务
 
-- `上次未结束则跳过`：适合更新、备份等不可重入任务。
+- `已有实例运行则跳过`：适合更新、备份等不可重入任务。
 - `允许并行`：适合互不影响的打开类任务。
-- `终止旧任务后执行`：适合只需要保留最新实例的任务。
+- `终止运行中的实例后执行`：适合只需要保留最新实例的任务。
+
+非并行任务使用 macOS 系统文件锁判断真实占用状态。锁由任务运行进程持有，进程正常结束、异常退出或电脑重启后都会由系统自动释放；磁盘上的锁文件可以长期保留，不会单独触发“已有实例运行”的判断。
 
 ### 7.2、日志
 
 每个任务拥有独立日志，“执行记录”只展示实际包含日志内容的任务。可以在任务列表中查看日志，也可以从菜单栏或“执行记录”页面打开日志目录。在“执行记录”页面的左右空白处点击右键，可在二次确认后清除全部日志；清除后执行记录列表立即置空，不会删除任务或取消调度。
+
+日志详情使用 AppKit 原生文本视图和非连续布局，避免 SwiftUI 对整段大文本反复排版。默认最多读取日志尾部 `1 MB` 并保留最近 `2,000` 行；日志继续增长时只读取新增字节。需要查看更早内容时可以点击“加载完整日志”，加载后也可以切回“只看最近 2,000 行”。“跟随最新”只会在用户原本位于日志底部时自动滚动，手动向上查看历史内容后不会被强制拉回底部。
 
 日志包含：
 
@@ -225,6 +237,7 @@ pmset -g sched
 ```shell
 zsh -n ./Jobs计划任务.command
 swift build --package-path .
+swift test --package-path .
 plutil -lint ./Resources/Info.plist
 ```
 
