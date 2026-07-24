@@ -149,7 +149,7 @@ struct TaskRow: View {
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(task.enabled ? Color.accentColor : Color.secondary)
                 }
-                Text(task.lastMessage).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                Text(lastExecutionText).font(.caption).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer()
             Toggle("", isOn: Binding(get: { task.enabled }, set: { store.setEnabled(task, enabled: $0) }))
@@ -190,6 +190,12 @@ struct TaskRow: View {
         case .login:
             return "用户登录后"
         }
+    }
+
+    private var lastExecutionText: String {
+        guard task.lastExitCode == 0, let lastRunAt = task.lastRunAt else { return task.lastMessage }
+        let completionTime = lastRunAt.formatted(date: .abbreviated, time: .standard)
+        return "\(task.lastMessage) · 完成时间：\(completionTime)"
     }
 
     private func nextRunText(at now: Date) -> String {
