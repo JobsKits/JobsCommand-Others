@@ -68,13 +68,14 @@ enum TaskRunner {
             process.standardOutput = outputHandle
             process.standardError = outputHandle
             defer { try? outputHandle.close() }
+            let terminationSemaphore = DispatchSemaphore(value: 0)
+            process.terminationHandler = { _ in
+                terminationSemaphore.signal()
+            }
             try process.run()
             lock?.recordChildProcess(process.processIdentifier)
-            let deadline = Date().addingTimeInterval(TimeInterval(max(task.timeoutMinutes, 1) * 60))
-            while process.isRunning && Date() < deadline {
-                Thread.sleep(forTimeInterval: 0.2)
-            }
-            if process.isRunning {
+            let timeout = DispatchTime.now() + .seconds(max(task.timeoutMinutes, 1) * 60)
+            if terminationSemaphore.wait(timeout: timeout) == .timedOut {
                 process.terminate()
                 return (124, "任务超过 \(task.timeoutMinutes) 分钟，已终止")
             }

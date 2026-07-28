@@ -35,6 +35,7 @@ struct JobsSchedulerApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var statusItem: NSStatusItem?
     private var isQuitting = false
+    private var windowsPendingHideAfterFullScreenExit: Set<ObjectIdentifier> = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         if let index = CommandLine.arguments.firstIndex(of: "--run-task"), CommandLine.arguments.indices.contains(index + 1), let id = UUID(uuidString: CommandLine.arguments[index + 1]) {
@@ -59,7 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if isQuitting { return true }
         let behavior = TaskStore.shared.preferences.closeBehavior
         if behavior == "hide" {
-            sender.orderOut(nil)
+            hideInMenuBar(sender)
             return false
         }
         if behavior == "quit" {
@@ -75,7 +76,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         alert.addButton(withTitle: "取消")
         switch alert.runModal() {
         case .alertFirstButtonReturn:
-            sender.orderOut(nil)
+            hideInMenuBar(sender)
             return false
         case .alertSecondButtonReturn:
             isQuitting = true
@@ -84,6 +85,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         default:
             return false
         }
+    }
+
+    func windowDidExitFullScreen(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow else { return }
+        let identifier = ObjectIdentifier(window)
+        guard windowsPendingHideAfterFullScreenExit.remove(identifier) != nil else { return }
+        window.orderOut(nil)
     }
 
     private func configureStatusItem() {
@@ -123,6 +131,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if UserDefaults.standard.object(forKey: key) == nil {
             UserDefaults.standard.set(200.0, forKey: key)
         }
+    }
+
+    private func hideInMenuBar(_ window: NSWindow) {
+        guard window.styleMask.contains(.fullScreen) else {
+            window.orderOut(nil)
+            return
+        }
+        windowsPendingHideAfterFullScreenExit.insert(ObjectIdentifier(window))
+        window.toggleFullScreen(nil)
     }
 
     private func makeAlarmAppIcon() -> NSImage {
