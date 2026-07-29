@@ -18,11 +18,11 @@ enum TaskRunner {
             return
         }
         let lock = acquireLock(for: task)
-        guard task.overlapPolicy == .parallel || lock != nil else {
+        guard let lock else {
             await store.updateExecution(id: task.id, exitCode: 75, message: "检测到同一任务实例正在运行，本次已按重叠策略跳过")
             return
         }
-        defer { lock?.release() }
+        defer { lock.release() }
         await store.markExecutionStarted(id: task.id)
         appendLog(task: task, message: "开始执行：\(task.target)")
         let result = execute(task, lock: lock)
@@ -116,9 +116,11 @@ enum TaskRunner {
     }
 
     private static func acquireLock(for task: SchedulerTask) -> TaskLock? {
-        guard task.overlapPolicy != .parallel else { return nil }
         let lock = TaskLock(task: task)
-        guard lock.acquire(terminatePrevious: task.overlapPolicy == .terminatePrevious) else { return nil };return lock
+        guard lock.acquire(
+            terminatePrevious: task.overlapPolicy == .terminatePrevious,
+            allowsParallel: task.overlapPolicy == .parallel
+        ) else { return nil };return lock
     }
 
     private static func appendLog(task: SchedulerTask, message: String) {

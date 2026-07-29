@@ -16,6 +16,7 @@ final class TaskLock {
 
     private let url: URL
     private var descriptor: Int32 = -1
+    private var usesSharedLock = false
 
     convenience init(task: SchedulerTask) {
         self.init(url: AppPaths.locks.appendingPathComponent("\(task.id.uuidString).lock"))
@@ -25,22 +26,39 @@ final class TaskLock {
         self.url = url
     }
 
-    func acquire(terminatePrevious: Bool) -> Bool {
+    static func isHeld(for task: SchedulerTask) -> Bool {
+        isHeld(at: AppPaths.locks.appendingPathComponent("\(task.id.uuidString).lock"))
+    }
+
+    static func isHeld(at url: URL) -> Bool {
+        guard FileManager.default.fileExists(atPath: url.path) else { return false }
+        let descriptor = open(url.path, O_RDWR)
+        guard descriptor >= 0 else { return true }
+        defer { _ = close(descriptor) }
+        guard flock(descriptor, LOCK_EX | LOCK_NB) == 0 else { return true }
+        _ = flock(descriptor, LOCK_UN)
+        return false
+    }
+
+    func acquire(terminatePrevious: Bool, allowsParallel: Bool = false) -> Bool {
         try? AppPaths.prepare()
         descriptor = open(url.path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)
         guard descriptor >= 0 else { return false }
-        if flock(descriptor, LOCK_EX | LOCK_NB) == 0 {
-            writeOwner(childPID: nil)
-            return true
+        let lockOperation = allowsParallel ? LOCK_SH : LOCK_EX
+        if flock(descriptor, lockOperation | LOCK_NB) == 0 {
+            usesSharedLock = allowsParallel
+            if !allowsParallel {
+                writeOwner(childPID: nil)
+            };return true
         }
-        guard terminatePrevious else {
+        guard !allowsParallel, terminatePrevious else {
             closeDescriptor()
             return false
         };return terminateRunningChildAndRetry()
     }
 
     func recordChildProcess(_ pid: Int32) {
-        guard descriptor >= 0 else { return }
+        guard descriptor >= 0, !usesSharedLock else { return }
         writeOwner(childPID: pid)
     }
 
@@ -88,5 +106,6 @@ final class TaskLock {
         guard descriptor >= 0 else { return }
         _ = close(descriptor)
         descriptor = -1
+        usesSharedLock = false
     }
 }

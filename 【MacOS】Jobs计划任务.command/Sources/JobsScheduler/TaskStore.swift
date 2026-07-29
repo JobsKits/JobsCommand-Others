@@ -30,7 +30,9 @@ final class TaskStore: ObservableObject {
             try AppPaths.prepare()
             if let data = try? Data(contentsOf: AppPaths.tasks) {
                 let decodedTasks = try JSONDecoder.jobs.decode([SchedulerTask].self, from: data)
-                tasks = decodedTasks.map(migratingLegacyExecutionMessage)
+                tasks = decodedTasks
+                    .map(migratingLegacyExecutionMessage)
+                    .map { Self.reconcilingInterruptedExecution($0, isExecutionActive: TaskLock.isHeld(for:)) }
                 if tasks != decodedTasks {
                     try JSONEncoder.jobs.encode(tasks).write(to: AppPaths.tasks, options: .atomic)
                 }
@@ -45,8 +47,11 @@ final class TaskStore: ObservableObject {
     }
 
     func reloadIfChanged() {
-        guard currentTasksModificationDate() != tasksModificationDate else { return }
-        load()
+        if currentTasksModificationDate() != tasksModificationDate {
+            load()
+        } else {
+            reconcileInterruptedExecutions()
+        }
     }
 
     func save(_ task: SchedulerTask) {
@@ -171,6 +176,28 @@ final class TaskStore: ObservableObject {
     private func currentTasksModificationDate() -> Date? {
         let attributes = try? AppPaths.fileManager.attributesOfItem(atPath: AppPaths.tasks.path)
         return attributes?[.modificationDate] as? Date
+    }
+
+    private func reconcileInterruptedExecutions() {
+        let reconciledTasks = tasks.map {
+            Self.reconcilingInterruptedExecution($0, isExecutionActive: TaskLock.isHeld(for:))
+        }
+        guard reconciledTasks != tasks else { return }
+        tasks = reconciledTasks
+        persist()
+    }
+
+    static func reconcilingInterruptedExecution(
+        _ task: SchedulerTask,
+        isExecutionActive: (SchedulerTask) -> Bool
+    ) -> SchedulerTask {
+        guard task.lastExitCode == nil,
+              task.lastMessage == "正在执行…",
+              !isExecutionActive(task) else { return task }
+        var value = task
+        value.lastExitCode = -2
+        value.lastMessage = "上次执行进程已结束，但未能记录退出结果"
+        return value
     }
 
     private func migratingLegacyExecutionMessage(_ task: SchedulerTask) -> SchedulerTask {
