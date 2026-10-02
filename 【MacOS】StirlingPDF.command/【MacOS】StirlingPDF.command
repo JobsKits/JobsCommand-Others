@@ -207,19 +207,19 @@ looks_like_path_input() {
 # 封装 normalize_local_path 对应的独立处理逻辑。
 normalize_local_path() {
   local raw="$1"
-  local path
-  path="$(unwrap_input_text "$raw")"
+  local target_path
+  target_path="$(unwrap_input_text "$raw")"
 
-  path="${path#file://}"
-  path="${path/#\~/$HOME}"
-  path="${path//%20/ }"
-  path="$(trim_text "$path")"
+  target_path="${target_path#file://}"
+  target_path="${target_path/#\~/$HOME}"
+  target_path="${target_path//%20/ }"
+  target_path="$(trim_text "$target_path")"
 
-  if [[ -n "$path" && "$path" != /* ]]; then
-    path="$PWD/$path"
+  if [[ -n "$target_path" && "$target_path" != /* ]]; then
+    target_path="$PWD/$target_path"
   fi
 
-  printf "%s" "$path"
+  printf "%s" "$target_path"
 }
 # 检查当前运行条件是否满足后续流程要求。
 is_dir_empty() {
@@ -2159,9 +2159,9 @@ show_script_intro_and_wait() {
   print -r -- '============================================================================'
   if [[ ! -t 0 ]]; then
     print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
-    return 1
+    exit 1
   fi
-  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _ || exit 1
 }
 # 执行入口下沉后的完整业务流程和控制逻辑。
 run_main_business_flow() {
@@ -2264,12 +2264,9 @@ initialize_script_runtime() {
 }
 # 编排脚本的高层业务流程。
 main() {
-  # 展示脚本内置自述，并按运行入口完成防误触确认。
-  show_script_intro_and_wait
-  # 初始化 Shell 选项、日志、依赖和入口运行状态。
-  initialize_script_runtime
-  # 执行入口下沉后的完整业务流程。
-  run_main_business_flow "$@"
+  show_script_intro_and_wait # 展示脚本内置自述，并按运行入口完成防误触确认。
+  initialize_script_runtime # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  run_main_business_flow "$@" # 执行入口下沉后的完整业务流程。
 }
 
 main "$@"

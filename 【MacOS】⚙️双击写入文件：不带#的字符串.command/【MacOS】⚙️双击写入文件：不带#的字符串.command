@@ -49,7 +49,7 @@ show_script_intro_and_wait() {
   print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
   print -r -- '============================================================================'
   echo ""
-  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _ || exit 1
 }
 # 封装 pause_to_exit 对应的独立处理逻辑。
 pause_to_exit() {
@@ -79,12 +79,12 @@ DEFAULT_FILE="$HOME/.bash_profile"
 DEFAULT_LINE='export PATH="$PATH:/usr/local/bin"'
 # 展开常见用户路径。
 expand_user_path() {
-  local path="$1"
-  path="$(strip_outer_quotes "$path")"
-  [[ -z "$path" ]] && path="$DEFAULT_FILE"
-  path="${path/#\~/$HOME}"
-  path="${path/\$HOME/$HOME}"
-  print -r -- "$path"
+  local target_path="$1"
+  target_path="$(strip_outer_quotes "$target_path")"
+  [[ -z "$target_path" ]] && target_path="$DEFAULT_FILE"
+  target_path="${target_path/#\~/$HOME}"
+  target_path="${target_path/\$HOME/$HOME}"
+  print -r -- "$target_path"
 }
 # 判断非注释行是否已存在。
 line_exists_as_active() {
@@ -139,12 +139,9 @@ initialize_script_runtime() {
 }
 # 编排脚本的高层业务流程。
 main() {
-  # 展示脚本内置自述，并按运行入口完成防误触确认。
-  show_script_intro_and_wait
-  # 初始化 Shell 选项、日志、依赖和入口运行状态。
-  initialize_script_runtime
-  # 执行入口下沉后的完整业务流程。
-  run_main_business_flow "$@"
+  show_script_intro_and_wait # 展示脚本内置自述，并按运行入口完成防误触确认。
+  initialize_script_runtime # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  run_main_business_flow "$@" # 执行入口下沉后的完整业务流程。
 }
 
 main "$@"

@@ -49,7 +49,7 @@ show_script_intro_and_wait() {
   print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
   print -r -- '============================================================================'
   echo ""
-  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _ || exit 1
 }
 # 封装 pause_to_exit 对应的独立处理逻辑。
 pause_to_exit() {
@@ -86,16 +86,16 @@ handle_paths() {
   fi
 
   for raw_path in "${paths[@]}"; do
-    local path="$(strip_outer_quotes "$raw_path")"
-    if [[ ! -e "$path" ]]; then
-      error_echo "路径不存在：$path"
+    local target_path="$(strip_outer_quotes "$raw_path")"
+    if [[ ! -e "$target_path" ]]; then
+      error_echo "路径不存在：$target_path"
       continue
     fi
 
     if [[ "$mode" == "add" ]]; then
-      chmod +x "$path" && success_echo "已添加执行权限：$path" || error_echo "添加失败：$path"
+      chmod +x "$target_path" && success_echo "已添加执行权限：$target_path" || error_echo "添加失败：$target_path"
     else
-      chmod -x "$path" && success_echo "已删除执行权限：$path" || error_echo "删除失败：$path"
+      chmod -x "$target_path" && success_echo "已删除执行权限：$target_path" || error_echo "删除失败：$target_path"
     fi
   done
 }
@@ -139,12 +139,9 @@ initialize_script_runtime() {
 }
 # 编排脚本的高层业务流程。
 main() {
-  # 展示脚本内置自述，并按运行入口完成防误触确认。
-  show_script_intro_and_wait
-  # 初始化 Shell 选项、日志、依赖和入口运行状态。
-  initialize_script_runtime
-  # 执行入口下沉后的完整业务流程。
-  run_main_business_flow "$@"
+  show_script_intro_and_wait # 展示脚本内置自述，并按运行入口完成防误触确认。
+  initialize_script_runtime # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  run_main_business_flow "$@" # 执行入口下沉后的完整业务流程。
 }
 
 main "$@"

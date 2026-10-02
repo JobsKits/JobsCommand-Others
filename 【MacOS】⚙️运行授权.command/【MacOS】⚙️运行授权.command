@@ -49,7 +49,7 @@ show_script_intro_and_wait() {
   print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
   print -r -- '============================================================================'
   echo ""
-  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _ || exit 1
 }
 # 封装 pause_to_exit 对应的独立处理逻辑。
 pause_to_exit() {
@@ -76,11 +76,11 @@ strip_outer_quotes() {
 }
 # 授权一个路径。
 authorize_path() {
-  local path="$1"
-  if [[ -e "$path" ]]; then
-    chmod +x "$path" && success_echo "授权成功：$path" || error_echo "授权失败：$path"
+  local target_path="$1"
+  if [[ -e "$target_path" ]]; then
+    chmod +x "$target_path" && success_echo "授权成功：$target_path" || error_echo "授权失败：$target_path"
   else
-    error_echo "无效路径：$path"
+    error_echo "无效路径：$target_path"
   fi
 }
 # 授权当前目录 command 文件。
@@ -149,12 +149,9 @@ initialize_script_runtime() {
 }
 # 编排脚本的高层业务流程。
 main() {
-  # 展示脚本内置自述，并按运行入口完成防误触确认。
-  show_script_intro_and_wait
-  # 初始化 Shell 选项、日志、依赖和入口运行状态。
-  initialize_script_runtime
-  # 执行入口下沉后的完整业务流程。
-  run_main_business_flow "$@"
+  show_script_intro_and_wait # 展示脚本内置自述，并按运行入口完成防误触确认。
+  initialize_script_runtime # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  run_main_business_flow "$@" # 执行入口下沉后的完整业务流程。
 }
 
 main "$@"
