@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/zsh
 # 脚本自述：
 # - 脚本名称：【MacOS】🧩子卷➤合而为一源文件.command
 # - 核心用途：执行“🧩子卷➤合而为一源文件”对应的自动化任务。
@@ -36,7 +36,7 @@ bold_echo()      { log "\033[1m$1\033[0m"; }
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
 underline_echo() { log "\033[4m$1\033[0m"; }
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 # 解析并返回后续流程需要的目标信息。
 get_cpu_arch() {
   [[ $(uname -m) == "arm64" ]] && echo "arm64" || echo "x86_64"
@@ -163,7 +163,7 @@ merge_one_dir_to_output_dir() {
   fi
 
   local first_filename
-  first_filename=$(basename "${chunks[0]}")
+  first_filename=$(basename "${chunks[1]}")
   local original_name="${first_filename%%@*}"
   if [[ -z "$original_name" ]]; then
     warn_echo "无法从子卷文件名推断原始文件名（目录：$name），跳过。"
@@ -173,7 +173,7 @@ merge_one_dir_to_output_dir() {
   local meta="${first_filename#*@}"
   local total_expected=""
   if [[ "$meta" =~ ^[0-9]+of([0-9]+)$ ]]; then
-    total_expected="${BASH_REMATCH[1]}"
+    total_expected="${match[1]}"
     total_expected=$((10#$total_expected))
   fi
 
@@ -332,7 +332,7 @@ select_volume_dirs() {
 
   local selection=""
   if [[ ${#VOLUME_DIRS[@]} -eq 1 ]]; then
-    selection="${options[0]}"
+    selection="${options[1]}"
     info_echo "仅检测到 1 个子卷目录，将直接处理：${selection%% :: *}"
   else
     options=("【全部子卷目录】 :: __ALL__" "${options[@]}")
@@ -414,17 +414,17 @@ merge_selected_dirs() {
 }
 # 打印脚本内置自述，并按运行入口决定是否等待用户确认。
 show_script_intro_and_wait() {
-  print -r -- '============================== 脚本内置自述 =============================='
-  print -r -- '脚本名称：【MacOS】🧩子卷➤合而为一源文件.command'
-  print -r -- '核心用途：执行“🧩子卷➤合而为一源文件”对应的自动化任务。'
-  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
-  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
-  print -r -- '============================================================================'
+  printf '%s\n' '============================== 脚本内置自述 =============================='
+  printf '%s\n' '脚本名称：【MacOS】🧩子卷➤合而为一源文件.command'
+  printf '%s\n' '核心用途：执行“🧩子卷➤合而为一源文件”对应的自动化任务。'
+  printf '%s\n' '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
+  printf '%s\n' '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
+  printf '%s\n' '============================================================================'
   if [[ ! -t 0 ]]; then
-    print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
-    return 1
+    printf '%s\n' '当前没有可交互输入，请在终端中重新运行。' >&2
+    exit 1
   fi
-  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+  IFS= read -r '?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：' _ || exit 1
 }
 # 编排脚本的高层业务流程。
 # 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
@@ -451,6 +451,7 @@ inject_shellenv_block() {
 }
 # 初始化脚本运行环境和后续流程所需状态。
 initialize_script_runtime() {
+  setopt NO_NOMATCH TYPESET_SILENT
   set -euo pipefail
   : > "$LOG_FILE"
   if [[ "${1:-}" == "--jobs-noninteractive" ]]; then
@@ -464,22 +465,14 @@ initialize_script_runtime() {
 }
 # 编排脚本的高层业务流程。
 main() {
-  # 展示脚本内置自述，并按运行入口完成防误触确认。
-  show_script_intro_and_wait
-  # 初始化 Shell 选项、日志、依赖和入口运行状态。
-  initialize_script_runtime
-  # 执行 print_intro 对应的独立业务步骤。
-  print_intro
-  # 检查当前环境与执行条件是否满足脚本要求。
-  run_self_check_interactive
-  # 执行 choose_target_directory 对应的独立业务步骤。
-  choose_target_directory "${1:-}"
-  # 解析当前任务所需的路径、参数或运行上下文。
-  find_volume_dirs
-  # 执行 select_volume_dirs 对应的独立业务步骤。
-  select_volume_dirs
-  # 执行 merge_selected_dirs 对应的独立业务步骤。
-  merge_selected_dirs
+  show_script_intro_and_wait # 展示脚本内置自述，并按运行入口完成防误触确认。
+  initialize_script_runtime # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  print_intro # 执行 print_intro 对应的独立业务步骤。
+  run_self_check_interactive # 检查当前环境与执行条件是否满足脚本要求。
+  choose_target_directory "${1:-}" # 执行 choose_target_directory 对应的独立业务步骤。
+  find_volume_dirs # 解析当前任务所需的路径、参数或运行上下文。
+  select_volume_dirs # 执行 select_volume_dirs 对应的独立业务步骤。
+  merge_selected_dirs # 执行 merge_selected_dirs 对应的独立业务步骤。
 }
 
 main "$@"

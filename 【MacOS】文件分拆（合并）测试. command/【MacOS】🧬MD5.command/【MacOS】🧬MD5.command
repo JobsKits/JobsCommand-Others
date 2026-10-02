@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/zsh
 # 脚本自述：
 # - 脚本名称：【MacOS】🧬MD5.command
 # - 核心用途：执行“🧬MD5”对应的自动化任务。
@@ -150,28 +150,24 @@ show_script_intro_and_wait() {
   print -r -- '============================================================================'
   if [[ ! -t 0 ]]; then
     print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
-    return 1
+    exit 1
   fi
-  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _ || exit 1
 }
 # 编排脚本的高层业务流程。
 # 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
 initialize_script_runtime() {
+  setopt NO_NOMATCH TYPESET_SILENT
   set -euo pipefail
   : > "$LOG_FILE"
 }
 # 编排脚本的高层业务流程。
 main() {
-  # 展示脚本内置自述，并按运行入口完成防误触确认。
-  show_script_intro_and_wait
-  # 初始化 Shell 选项、日志、依赖和入口运行状态。
-  initialize_script_runtime
-  # 执行 print_intro 对应的独立业务步骤。
-  print_intro
-  # 解析当前任务所需的路径、参数或运行上下文。
-  detect_md5_tool
-  # 执行 interactive_loop 对应的独立业务步骤。
-  interactive_loop
+  show_script_intro_and_wait # 展示脚本内置自述，并按运行入口完成防误触确认。
+  initialize_script_runtime # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  print_intro # 执行 print_intro 对应的独立业务步骤。
+  detect_md5_tool # 解析当前任务所需的路径、参数或运行上下文。
+  interactive_loop # 执行 interactive_loop 对应的独立业务步骤。
 }
 
 main "$@"
