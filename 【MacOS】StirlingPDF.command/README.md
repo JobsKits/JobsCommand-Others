@@ -109,15 +109,15 @@ graph TD
 
 ## 三、🧩 功能清单 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 1、启动前置说明
+### 1、启动前置说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本双击运行后，会先显示完整自述文件，并等待用户按回车确认。这样可以避免误触后直接修改系统环境、端口占用或后台服务。
 
-### 2、旧服务清理
+### 2、旧服务清理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会主动清理旧的 [**Stirling-PDF**](https://www.stirling.com) 后台服务、前端端口、后端端口，以及旧的 [**Caddy**](https://caddyserver.com) 后台映射，避免历史进程影响本次启动。
 
-### 3、开发环境自检
+### 3、开发环境自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会自检：
 
@@ -135,7 +135,7 @@ graph TD
 
 其中 [**Homebrew**](https://brew.sh/) 未安装时会按芯片架构自动安装；已安装时会询问是否升级。
 
-### 4、统一升级交互规范
+### 4、统一升级交互规范 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 所有升级类操作统一使用以下规则：
 
@@ -146,7 +146,7 @@ graph TD
 
 这个规则适用于 [**Homebrew**](https://brew.sh/)、`node`、`jenv`、`openjdk@21`、`uv`、`go-task`、[**Caddy**](https://caddyserver.com) 等依赖。
 
-### 5、源码目录选择
+### 5、源码目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会优先读取本地记录文件，复用上次成功验证过的项目目录。如果没有记录或记录失效，则会要求用户输入或拖入目录。
 
@@ -157,13 +157,13 @@ graph TD
 - 输入或拖入路径：校验父目录是否存在
 - 末级项目目录不存在时：自动创建
 
-### 6、官方仓库校验
+### 6、官方仓库校验 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会校验当前目录是否为官方 [**Stirling-PDF**](https://www.stirling.com) 仓库。
 
 如果发现 remote 是 SSH 地址，会统一修正为 HTTPS 地址，避免后续机器环境、密钥、权限差异导致拉取失败。
 
-### 7、安装与检查任务
+### 7、安装与检查任务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 源码准备完成后，脚本会执行：
 
@@ -174,7 +174,7 @@ task check
 
 这一步用于完成项目依赖准备、格式检查、测试检查等流程。若上游项目任务本身发生变化，请以当前仓库内 `Taskfile` 为准。
 
-### 8、前后端开发服务
+### 8、前后端开发服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会后台启动：
 
@@ -199,7 +199,7 @@ task frontend:dev
 
 ## 四、🌐 [**Caddy**](https://caddyserver.com) 本地域名映射 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 1、映射入口
+### 1、映射入口 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 前后端服务启动完成后，脚本会询问：
 
@@ -218,7 +218,7 @@ task frontend:dev
 
 配置完一个以后，不会立刻退出，会继续询问是否配置另一个服务。
 
-### 2、域名输入
+### 2、域名输入 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 示例：
 
@@ -230,7 +230,7 @@ api.pdf.test
 
 `.com` 是公网 TLD，本机开发依赖 `$SYSTEM_CONFIG_DIR/hosts`，长期本地开发更建议使用 `.test`。
 
-### 3、hosts 写入
+### 3、hosts 写入 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会写入：
 
@@ -240,11 +240,11 @@ api.pdf.test
 
 并刷新 macOS DNS 缓存，确保浏览器能解析到本机。
 
-### 4、系统代理绕过
+### 4、系统代理绕过 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 如果系统存在代理、VPN、Clash、Surge、LetsVPN 等网络环境，浏览器可能不走本机 hosts。脚本会把映射域名加入 macOS 系统代理绕过列表，降低 SSL 异常、代理污染、错误公网解析的概率。
 
-### 5、[**Caddy**](https://caddyserver.com) 反向代理
+### 5、[**Caddy**](https://caddyserver.com) 反向代理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会生成 [**Caddy**](https://caddyserver.com) 配置文件，并使用：
 
@@ -257,7 +257,7 @@ reverse_proxy
 
 同时脚本会禁用 HTTP/3，只保留 HTTP/1.1 和 HTTP/2，降低 Chrome、代理、QUIC 在本地域名环境下的干扰。
 
-### 6、后台运行
+### 6、后台运行 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 [**Caddy**](https://caddyserver.com) 使用后台方式启动。
 
@@ -267,21 +267,21 @@ reverse_proxy
 
 ## 五、🧪 常用自检命令 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 1、检查前端服务
+### 1、检查前端服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
 curl -I http://127.0.0.1:5173/
 lsof -nP -iTCP:5173 -sTCP:LISTEN
 ```
 
-### 2、检查后端服务
+### 2、检查后端服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
 curl -v http://127.0.0.1:8080/api/v1/info/status
 lsof -nP -iTCP:8080 -sTCP:LISTEN
 ```
 
-### 3、检查域名解析
+### 3、检查域名解析 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
 dscacheutil -q host -a name jobs.pdf.com
@@ -293,7 +293,7 @@ dscacheutil -q host -a name jobs.pdf.com
 ip_address: 127.0.0.1
 ```
 
-### 4、检查 [**Caddy**](https://caddyserver.com)
+### 4、检查 [**Caddy**](https://caddyserver.com) <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
 sudo lsof -nP -iTCP:443 -sTCP:LISTEN
@@ -302,7 +302,7 @@ sudo lsof -nP -iTCP:2019 -sTCP:LISTEN
 
 正常情况下，`443` 应该由 [**Caddy**](https://caddyserver.com) 监听。
 
-### 5、检查 HTTPS 映射
+### 5、检查 HTTPS 映射 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
 curl -vk https://jobs.pdf.com/
@@ -317,7 +317,7 @@ curl -vk https://jobs.pdf.com/api/v1/info/status
 
 ## 六、⚠️ 常见问题 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 1、浏览器显示 502
+### 1、浏览器显示 502 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 通常表示 [**Caddy**](https://caddyserver.com) 启动成功，但目标本地端口没有服务。
 
@@ -328,7 +328,7 @@ curl -I http://127.0.0.1:5173/
 curl -v http://127.0.0.1:8080/api/v1/info/status
 ```
 
-### 2、浏览器提示 Host 不允许
+### 2、浏览器提示 Host 不允许 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 如果目标服务是 Vite，可能需要 allowed host。
 
@@ -344,7 +344,7 @@ __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=你的映射域名
 __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=jobs.pdf.com task frontend:dev
 ```
 
-### 3、Chrome 报 SSL 协议错误
+### 3、Chrome 报 SSL 协议错误 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 优先检查系统代理绕过列表：
 
@@ -359,7 +359,7 @@ jobs.pdf.com
 *.pdf.com
 ```
 
-### 4、443 端口被占用
+### 4、443 端口被占用 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 检查：
 
@@ -369,7 +369,7 @@ sudo lsof -nP -iTCP:443 -sTCP:LISTEN
 
 如果不是 [**Caddy**](https://caddyserver.com)，需要先停止占用 443 的服务。
 
-### 5、关闭终端后还能访问吗？
+### 5、关闭终端后还能访问吗？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 可以。
 
@@ -379,7 +379,7 @@ sudo lsof -nP -iTCP:443 -sTCP:LISTEN
 
 ## 七、🧹 停止与清理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 1、停止本地服务
+### 1、停止本地服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本保留停止参数：
 
@@ -389,13 +389,13 @@ sudo lsof -nP -iTCP:443 -sTCP:LISTEN
 
 该流程用于清理 [**Stirling-PDF**](https://www.stirling.com) 后台服务、端口占用以及 [**Caddy**](https://caddyserver.com) 后台映射。
 
-### 2、手动停止 [**Caddy**](https://caddyserver.com)
+### 2、手动停止 [**Caddy**](https://caddyserver.com) <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
 sudo caddy stop
 ```
 
-### 3、查看日志
+### 3、查看日志 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```shell
 cat $TMPDIR/StirlingPDF.log

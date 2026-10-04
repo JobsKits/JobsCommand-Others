@@ -224,7 +224,7 @@ curl -I http://127.0.0.1:5173/
 - 如果目标服务是 Vite，仍建议显式设置 allowed host。
 - Caddy 启动后是后台服务，关闭终端不会影响映射。
 
-## 八、日志文件
+## 八、日志文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 运行日志默认写入 `$TMPDIR`，文件名通常来自脚本名去掉扩展名：
 

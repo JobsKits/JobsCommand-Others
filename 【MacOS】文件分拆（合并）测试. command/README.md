@@ -1,10 +1,10 @@
-# **MacOS 文件子卷工具脚本说明**
+# <span id="前言">**MacOS 文件子卷工具脚本说明**</span>
 
 ![Jobs出品，必属精品](https://picsum.photos/1500/400)
 
 [toc]
 
-## 一、前言
+## <span id="前言">一、前言</span>
 
 - 这个自述文件对应三个 MacOS `.command` 脚本：
 
@@ -34,7 +34,7 @@
 
 ---
 
-## 二、脚本总览
+## 二、脚本总览 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 | 脚本 | 作用 | 是否需要 Homebrew | 是否需要 fzf | 主要输出 |
 |---|---|---|---|---|
@@ -44,9 +44,9 @@
 
 ---
 
-## 三、工作流程
+## 三、工作流程 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 3.1、赋予执行权限
+### 3.1、赋予执行权限 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 三个脚本首次下载后，建议先赋予执行权限：
 
@@ -58,7 +58,7 @@ chmod +x './【MacOS】🧬MD5.command'
 
 ---
 
-### 3.2、拆分大文件
+### 3.2、拆分大文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 运行：
 
@@ -81,7 +81,7 @@ chmod +x './【MacOS】🧬MD5.command'
 
 ---
 
-### 3.3、合并子卷文件
+### 3.3、合并子卷文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 运行：
 
@@ -104,7 +104,7 @@ chmod +x './【MacOS】🧬MD5.command'
 
 ---
 
-### 3.4、计算文件 MD5
+### 3.4、计算文件 MD5 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 运行：
 
@@ -128,9 +128,9 @@ Ctrl+C
 
 ---
 
-## 四、`【MacOS】✂️源文件压缩拆分➤子卷.command` 详细说明
+## 四、`【MacOS】✂️源文件压缩拆分➤子卷.command` 详细说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 4.1、流程简述
+### 4.1、流程简述 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```mermaid
 graph TD
@@ -160,7 +160,7 @@ graph TD
 
 ---
 
-### 4.2、脚本定位
+### 4.2、脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 `【MacOS】✂️源文件压缩拆分➤子卷.command` 用于把目标目录中的大文件拆成多个较小的子卷文件。
 
@@ -175,7 +175,7 @@ graph TD
 
 ---
 
-### 4.3、环境自检
+### 4.3、环境自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本启动后会询问是否进行环境自检：
 
@@ -195,7 +195,7 @@ graph TD
 
 ---
 
-### 4.4、Homebrew 自检逻辑
+### 4.4、Homebrew 自检逻辑 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会先检查：
 
@@ -247,7 +247,7 @@ eval "$($(brew --prefix)/bin/brew shellenv)"
 
 ---
 
-### 4.5、fzf 自检逻辑
+### 4.5、fzf 自检逻辑 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会检查：
 
@@ -272,7 +272,7 @@ fzf 的作用主要是提供更舒服的交互选择，例如选择拆分标准�
 
 ---
 
-### 4.6、拆分标准
+### 4.6、拆分标准 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本支持四种拆分标准：
 
@@ -304,7 +304,7 @@ CUSTOM  自定义标准（单位：MB）
 
 ---
 
-### 4.7、目标目录选择
+### 4.7、目标目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会要求拖入或输入目标目录：
 
@@ -325,7 +325,7 @@ CUSTOM  自定义标准（单位：MB）
 
 ---
 
-### 4.8、扫描规则
+### 4.8、扫描规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会执行类似下面的扫描逻辑：
 
@@ -348,7 +348,7 @@ find "$TARGET_DIR" -maxdepth 1 -type f
 
 ---
 
-### 4.9、子卷目录命名规则
+### 4.9、子卷目录命名规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 对于源文件：
 
@@ -379,7 +379,7 @@ Example/
 
 ---
 
-### 4.10、子卷文件命名规则
+### 4.10、子卷文件命名规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 拆分后的子卷文件命名格式是：
 
@@ -410,7 +410,7 @@ Example.zip@005of005
 
 ---
 
-### 4.11、实际拆分方式
+### 4.11、实际拆分方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本使用系统 `split` 命令进行拆分：
 
@@ -429,7 +429,7 @@ split -b "$actual_chunk_size_bytes" -d -a 3 -- "$file" "$tmp_prefix"
 
 ---
 
-### 4.12、拆分成功后是否删除源文件
+### 4.12、拆分成功后是否删除源文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 每个文件拆分成功后，脚本会询问：
 
@@ -444,7 +444,7 @@ split -b "$actual_chunk_size_bytes" -d -a 3 -- "$file" "$tmp_prefix"
 
 ---
 
-### 4.13、注意事项
+### 4.13、注意事项 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 - 文件名中最好不要包含 `@`，因为合并脚本会用 `@` 判断子卷标记。
 - 不要手动修改子卷文件名。
@@ -455,9 +455,9 @@ split -b "$actual_chunk_size_bytes" -d -a 3 -- "$file" "$tmp_prefix"
 
 ---
 
-## 五、`【MacOS】🧩子卷➤合而为一源文件.command` 详细说明
+## 五、`【MacOS】🧩子卷➤合而为一源文件.command` 详细说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 5.1、流程简述
+### 5.1、流程简述 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```mermaid
 graph TD
@@ -486,7 +486,7 @@ graph TD
 
 ---
 
-### 5.2、脚本定位
+### 5.2、脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 `【MacOS】🧩子卷➤合而为一源文件.command` 用于把拆分脚本生成的子卷目录重新合并成源文件。
 
@@ -499,7 +499,7 @@ graph TD
 
 ---
 
-### 5.3、环境自检
+### 5.3、环境自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本启动后会询问是否进行环境自检：
 
@@ -514,7 +514,7 @@ graph TD
 
 ---
 
-### 5.4、目标目录选择
+### 5.4、目标目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会要求拖入或输入目标目录：
 
@@ -561,7 +561,7 @@ Target/
 
 ---
 
-### 5.5、子卷目录识别规则
+### 5.5、子卷目录识别规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本只扫描目标目录的一级子目录：
 
@@ -597,7 +597,7 @@ Target/
 
 ---
 
-### 5.6、子卷目录选择
+### 5.6、子卷目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 识别到子卷目录后，脚本会分两种情况：
 
@@ -619,7 +619,7 @@ Target/
 
 ---
 
-### 5.7、合并规则
+### 5.7、合并规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 合并脚本会读取子卷目录中所有文件名包含 `@` 的普通文件：
 
@@ -646,7 +646,7 @@ Example.zip@003of005
 
 ---
 
-### 5.8、源文件名推断规则
+### 5.8、源文件名推断规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 合并脚本会从第一个子卷文件名中提取源文件名：
 
@@ -690,7 +690,7 @@ A
 
 ---
 
-### 5.9、总卷数校验
+### 5.9、总卷数校验 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 合并脚本会从第一个子卷文件的后缀中解析总卷数。
 
@@ -718,7 +718,7 @@ Example.zip@001of005
 
 ---
 
-### 5.10、目标文件已存在时的处理
+### 5.10、目标文件已存在时的处理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 如果目标目录中已经存在同名输出文件，脚本会询问：
 
@@ -733,7 +733,7 @@ Example.zip@001of005
 
 ---
 
-### 5.11、合并成功后是否删除子卷目录
+### 5.11、合并成功后是否删除子卷目录 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 每个目录合并成功后，脚本会询问：
 
@@ -746,7 +746,7 @@ Example.zip@001of005
 
 ---
 
-### 5.12、注意事项
+### 5.12、注意事项 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 - 子卷目录必须位于目标目录一级。
 - 多个子卷目录时建议安装 fzf。
@@ -758,9 +758,9 @@ Example.zip@001of005
 
 ---
 
-## 六、`【MacOS】🧬MD5.command` 详细说明
+## 六、`【MacOS】🧬MD5.command` 详细说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 6.1、流程简述
+### 6.1、流程简述 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 ```mermaid
 graph TD
@@ -780,7 +780,7 @@ graph TD
 
 ---
 
-### 6.2、脚本定位
+### 6.2、脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 `【MacOS】🧬MD5.command` 用于计算文件 MD5。
 
@@ -793,7 +793,7 @@ graph TD
 
 ---
 
-### 6.3、MD5 工具检测
+### 6.3、MD5 工具检测 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会优先检测 macOS 自带的：
 
@@ -817,7 +817,7 @@ md5sum
 
 ---
 
-### 6.4、输入规则
+### 6.4、输入规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会反复提示：
 
@@ -842,7 +842,7 @@ md5sum
 
 ---
 
-### 6.5、空输入行为
+### 6.5、空输入行为 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 当前脚本开头说明写的是：
 
@@ -864,7 +864,7 @@ md5sum
 
 ---
 
-### 6.6、推荐校验方式
+### 6.6、推荐校验方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 拆分前，先计算源文件 MD5：
 
@@ -891,9 +891,9 @@ md5sum
 
 ---
 
-## 七、文件命名与目录结构建议
+## 七、文件命名与目录结构建议 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 7.1、推荐目录结构
+### 7.1、推荐目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 推荐把三个脚本放在一个固定工具目录中：
 
@@ -954,7 +954,7 @@ Work/
 
 ---
 
-### 7.2、不推荐的文件名
+### 7.2、不推荐的文件名 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 不建议源文件名包含：
 
@@ -982,7 +982,7 @@ Backup-Mac.dmg
 
 ---
 
-### 7.3、不推荐的目录结构
+### 7.3、不推荐的目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 不推荐把多个不同文件的子卷混在同一个目录：
 
@@ -1008,7 +1008,7 @@ Good/
 
 ---
 
-## 八、日志文件
+## 八、日志文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 三个脚本都会把运行日志写入 `$TMPDIR`。
 
@@ -1034,9 +1034,9 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-## 九、常见使用场景
+## 九、常见使用场景 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 场景 1：大文件准备放进 GitHub 普通仓库
+### 场景 1：大文件准备放进 GitHub 普通仓库 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 GitHub 普通仓库对大文件有限制。脚本默认的 `50 MB` 是比较保守的拆分标准。
 
@@ -1052,7 +1052,7 @@ GitHub 普通仓库对大文件有限制。脚本默认的 `50 MB` 是比较保�
 
 ---
 
-### 场景 2：大文件准备走 GitHub Releases
+### 场景 2：大文件准备走 GitHub Releases <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 如果文件不是要直接进普通 Git 仓库，而是准备放到 GitHub Releases，可以选择：
 
@@ -1064,7 +1064,7 @@ GitHub Releases 安全标准（1900 MiB）
 
 ---
 
-### 场景 3：没有安装 fzf
+### 场景 3：没有安装 fzf <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 拆分脚本没有 fzf 时，可以回退为数字输入模式选择拆分标准。
 
@@ -1074,7 +1074,7 @@ GitHub Releases 安全标准（1900 MiB）
 
 ---
 
-### 场景 4：只想计算 MD5
+### 场景 4：只想计算 MD5 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 直接运行：
 
@@ -1094,9 +1094,9 @@ Ctrl+C
 
 ---
 
-## 十、失败排查顺序
+## 十、失败排查顺序 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 10.1、拆分脚本失败
+### 10.1、拆分脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 优先检查：
 
@@ -1118,7 +1118,7 @@ cat '$TMPDIR/【MacOS】✂️源文件压缩拆分➤子卷.log'
 
 ---
 
-### 10.2、合并脚本失败
+### 10.2、合并脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 优先检查：
 
@@ -1139,7 +1139,7 @@ cat '$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log'
 
 ---
 
-### 10.3、MD5 脚本失败
+### 10.3、MD5 脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 优先检查：
 
@@ -1159,9 +1159,9 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-## 十一、<font color=red>F</font><font color=blue>A</font><font color=green>Q</font>
+## 十一、<font color=red>F</font><font color=blue>A</font><font color=green>Q</font> <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 11.1、这个拆分脚本真的会压缩文件吗？
+### 11.1、这个拆分脚本真的会压缩文件吗？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 不会。
 
@@ -1171,7 +1171,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### 11.2、为什么默认是 50 MB？
+### 11.2、为什么默认是 50 MB？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 因为这是偏保守的拆分标准。
 
@@ -1179,7 +1179,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### 11.3、为什么 2GB 选项实际是 1900 MiB？
+### 11.3、为什么 2GB 选项实际是 1900 MiB？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 因为 2GB 附近容易受到平台限制、单位差异、额外元数据等因素影响。
 
@@ -1187,7 +1187,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### 11.4、为什么拆分后的子卷不是每个都刚好等于我选择的大小？
+### 11.4、为什么拆分后的子卷不是每个都刚好等于我选择的大小？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 脚本会根据文件总大小计算一个更均衡的实际拆分大小，避免最后一个子卷过小。
 
@@ -1195,7 +1195,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### 11.5、为什么合并脚本要求文件名里有 `@`？
+### 11.5、为什么合并脚本要求文件名里有 `@`？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 因为拆分脚本使用 `@001of005` 这种格式标记子卷序号。
 
@@ -1203,7 +1203,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### 11.6、源文件名能不能包含 `@`？
+### 11.6、源文件名能不能包含 `@`？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 不建议。
 
@@ -1211,7 +1211,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### 11.7、为什么合并脚本没有自动验证 MD5？
+### 11.7、为什么合并脚本没有自动验证 MD5？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 当前合并脚本只负责按字节拼接，不负责校验。
 
@@ -1219,7 +1219,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### 11.8、为什么 MD5 脚本直接按 Enter 不退出？
+### 11.8、为什么 MD5 脚本直接按 Enter 不退出？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 这是当前脚本真实行为。
 
@@ -1233,7 +1233,7 @@ Ctrl+C
 
 ---
 
-### 11.9、为什么合并时提示目标文件已存在？
+### 11.9、为什么合并时提示目标文件已存在？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 因为合并输出文件会直接写到目标目录。
 
@@ -1243,7 +1243,7 @@ Ctrl+C
 
 ---
 
-### 11.10、为什么拆分成功后不建议立刻删除源文件？
+### 11.10、为什么拆分成功后不建议立刻删除源文件？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 因为拆分成功只代表子卷文件生成了，不代表你已经验证过后续能否完整合并。
 
@@ -1257,7 +1257,7 @@ Ctrl+C
 
 ---
 
-## 十二、设计原则
+## 十二、设计原则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 - 拆分和合并都只处理目标目录的一级内容，避免误伤深层目录。
 - 子卷命名要可读、可排序、可反推源文件名。
@@ -1270,7 +1270,7 @@ Ctrl+C
 
 ---
 
-## 十三、外部链接
+## 十三、外部链接 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
 | 名称 | 链接 | 说明 |
 |---|---|---|
