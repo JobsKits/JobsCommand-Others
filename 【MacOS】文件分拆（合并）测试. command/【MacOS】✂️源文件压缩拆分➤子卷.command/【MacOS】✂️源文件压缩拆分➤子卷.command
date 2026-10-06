@@ -5,6 +5,29 @@
 # - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
 # - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -279,20 +302,20 @@ choose_split_standard() {
 }
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 print_intro() {
-  bold_echo "======== 大文件拆分为子卷脚本（${SCRIPT_BASENAME}）========"
-  note_echo "功能概要："
-  echo "  1. 支持拖入目标目录，也支持直接拖入单个待拆分文件；"
-  echo "  2. 目录模式：在目标目录中查找达到拆分阈值的文件（不递归子目录）；"
-  echo "  3. 文件模式：只处理你拖入的那个文件；"
-  echo "  4. 针对每一个大文件："
-  echo "     - 创建与去掉后缀名后的文件名同名的子卷目录；"
-  echo "     - 按你选择的拆分标准拆分成多个子卷文件；"
-  echo "     - 子卷命名形如：原文件名@001of005（代表第 1/5 卷）；"
-  echo "     - 拆分成功后，询问是否删除源文件。"
-  echo ""
-  gray_echo "注意：文件名中不能包含 '/'，因此示例中的“1/5”会用“001of005”的形式替代。"
-  echo ""
-  note_echo "按 [Enter] 继续，或 Ctrl+C 退出..."
+  bold_echo "======== 大文件拆分为子卷脚本（${SCRIPT_BASENAME}）========" | jobs_intro_style title
+  note_echo "功能概要：" | jobs_intro_style title
+  echo "  1. 支持拖入目标目录，也支持直接拖入单个待拆分文件；" | jobs_intro_style body
+  echo "  2. 目录模式：在目标目录中查找达到拆分阈值的文件（不递归子目录）；" | jobs_intro_style body
+  echo "  3. 文件模式：只处理你拖入的那个文件；" | jobs_intro_style body
+  echo "  4. 针对每一个大文件：" | jobs_intro_style body
+  echo "     - 创建与去掉后缀名后的文件名同名的子卷目录；" | jobs_intro_style body
+  echo "     - 按你选择的拆分标准拆分成多个子卷文件；" | jobs_intro_style body
+  echo "     - 子卷命名形如：原文件名@001of005（代表第 1/5 卷）；" | jobs_intro_style body
+  echo "     - 拆分成功后，询问是否删除源文件。" | jobs_intro_style body
+  echo "" | jobs_intro_style body
+  gray_echo "注意：文件名中不能包含 '/'，因此示例中的“1/5”会用“001of005”的形式替代。" | jobs_intro_style body
+  echo "" | jobs_intro_style body
+  note_echo "按 [Enter] 继续，或 Ctrl+C 退出..." | jobs_intro_style body
   IFS= read -r _
 }
 # 执行已经拆分完成的独立业务步骤。
@@ -512,12 +535,12 @@ split_large_files() {
 }
 # 打印脚本内置自述，并按运行入口决定是否等待用户确认。
 show_script_intro_and_wait() {
-  print -r -- '============================== 脚本内置自述 =============================='
-  print -r -- '脚本名称：【MacOS】✂️源文件压缩拆分➤子卷.command'
-  print -r -- '核心用途：执行“✂️源文件压缩拆分➤子卷”对应的自动化任务。'
-  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
-  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
-  print -r -- '============================================================================'
+  print -r -- '============================== 脚本内置自述 ==============================' | jobs_intro_style title
+  print -r -- '脚本名称：【MacOS】✂️源文件压缩拆分➤子卷.command' | jobs_intro_style title
+  print -r -- '核心用途：执行“✂️源文件压缩拆分➤子卷”对应的自动化任务。' | jobs_intro_style body
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。' | jobs_intro_style body
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。' | jobs_intro_style body
+  print -r -- '============================================================================' | jobs_intro_style title
   if [[ ! -t 0 ]]; then
     print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
     exit 1

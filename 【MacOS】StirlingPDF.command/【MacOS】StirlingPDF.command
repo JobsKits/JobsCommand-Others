@@ -26,6 +26,29 @@
 
 
 # 兜底补齐 macOS 系统命令路径，避免 PATH 被污染后找不到基础命令
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:/usr/local/bin:${PATH:-}"
 
 # ----------------------------
@@ -429,41 +452,41 @@ ask_repo_remote_update() {
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_readme() {
   clear
-  bold_echo "MacOS Stirling-PDF 本地部署 + Caddy 本地端口域名映射"
-  color_echo "============================================================"
-  note_echo "这个脚本会执行以下动作："
-  gray_echo "1. 打开脚本后，先主动扫描并关闭旧的 Stirling-PDF 后台进程和 5173/8080 端口占用。"
-  gray_echo "2. 前置自检 Xcode Command Line Tools。"
-  gray_echo "3. 自检 git / clang / make，git 使用 macOS 系统自带，不走 brew 安装。"
-  gray_echo "4. 自检 Homebrew；未安装则按芯片架构安装。"
-  gray_echo "5. 使用 Homebrew 自检安装 node、jenv、${JAVA_FORMULA}、uv、go-task。"
-  gray_echo "6. 读取本地记录文件，并验证本地仓库是否属于官方 Stirling-PDF。"
-  gray_echo "7. 记录无效或首次运行时，要求输入/拖入本地目录。"
-  gray_echo "8. 目录选择阶段：直接回车继续询问；输入空格后回车才使用桌面目录。"
-  gray_echo "9. 手动拖入/输入目录时，只允许父目录已存在；末级 Stirling-PDF 目录缺失时自动创建。"
-  gray_echo "10. SSH remote 会被识别为官方仓库，并统一修正为 HTTPS remote。"
-  gray_echo "11. 首次 clone 前进入确认页；目录已校验后直接按 [Enter] 继续，不需要输入 YES。"
-  gray_echo "12. 已有仓库时先询问是否拉取远程更新：直接按 [Enter] 跳过；输入任意字符后回车才执行 fetch/pull。"
-  gray_echo "13. 进入 Stirling-PDF 后执行 task install 和 task check。"
-  gray_echo "14. 后台静默启动 task backend:dev 和 task frontend:dev。"
-  gray_echo "15. 打开前端地址：${FRONTEND_URL}，并打印后端地址：${BACKEND_URL}。"
-  gray_echo "16. Stirling-PDF 启动完成后，按顺序询问前端、后端两个 Caddy 本地域名 HTTPS 映射。"
-  gray_echo "17. 每个映射项都遵循同一规则：直接按 [Enter] 继续询问；输入一个空格后回车跳过当前项；输入域名后回车立即配置该项。"
-  echo ""
-  warn_echo "注意：正常启动脚本会先归零旧后台服务，然后重新启动。"
-  warn_echo "注意：确认自述文件后，会先关闭旧的 Caddy 后台映射，避免历史配置干扰。"
-  warn_echo "手动停止方式仍然保留：重新运行本脚本并追加参数 --stop"
-  gray_echo "例如："
-  gray_echo "  "${SCRIPT_PATH}" --stop"
-  echo ""
-  note_echo "参考来源：Stirling-PDF 官网 https://www.stirling.com/"
-  note_echo "参考来源：Caddy 官网 https://caddyserver.com/"
-  echo ""
-  warn_echo "代码记录文件：$RECORD_FILE"
-  warn_echo "脚本日志：$LOG_FILE"
-  warm_echo "后端日志：$BACKEND_LOG_FILE"
-  warm_echo "前端日志：$FRONTEND_LOG_FILE"
-  color_echo "============================================================"
+  bold_echo "MacOS Stirling-PDF 本地部署 + Caddy 本地端口域名映射" | jobs_intro_style title
+  color_echo "============================================================" | jobs_intro_style title
+  note_echo "这个脚本会执行以下动作：" | jobs_intro_style title
+  gray_echo "1. 打开脚本后，先主动扫描并关闭旧的 Stirling-PDF 后台进程和 5173/8080 端口占用。" | jobs_intro_style body
+  gray_echo "2. 前置自检 Xcode Command Line Tools。" | jobs_intro_style body
+  gray_echo "3. 自检 git / clang / make，git 使用 macOS 系统自带，不走 brew 安装。" | jobs_intro_style body
+  gray_echo "4. 自检 Homebrew；未安装则按芯片架构安装。" | jobs_intro_style body
+  gray_echo "5. 使用 Homebrew 自检安装 node、jenv、${JAVA_FORMULA}、uv、go-task。" | jobs_intro_style body
+  gray_echo "6. 读取本地记录文件，并验证本地仓库是否属于官方 Stirling-PDF。" | jobs_intro_style body
+  gray_echo "7. 记录无效或首次运行时，要求输入/拖入本地目录。" | jobs_intro_style body
+  gray_echo "8. 目录选择阶段：直接回车继续询问；输入空格后回车才使用桌面目录。" | jobs_intro_style body
+  gray_echo "9. 手动拖入/输入目录时，只允许父目录已存在；末级 Stirling-PDF 目录缺失时自动创建。" | jobs_intro_style body
+  gray_echo "10. SSH remote 会被识别为官方仓库，并统一修正为 HTTPS remote。" | jobs_intro_style body
+  gray_echo "11. 首次 clone 前进入确认页；目录已校验后直接按 [Enter] 继续，不需要输入 YES。" | jobs_intro_style body
+  gray_echo "12. 已有仓库时先询问是否拉取远程更新：直接按 [Enter] 跳过；输入任意字符后回车才执行 fetch/pull。" | jobs_intro_style body
+  gray_echo "13. 进入 Stirling-PDF 后执行 task install 和 task check。" | jobs_intro_style body
+  gray_echo "14. 后台静默启动 task backend:dev 和 task frontend:dev。" | jobs_intro_style body
+  gray_echo "15. 打开前端地址：${FRONTEND_URL}，并打印后端地址：${BACKEND_URL}。" | jobs_intro_style body
+  gray_echo "16. Stirling-PDF 启动完成后，按顺序询问前端、后端两个 Caddy 本地域名 HTTPS 映射。" | jobs_intro_style body
+  gray_echo "17. 每个映射项都遵循同一规则：直接按 [Enter] 继续询问；输入一个空格后回车跳过当前项；输入域名后回车立即配置该项。" | jobs_intro_style body
+  echo "" | jobs_intro_style body
+  warn_echo "注意：正常启动脚本会先归零旧后台服务，然后重新启动。" | jobs_intro_style body
+  warn_echo "注意：确认自述文件后，会先关闭旧的 Caddy 后台映射，避免历史配置干扰。" | jobs_intro_style body
+  warn_echo "手动停止方式仍然保留：重新运行本脚本并追加参数 --stop" | jobs_intro_style body
+  gray_echo "例如：" | jobs_intro_style title
+  gray_echo "  "${SCRIPT_PATH}" --stop" | jobs_intro_style body
+  echo "" | jobs_intro_style body
+  note_echo "参考来源：Stirling-PDF 官网 https://www.stirling.com/" | jobs_intro_style body
+  note_echo "参考来源：Caddy 官网 https://caddyserver.com/" | jobs_intro_style body
+  echo "" | jobs_intro_style body
+  warn_echo "代码记录文件：$RECORD_FILE" | jobs_intro_style body
+  warn_echo "脚本日志：$LOG_FILE" | jobs_intro_style body
+  warm_echo "后端日志：$BACKEND_LOG_FILE" | jobs_intro_style body
+  warm_echo "前端日志：$FRONTEND_LOG_FILE" | jobs_intro_style body
+  color_echo "============================================================" | jobs_intro_style title
   pause_enter "确认理解后，按 [Enter] 开始..."
 }
 # ----------------------------
@@ -2151,12 +2174,12 @@ show_usage() {
 }
 # 打印脚本内置自述，并按运行入口决定是否等待用户确认。
 show_script_intro_and_wait() {
-  print -r -- '============================== 脚本内置自述 =============================='
-  print -r -- '脚本名称：【MacOS】StirlingPDF.command'
-  print -r -- '核心用途：执行“StirlingPDF”对应的自动化任务。'
-  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
-  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
-  print -r -- '============================================================================'
+  print -r -- '============================== 脚本内置自述 ==============================' | jobs_intro_style title
+  print -r -- '脚本名称：【MacOS】StirlingPDF.command' | jobs_intro_style title
+  print -r -- '核心用途：执行“StirlingPDF”对应的自动化任务。' | jobs_intro_style body
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。' | jobs_intro_style body
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。' | jobs_intro_style body
+  print -r -- '============================================================================' | jobs_intro_style title
   if [[ ! -t 0 ]]; then
     print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
     exit 1

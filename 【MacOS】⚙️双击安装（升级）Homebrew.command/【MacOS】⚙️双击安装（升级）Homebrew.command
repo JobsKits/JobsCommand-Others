@@ -6,6 +6,29 @@
 # - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
 
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')   # 当前脚本名（去掉扩展名）
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"                  # 设置对应的日志文件路径
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -42,13 +65,13 @@ SCRIPT_PATH="${SCRIPT_DIR}/$(basename -- "$0")"
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_script_intro_and_wait() {
   clear
-  print -r -- '============================== 脚本内置自述 =============================='
-  print -r -- '脚本名称：【MacOS】⚙️双击安装（升级）Homebrew.command'
-  print -r -- '核心用途：执行“⚙️双击安装（升级）Homebrew”对应的本机环境配置任务。'
-  print -r -- '影响范围：可能安装、更新或修改当前用户的工具链与配置文件。'
-  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
-  print -r -- '============================================================================'
-  echo ""
+  print -r -- '============================== 脚本内置自述 ==============================' | jobs_intro_style title
+  print -r -- '脚本名称：【MacOS】⚙️双击安装（升级）Homebrew.command' | jobs_intro_style title
+  print -r -- '核心用途：执行“⚙️双击安装（升级）Homebrew”对应的本机环境配置任务。' | jobs_intro_style body
+  print -r -- '影响范围：可能安装、更新或修改当前用户的工具链与配置文件。' | jobs_intro_style body
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。' | jobs_intro_style body
+  print -r -- '============================================================================' | jobs_intro_style title
+  echo "" | jobs_intro_style body
   read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
 }
 # 封装 pause_to_exit 对应的独立处理逻辑。
@@ -76,9 +99,9 @@ strip_outer_quotes() {
 }
 # 打印脚本定位。
 print_builtin_intro() {
-  highlight_echo "🧰 Homebrew 与常用开发工具安装脚本"
-  note_echo "日志文件：$LOG_FILE"
-  note_echo "脚本路径：$SCRIPT_PATH"
+  highlight_echo "🧰 Homebrew 与常用开发工具安装脚本" | jobs_intro_style title
+  note_echo "日志文件：$LOG_FILE" | jobs_intro_style body
+  note_echo "脚本路径：$SCRIPT_PATH" | jobs_intro_style body
 }
 # 判断芯片架构。
 get_cpu_arch() {

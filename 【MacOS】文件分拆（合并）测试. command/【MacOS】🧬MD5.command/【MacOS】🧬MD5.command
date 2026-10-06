@@ -6,6 +6,29 @@
 # - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
 # ======================== 基础信息 ========================
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -40,14 +63,14 @@ underline_echo() { log "\033[4m$1\033[0m"; }
 MD5_TOOL=""
 # ======================== 自述 ========================
 print_intro() {
-  bold_echo "======== 文件 MD5 计算助手（${SCRIPT_BASENAME}）========"
-  note_echo "使用方法："
-  echo "  1. 运行脚本之后，按提示操作；"
-  echo "  2. 每次需要计算 MD5 时，把目标文件从 Finder 拖到终端里，回车；"
-  echo "  3. 计算完成后，脚本不会退出，会继续等待你拖下一个文件；"
-  echo "  4. 如果不想继续算了，直接按 [Enter]（空输入）即可退出。"
-  echo ""
-  note_echo "按 [Enter] 开始使用，或 Ctrl+C 取消..."
+  bold_echo "======== 文件 MD5 计算助手（${SCRIPT_BASENAME}）========" | jobs_intro_style title
+  note_echo "使用方法：" | jobs_intro_style title
+  echo "  1. 运行脚本之后，按提示操作；" | jobs_intro_style body
+  echo "  2. 每次需要计算 MD5 时，把目标文件从 Finder 拖到终端里，回车；" | jobs_intro_style body
+  echo "  3. 计算完成后，脚本不会退出，会继续等待你拖下一个文件；" | jobs_intro_style body
+  echo "  4. 如果不想继续算了，直接按 [Enter]（空输入）即可退出。" | jobs_intro_style body
+  echo "" | jobs_intro_style body
+  note_echo "按 [Enter] 开始使用，或 Ctrl+C 取消..." | jobs_intro_style body
   IFS= read -r _
 }
 # ======================== 检测 MD5 工具 ========================
@@ -142,12 +165,12 @@ interactive_loop() {
 }
 # 打印脚本内置自述，并按运行入口决定是否等待用户确认。
 show_script_intro_and_wait() {
-  print -r -- '============================== 脚本内置自述 =============================='
-  print -r -- '脚本名称：【MacOS】🧬MD5.command'
-  print -r -- '核心用途：执行“🧬MD5”对应的自动化任务。'
-  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
-  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
-  print -r -- '============================================================================'
+  print -r -- '============================== 脚本内置自述 ==============================' | jobs_intro_style title
+  print -r -- '脚本名称：【MacOS】🧬MD5.command' | jobs_intro_style body
+  print -r -- '核心用途：执行“🧬MD5”对应的自动化任务。' | jobs_intro_style body
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。' | jobs_intro_style body
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。' | jobs_intro_style body
+  print -r -- '============================================================================' | jobs_intro_style title
   if [[ ! -t 0 ]]; then
     print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
     exit 1

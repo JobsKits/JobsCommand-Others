@@ -5,6 +5,29 @@
 # - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
 # - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
 
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
 SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
 LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
 # 按当前输出级别记录终端信息，并同步写入脚本日志。
@@ -221,15 +244,15 @@ run_jobs_noninteractive_merge() {
 }
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 print_intro() {
-  bold_echo "======== 子卷合并脚本（${SCRIPT_BASENAME}）========"
-  note_echo "功能概要："
-  echo "  1. 支持拖入包含子卷目录的目标目录，也支持直接拖入子卷目录本身；"
-  echo "  2. 识别包含类似 原文件@001of004 的子卷目录；"
-  echo "  3. 使用 fzf 选择需要合并的子卷目录（或对全部目录执行）；"
-  echo "  4. 按顺序合并子卷为一个完整文件；"
-  echo "  5. 合并成功后，询问是否删除对应的子卷目录。"
-  echo ""
-  note_echo "按 [Enter] 继续，或 Ctrl+C 退出..."
+  bold_echo "======== 子卷合并脚本（${SCRIPT_BASENAME}）========" | jobs_intro_style title
+  note_echo "功能概要：" | jobs_intro_style title
+  echo "  1. 支持拖入包含子卷目录的目标目录，也支持直接拖入子卷目录本身；" | jobs_intro_style body
+  echo "  2. 识别包含类似 原文件@001of004 的子卷目录；" | jobs_intro_style body
+  echo "  3. 使用 fzf 选择需要合并的子卷目录（或对全部目录执行）；" | jobs_intro_style body
+  echo "  4. 按顺序合并子卷为一个完整文件；" | jobs_intro_style body
+  echo "  5. 合并成功后，询问是否删除对应的子卷目录。" | jobs_intro_style body
+  echo "" | jobs_intro_style body
+  note_echo "按 [Enter] 继续，或 Ctrl+C 退出..." | jobs_intro_style body
   IFS= read -r _
 }
 # 执行已经拆分完成的独立业务步骤。
@@ -414,12 +437,12 @@ merge_selected_dirs() {
 }
 # 打印脚本内置自述，并按运行入口决定是否等待用户确认。
 show_script_intro_and_wait() {
-  printf '%s\n' '============================== 脚本内置自述 =============================='
-  printf '%s\n' '脚本名称：【MacOS】🧩子卷➤合而为一源文件.command'
-  printf '%s\n' '核心用途：执行“🧩子卷➤合而为一源文件”对应的自动化任务。'
-  printf '%s\n' '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
-  printf '%s\n' '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
-  printf '%s\n' '============================================================================'
+  printf '%s\n' '============================== 脚本内置自述 ==============================' | jobs_intro_style title
+  printf '%s\n' '脚本名称：【MacOS】🧩子卷➤合而为一源文件.command' | jobs_intro_style title
+  printf '%s\n' '核心用途：执行“🧩子卷➤合而为一源文件”对应的自动化任务。' | jobs_intro_style body
+  printf '%s\n' '影响范围：可能修改当前项目、用户环境或脚本指定的目标。' | jobs_intro_style body
+  printf '%s\n' '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。' | jobs_intro_style body
+  printf '%s\n' '============================================================================' | jobs_intro_style title
   if [[ ! -t 0 ]]; then
     printf '%s\n' '当前没有可交互输入，请在终端中重新运行。' >&2
     exit 1

@@ -7,6 +7,29 @@
 
 # ================================== 基础信息 ==================================
 
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
 SCRIPT_PATH="${0:A}"
 SCRIPT_BASENAME="$(basename "$0" | sed 's/\.[^.]*$//')"
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
@@ -542,17 +565,17 @@ open_json_in_browser() {
 # 展示脚本用途和影响范围，并在执行前等待用户确认。
 show_intro() {
   print_divider
-  bold_echo "本脚本将执行以下流程："
-  log "1. 自述说明，并等待你回车"
-  log "2. 检查 Homebrew：没有就安装，有就可选升级"
-  log "3. 检查 python3：没有就安装，有就可选升级"
-  log "4. 检查 fzf：没有就安装，有就可选升级"
-  log "5. 切换到脚本所在目录"
-  log "6. 后台启动本地服务：http://${HOST}:${PORT}"
-  log "7. 优先从 jsons 文件夹里用 fzf 选择一个 json 文件；若 jsons 不存在则回退扫描脚本目录"
-  log "8. 浏览器自动打开对应地址（已处理空格/中文等 URL 编码）"
-  log "9. 脚本退出后服务仍保持运行，可直接关闭终端"
-  log "10. 以后可用 start / stop / status / restart 管理服务"
+  bold_echo "本脚本将执行以下流程：" | jobs_intro_style title
+  log "1. 自述说明，并等待你回车" | jobs_intro_style body
+  log "2. 检查 Homebrew：没有就安装，有就可选升级" | jobs_intro_style body
+  log "3. 检查 python3：没有就安装，有就可选升级" | jobs_intro_style body
+  log "4. 检查 fzf：没有就安装，有就可选升级" | jobs_intro_style body
+  log "5. 切换到脚本所在目录" | jobs_intro_style body
+  log "6. 后台启动本地服务：http://${HOST}:${PORT}" | jobs_intro_style body
+  log "7. 优先从 jsons 文件夹里用 fzf 选择一个 json 文件；若 jsons 不存在则回退扫描脚本目录" | jobs_intro_style body
+  log "8. 浏览器自动打开对应地址（已处理空格/中文等 URL 编码）" | jobs_intro_style body
+  log "9. 脚本退出后服务仍保持运行，可直接关闭终端" | jobs_intro_style body
+  log "10. 以后可用 start / stop / status / restart 管理服务" | jobs_intro_style body
   print_divider
   pause_enter
 }
@@ -595,12 +618,12 @@ main_start_flow() {
 }
 # 打印脚本内置自述，并按运行入口决定是否等待用户确认。
 show_script_intro_and_wait() {
-  print -r -- '============================== 脚本内置自述 =============================='
-  print -r -- '脚本名称：【MacOS】Mock.command'
-  print -r -- '核心用途：执行“Mock”对应的自动化任务。'
-  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。'
-  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。'
-  print -r -- '============================================================================'
+  print -r -- '============================== 脚本内置自述 ==============================' | jobs_intro_style title
+  print -r -- '脚本名称：【MacOS】Mock.command' | jobs_intro_style title
+  print -r -- '核心用途：执行“Mock”对应的自动化任务。' | jobs_intro_style body
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。' | jobs_intro_style body
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。' | jobs_intro_style body
+  print -r -- '============================================================================' | jobs_intro_style title
   if [[ ! -t 0 ]]; then
     print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
     exit 1

@@ -6,6 +6,29 @@
 # - 影响范围：写入当前用户的 Applications、Application Support 和 LaunchAgents 目录。
 # - 运行提示：运行后先展示说明并等待确认；卸载等危险动作必须输入 YES。
 
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
 readonly SCRIPT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 readonly APP_NAME="Jobs计划任务.app"
 readonly INSTALL_DIR="$HOME/Applications"
@@ -27,15 +50,15 @@ error_echo() { log "✖ $1"; }
 # 打印脚本内置自述并等待明确确认。
 show_script_intro_and_wait() {
   clear
-  log "============================== 脚本自述 =============================="
-  log "当前脚本：$SCRIPT_DIR/Jobs计划任务.command"
-  log "核心用途：管理 Jobs 计划任务菜单栏 App 的安装、启动、升级和卸载。"
-  log "影响范围：$APP_PATH、$DATA_DIR 和当前用户的 LaunchAgents。"
-  log "安全边界：不保存管理员密码；危险卸载操作必须输入 YES。"
-  log "日志位置：$LOG_FILE"
-  log "取消方式：按 Ctrl+C 终止。"
-  log "======================================================================="
-  print ""
+  log "============================== 脚本自述 ==============================" | jobs_intro_style title
+  log "当前脚本：$SCRIPT_DIR/Jobs计划任务.command" | jobs_intro_style body
+  log "核心用途：管理 Jobs 计划任务菜单栏 App 的安装、启动、升级和卸载。" | jobs_intro_style body
+  log "影响范围：$APP_PATH、$DATA_DIR 和当前用户的 LaunchAgents。" | jobs_intro_style body
+  log "安全边界：不保存管理员密码；危险卸载操作必须输入 YES。" | jobs_intro_style body
+  log "日志位置：$LOG_FILE" | jobs_intro_style body
+  log "取消方式：按 Ctrl+C 终止。" | jobs_intro_style body
+  log "=======================================================================" | jobs_intro_style title
+  print "" | jobs_intro_style body
   read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
 }
 # 初始化运行环境和日志文件。
