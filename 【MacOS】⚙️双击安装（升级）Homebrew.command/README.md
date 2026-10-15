@@ -81,25 +81,8 @@ $TMPDIR/【MacOS】⚙️双击安装（升级）Homebrew.log
 
 ## 八、🍺 Homebrew 自检标准 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-凡是涉及 Homebrew 的脚本，统一执行以下规则：
-
-| 场景 | 行为 |
-|---|---|
-| 未检测到 Homebrew | 按 CPU 架构安装：Apple Silicon 使用 `$(brew --prefix)`，Intel 使用 `$(brew --prefix)` |
-| 已检测到 Homebrew | 先写入并激活 `brew shellenv` |
-| 询问是否更新 | 直接按 `[Enter]` = 跳过更新 |
-| 询问是否更新 | 输入任意字符后回车 = 执行更新流程 |
-
-更新流程固定为：
-
-```shell
-brew update
-brew upgrade
-brew cleanup
-brew doctor
-brew -v
-```
-
-其中 `brew update` / `brew upgrade` / `brew cleanup` 失败会直接停止；`brew doctor` 只作为健康检查，出现警告时按终端提示处理。
+- 已有 Homebrew 时保留原有维护交互，不因目录只读而自动另装。
+- [**Homebrew**](https://brew.sh/) 安装路径由用户选择：已有可运行安装时复用；确实需要安装时先强提示，只有精确输入大写 `YES` 才选择系统标准目录，其它输入或直接回车选择当前用户的 `.local/homebrew`。`YES` 只表示选择路径，权限与密码由官方安装器实际处理；有管理员权限也可以选用户目录。选定路径失败立即停止，不自动切换；`Ctrl+C` / 输入结束取消整个任务。
+- 用户目录安装需要可用 Git 与 curl；后续系统级软件仍可能要求管理员权限。
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>

@@ -71,17 +71,9 @@ q
 
 ### 3、Homebrew 自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-脚本会自动检测 Homebrew：
-
-- 未安装：按芯片架构安装 Homebrew
-- 已安装：询问是否升级
-
-升级逻辑统一为：
-
-```shell
-直接按 [Enter]：跳过升级
-输入任意字符后回车：执行升级
-```
+- 已有 Homebrew 时保留原有维护交互，不因目录只读而自动另装。
+- [**Homebrew**](https://brew.sh/) 安装路径由用户选择：已有可运行安装时复用；确实需要安装时先强提示，只有精确输入大写 `YES` 才选择系统标准目录，其它输入或直接回车选择当前用户的 `.local/homebrew`。`YES` 只表示选择路径，权限与密码由官方安装器实际处理；有管理员权限也可以选用户目录。选定路径失败立即停止，不自动切换；`Ctrl+C` / 输入结束取消整个任务。
+- 用户目录安装需要可用 Git 与 curl；后续系统级软件仍可能要求管理员权限。
 
 ### 4、Caddy 自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
