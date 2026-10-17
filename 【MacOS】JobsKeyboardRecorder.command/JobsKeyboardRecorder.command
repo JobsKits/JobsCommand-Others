@@ -3,11 +3,11 @@
 # - 名称：键盘输入记录；Shell 管理流程，内嵌 Objective-C 调用 macOS 原生接口。
 # - 用途：经确认后将当前登录会话输入的可见字符保存为纯文本，仅在本程序运行期间生效。
 # - 影响：首次写入 ~/Downloads/JobsKeyboardRecorder 单文件；再次记录后转为同名目录并从 0 编号。
-# - 写入：记录和状态日志每次写入前检查路径，文件或输出目录缺失时创建，再追加内容。
+# - 写入：仅在启动脚本仍运行的有效会话内补齐记录路径；停止收尾只保存已打开的文件，不重建目录。
 # - 控制：缓存原生状态 App，安装 ~/.local/bin/stop；必要时备份并补充 zsh 命令路径。
 # - 限制：安全输入期间暂停；不还原输入法最终文字、粘贴、光标移动和删除后的文稿。
-# - 开启：双击本脚本，回车准备、再次回车确认开始；成功后可关闭终端。
-# - 关闭：打开终端，输入 stop 后按回车；显示“已停止并保存”表示关闭完成。
+# - 开启：双击本脚本，回车准备、再次回车确认开始；记录期间保持启动终端运行。
+# - 关闭：Ctrl+C、关闭启动终端、菜单停止或另一个终端输入 stop；脚本退出后不继续记录。
 # - 依赖：macOS 10.15+、Apple Command Line Tools；不使用 Swift 或第三方运行时。
 
 # 按终端能力输出自述颜色，重定向时保留纯文本。
@@ -30,17 +30,17 @@ show_script_intro_and_wait() {
     return
   fi
   [[ "$#" == 0 ]] || { print -u2 -r -- '用法：双击本脚本开启；关闭时打开终端，输入 stop 后按回车。'; exit 1; }
-  intro_line body '1、仅用于你有权操作的当前登录会话；启动成功后可以关闭终端。'
+  intro_line body '1、仅用于你有权操作的当前登录会话；记录期间必须保持启动终端运行。'
   intro_line body '2、仅保存按下时产生的文字，不重复保存松开事件；文件正文没有时间、键码或 JSON 字段。'
   intro_line body '3、首次生成“下载/JobsKeyboardRecorder”单文件；再次记录时转成同名文件夹，内放无后缀文件 0、1，后续继续递增。'
-  intro_line body '   每次写入前检查记录文件和状态日志，文件或输出目录缺失时创建；已有内容继续追加。'
+  intro_line body '   仅在脚本运行期间补齐缺失路径并追加；脚本退出、关闭终端或停止后，不再创建记录文件或目录。'
   intro_line body '4、首次编译需要 Apple Command Line Tools；不自动安装工具，不依赖 Swift。'
   intro_line body '5、需要手动授予“输入监控”；缺少权限时自动打开授权页面并标红加粗 App 路径；保存记录无需管理员密码。'
   intro_line body '6、保留空格、回车和制表符；忽略快捷键和非文字键，不还原光标移动、删除、输入法最终文字或粘贴内容；安全输入期间暂停。'
   intro_line body '7、记录可能包含私人文字；目录权限 700、文件权限 600，仅当前用户及管理员可读。'
-  intro_line body '8、无网络上传、无开机启动；成功后在后台运行，不弹出浮窗，菜单栏保留记录状态与停止入口。'
+  intro_line body '8、无网络上传、无开机启动；启动脚本持续等待，菜单栏保留记录状态与停止入口，不弹出浮窗。'
   intro_line body '9、开启：双击本脚本，首次回车准备程序，再次回车确认开始；输入任意字符取消，启动前可按 Ctrl+C 退出。'
-  intro_line body '10、关闭：打开终端，输入 stop 后按回车；看到“已停止并保存”即关闭完成。'
+  intro_line body '10、关闭：在启动终端按 Ctrl+C、关闭该终端，或使用菜单停止；另一个终端输入 stop 也可停止并保存。'
   intro_line body '11、原生 App 缓存在 ~/Library/Caches/JobsKeyboardRecorder；stop 安装到 ~/.local/bin，必要时备份并补充 zsh PATH。'
   if [[ ! -t 0 || ! -t 1 ]]; then
     print -u2 -r -- '✖ 请双击此 .command，或在可交互的终端中运行。'
@@ -69,7 +69,10 @@ initialize_runtime() {
   STOP_COMMAND="${HOME}/.local/bin/stop"
   WORK_DIR=''
   RECORDER_STARTED=0
-  trap cleanup_runtime EXIT
+  RUNTIME_INITIALIZED=1
+  trap 'exit 130' INT
+  trap 'exit 129' HUP
+  trap 'exit 143' TERM
 }
 # 补齐缺失的日志及父目录，已有文件必须属于当前用户且不能是链接。
 ensure_shell_log_file() {
@@ -106,15 +109,28 @@ fail() {
   fi
   exit 1
 }
-# 只删除本次创建的构建文件，不递归清理用户目录。
+# 先撤销本次会话，再删除构建文件；退出不保留可继续记录的后台会话。
 cleanup_runtime() {
   if [[ -n "$WORK_DIR" && -d "$WORK_DIR" && ! -L "$WORK_DIR" ]]; then
-    /bin/rm -f "${WORK_DIR}/JobsKeyboardRecorder.h" "${WORK_DIR}/JobsKeyboardRecorder.m" "${WORK_DIR}/JobsKeyboardRecorder" "${WORK_DIR}/stop"
-    if [[ "$RECORDER_STARTED" != 1 ]]; then
-      /bin/rm -f "${WORK_DIR}/startup-ticket"
-      /bin/rmdir "$WORK_DIR" 2>/dev/null
+    local ticket="${WORK_DIR}/startup-ticket"
+    /bin/rm -f "$ticket"
+    if [[ "$RECORDER_STARTED" == 1 && -x "$HELPER" ]]; then
+      local cleanup_seconds="$SECONDS"
+      while (( SECONDS - cleanup_seconds < 3 )) && "$HELPER" --status "$CONTROL_PATH" "$ticket" >/dev/null 2>&1; do
+        /bin/sleep 0.1
+      done
     fi
+    /bin/rm -f "${WORK_DIR}/JobsKeyboardRecorder.h" "${WORK_DIR}/JobsKeyboardRecorder.m" "${WORK_DIR}/JobsKeyboardRecorder" "${WORK_DIR}/stop"
+    /bin/rmdir "$WORK_DIR" 2>/dev/null
   fi
+}
+# 使用全局退出函数，避免 zsh 将函数内部的 EXIT trap 提前消耗在函数返回时。
+TRAPEXIT() {
+  local script_exit_code="$?"
+  if [[ "${RUNTIME_INITIALIZED:-0}" == 1 && "${ZSH_SUBSHELL:-0}" == 0 ]]; then
+    cleanup_runtime
+  fi
+  return "$script_exit_code"
 }
 # 停止入口直接使用现有控制通道，不编译、不申请权限、不启动记录。
 handle_control_command() {
@@ -157,6 +173,7 @@ emit_native_header() {
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <libproc.h>
 #include <poll.h>
 #include <signal.h>
 #include <stddef.h>
@@ -167,6 +184,7 @@ emit_native_header() {
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/file.h>
+#include <sys/proc.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <time.h>
@@ -698,7 +716,7 @@ finished:
     return result;
 }
 
-static const char *version = "1.6.0";
+static const char *version = "1.7.0";
 static volatile sig_atomic_t stop_signal = 0;
 static CFMachPortRef event_tap = NULL;
 static int record_fd = -1;
@@ -715,6 +733,40 @@ static NSStatusItem *status_item = nil;
 static JobsKeyboardRecorder *application_delegate = nil;
 static bool simulated_session = false;
 static bool pending_application_quit = false;
+static pid_t session_owner_pid = 0;
+static struct proc_bsdinfo session_owner;
+static bool session_bound = false;
+static bool session_closing = false;
+
+// 绑定启动脚本的进程身份，启动时间用于防止 PID 被复用后误续会话。
+static bool bind_session_owner(const char *pid_text) {
+    char *end = NULL;
+    errno = 0;
+    long value = strtol(pid_text, &end, 10);
+    if (errno != 0 || end == pid_text || *end != '\0' || value <= 1 || value > INT_MAX) {
+        return false;
+    }
+    session_owner_pid = (pid_t)value;
+    if (session_owner_pid == getpid() ||
+        proc_pidinfo(session_owner_pid, PROC_PIDTBSDINFO, 0, &session_owner, sizeof(session_owner)) != (int)sizeof(session_owner) ||
+        session_owner.pbi_uid != getuid() || session_owner.pbi_status == SZOMB) {
+        return false;
+    }
+    session_bound = true;
+    return true;
+}
+// 每次处理事件及补齐路径前确认脚本仍存活；异常退出和遗留票据均不能续录。
+static bool recording_session_active(void) {
+    if (!session_bound) {
+        return true;
+    }
+    struct proc_bsdinfo current;
+    return !session_closing && !stop_signal && access(control_session_ticket, F_OK) == 0 &&
+           proc_pidinfo(session_owner_pid, PROC_PIDTBSDINFO, 0, &current, sizeof(current)) == (int)sizeof(current) &&
+           current.pbi_uid == getuid() && current.pbi_status != SZOMB &&
+           current.pbi_start_tvsec == session_owner.pbi_start_tvsec &&
+           current.pbi_start_tvusec == session_owner.pbi_start_tvusec;
+}
 
 // 补齐当前用户的输出目录，同时兼容系统带粘滞位的公共临时目录。
 static int open_output_directory(const char *path) {
@@ -741,6 +793,11 @@ static int open_output_directory(const char *path) {
         }
         int next_fd = openat(directory_fd, part, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
         if (next_fd < 0 && errno == ENOENT) {
+            if (!recording_session_active()) {
+                close(directory_fd);
+                errno = ECANCELED;
+                return -1;
+            }
             struct stat parent;
             if (fstat(directory_fd, &parent) != 0 ||
                 (parent.st_uid != getuid() && !(parent.st_uid == 0 && (parent.st_mode & S_ISVTX)))) {
@@ -781,6 +838,10 @@ static int open_output_directory(const char *path) {
 }
 // 每次写入都打开当前路径，无则创建；切换文件前同步旧句柄，避免写入已删除的文件。
 static bool ensure_output_file(const char *path, int *file_fd) {
+    if (!recording_session_active()) {
+        errno = ECANCELED;
+        return false;
+    }
     if (path == NULL || path[0] != '/' || strlen(path) >= PATH_MAX) {
         errno = EINVAL;
         return false;
@@ -797,6 +858,11 @@ static bool ensure_output_file(const char *path, int *file_fd) {
     const char *name = separator + 1;
     int directory_fd = open_output_directory(parent_path);
     if (directory_fd < 0) {
+        return false;
+    }
+    if (!recording_session_active()) {
+        close(directory_fd);
+        errno = ECANCELED;
         return false;
     }
     int candidate_fd = openat(directory_fd, name,
@@ -858,6 +924,7 @@ static void status_message(const char *message);
 
 // 在菜单或命令请求停止时唤醒 AppKit，统一执行保存收尾。
 static void stop_recording_loop(const char *reason) {
+    session_closing = true;
     stop_reason = reason;
     stop_signal = SIGTERM;
     [NSApp stop:nil];
@@ -886,6 +953,7 @@ static void stop_recording_loop(const char *reason) {
     stop_recording_loop("application_quit");
     return NSTerminateLater;
 }
+
 @end
 
 // 仅显示菜单栏状态和停止菜单，不创建普通窗口。
@@ -958,8 +1026,13 @@ static void status_message(const char *message) {
     int length = snprintf(line, sizeof(line), "[%s] %s\n", time_text, message);
     if (length > 0 && (size_t)length < sizeof(line)) {
         (void)write_all(STDOUT_FILENO, line, (size_t)length);
+        bool active = recording_session_active();
+        bool status_ready = status_fd >= 0;
+        if (active && status_file_path[0] != '\0') {
+            status_ready = ensure_output_file(status_file_path, &status_fd);
+        }
         if (status_file_path[0] != '\0' &&
-            (!ensure_output_file(status_file_path, &status_fd) || !write_all(status_fd, line, (size_t)length))) {
+            ((!status_ready && active) || (status_ready && !write_all(status_fd, line, (size_t)length)))) {
             fprintf(stderr, "✖ 写入运行状态日志失败：%s\n", strerror(errno));
             write_failed = true;
             stop_recording_loop("status_write_failed");
@@ -968,6 +1041,10 @@ static void status_message(const char *message) {
 }
 // 只将有效 UTF-8 文字写入正文，写入失败时保留已有内容并停止。
 static void append_text(const unsigned char *text, size_t length) {
+    if (!recording_session_active()) {
+        stop_recording_loop("launcher_exited");
+        return;
+    }
     if (!ensure_output_file(record_file_path, &record_fd) || !write_all(record_fd, text, length)) {
         write_failed = true;
         stop_recording_loop("log_write_failed");
@@ -1043,6 +1120,10 @@ static void record_event(CGEventType type, CGEventRef event) {
 static CGEventRef handle_event(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *context) {
     (void)proxy;
     (void)context;
+    if (!recording_session_active()) {
+        stop_recording_loop("launcher_exited");
+        return event;
+    }
     if (type == kCGEventTapDisabledByTimeout) {
         lifecycle_event("gap_tap_timeout");
         status_message("⚠ 监听曾超时，期间可能缺少事件，现尝试恢复。 ");
@@ -1075,8 +1156,8 @@ static void timer_callback(CFRunLoopTimerRef timer, void *context) {
         stop_recording_loop(stop_reason);
         return;
     }
-    if (access(control_session_ticket, F_OK) != 0) {
-        stop_recording_loop("startup_cancelled");
+    if (!recording_session_active()) {
+        stop_recording_loop("launcher_exited");
         return;
     }
     if (!status_item.visible) {
@@ -1256,6 +1337,10 @@ finished:
 }
 // 先保留旧记录的硬链接，再原子交换文件与目录，迁移全程不丢旧记录。
 static int promote_first_record(const char *path, int parent_fd, const char *name) {
+    if (!recording_session_active()) {
+        errno = ECANCELED;
+        return -1;
+    }
     char staging_path[PATH_MAX];
     int length = snprintf(staging_path, sizeof(staging_path), "%s.migration.XXXXXX", path);
     if (length <= 0 || (size_t)length >= sizeof(staging_path) || mkdtemp(staging_path) == NULL) {
@@ -1289,6 +1374,10 @@ static int promote_first_record(const char *path, int parent_fd, const char *nam
 }
 // 首次使用单文件，多次使用编号目录；父目录锁防止同时启动时相互覆盖。
 static bool open_record(const char *path, char *record_path, size_t capacity) {
+    if (!recording_session_active()) {
+        errno = ECANCELED;
+        return false;
+    }
     char parent_path[PATH_MAX];
     const char *separator = strrchr(path, '/');
     if (path[0] != '/' || separator == NULL || strcmp(separator + 1, "JobsKeyboardRecorder") != 0 ||
@@ -1369,6 +1458,10 @@ static bool open_record(const char *path, char *record_path, size_t capacity) {
         fprintf(stderr, "✖ 记录路径过长。\n");
         goto failed;
     }
+    if (!recording_session_active()) {
+        errno = ECANCELED;
+        goto failed;
+    }
     record_fd = openat(first_record ? storage_lock_fd : directory_fd, filename,
                        O_WRONLY | O_CREAT | O_EXCL | O_APPEND | O_NOFOLLOW | O_CLOEXEC, 0600);
     if (record_fd < 0) {
@@ -1421,7 +1514,7 @@ static int self_test(const char *path) {
     puts(record_path);
     return write_failed || result != 0 ? 1 : 0;
 }
-// 控制命令不初始化界面；实际记录由 LaunchServices 启动的可见 App 负责。
+// 控制命令不初始化界面；实际记录须绑定仍在运行的启动脚本。
 static int run_command(int argc, char **argv) {
     if (argc == 2 && strcmp(argv[1], "--version") == 0) {
         puts(version);
@@ -1434,12 +1527,16 @@ static int run_command(int argc, char **argv) {
     if (argc == 3 && strcmp(argv[1], "--self-test") == 0) {
         return self_test(argv[2]);
     }
-    if (argc != 6 || (strcmp(argv[1], "--record") != 0 && strcmp(argv[1], "--self-test-session") != 0) || getuid() == 0) {
+    if (argc != 7 || (strcmp(argv[1], "--record") != 0 && strcmp(argv[1], "--self-test-session") != 0) || getuid() == 0) {
         fprintf(stderr, "✖ 请通过 .command 入口启动，或使用 stop 停止。\n");
         return 1;
     }
     simulated_session = strcmp(argv[1], "--self-test-session") == 0;
     control_session_ticket = argv[5];
+    if (!bind_session_owner(argv[6]) || !recording_session_active()) {
+        fprintf(stderr, "✖ 启动脚本已退出或会话已取消，未开始记录。\n");
+        return 1;
+    }
     if (strlen(argv[3]) >= sizeof(status_file_path)) {
         fprintf(stderr, "✖ 运行状态日志路径过长。\n");
         return 1;
@@ -1466,7 +1563,7 @@ static int run_command(int argc, char **argv) {
         close(status_fd);
         return 77;
     }
-    if (access(argv[5], F_OK) != 0) {
+    if (!recording_session_active()) {
         status_message("✖ 启动已取消，未开始记录。");
         control_close(false);
         close(status_fd);
@@ -1533,16 +1630,17 @@ static int run_command(int argc, char **argv) {
     }
     CFRunLoopAddTimer(CFRunLoopGetCurrent(), timer, kCFRunLoopCommonModes);
     if (!write_failed) {
-        status_message(simulated_session ? "● 模拟会话已启动，不监听实际按键。" : "● 正在记录；可以关闭终端。终端输入 stop 或菜单栏选择“停止并保存”。");
+        status_message(simulated_session ? "● 模拟会话已启动，不监听实际按键。" : "● 正在记录；请保持启动终端运行，Ctrl+C、关闭终端、stop 或菜单均可停止。");
         [NSApp run];
     }
+    session_closing = true;
     if (event_tap != NULL) {
         CGEventTapEnable(event_tap, false);
         CFMachPortInvalidate(event_tap);
     }
     CFRunLoopTimerInvalidate(timer);
     lifecycle_event(stop_reason);
-    int sync_result = ensure_output_file(record_file_path, &record_fd) ? fsync(record_fd) : -1;
+    int sync_result = fsync(record_fd);
     int close_result = close(record_fd);
     if (sync_result != 0 || close_result != 0) {
         write_failed = true;
@@ -1602,7 +1700,7 @@ prepare_native_helper() {
      [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${APP_PATH}/Contents/Info.plist" 2>/dev/null)" == com.jobs.keyboard-recorder ]] &&
      [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "${APP_PATH}/Contents/Info.plist" 2>/dev/null)" == JobsKeyboardRecorder ]] &&
      /usr/bin/codesign --verify --strict "$APP_PATH" >>"$LOG_FILE" 2>&1 &&
-     [[ "$("$HELPER" --version 2>>"$LOG_FILE")" == '1.6.0' ]]; then
+     [[ "$("$HELPER" --version 2>>"$LOG_FILE")" == '1.7.0' ]]; then
     log '✔ 复用已编译的原生监听程序。'
     return
   fi
@@ -1622,8 +1720,8 @@ prepare_native_helper() {
   <key>CFBundleDisplayName</key><string>Jobs 键盘记录</string>
   <key>CFBundleExecutable</key><string>JobsKeyboardRecorder</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>1.6.0</string>
-  <key>CFBundleVersion</key><string>160</string>
+  <key>CFBundleShortVersionString</key><string>1.7.0</string>
+  <key>CFBundleVersion</key><string>170</string>
   <key>LSMinimumSystemVersion</key><string>10.15</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
@@ -1635,7 +1733,7 @@ JOBS_APP_PLIST
   /usr/bin/codesign --force --sign - "$APP_PATH" >>"$LOG_FILE" 2>&1 || fail '原生 App 本地签名失败。'
   /bin/mv "${WORK_DIR}/JobsKeyboardRecorder.h" "${CACHE_DIR}/JobsKeyboardRecorder.h" || fail '无法保存头文件缓存。'
   /bin/mv "${WORK_DIR}/JobsKeyboardRecorder.m" "${CACHE_DIR}/JobsKeyboardRecorder.m" || fail '无法保存源码缓存。'
-  [[ "$("$HELPER" --version)" == '1.6.0' ]] || fail '编译后健康检查失败。'
+  [[ "$("$HELPER" --version)" == '1.7.0' ]] || fail '编译后健康检查失败。'
   log 'ℹ 原生程序已更新；原先已授权的旧版本需要在输入监控中移除，再重新添加当前 App。'
 }
 # 开始前再次等待回车确认，输入任意字符则取消。
@@ -1722,22 +1820,31 @@ show_input_monitoring_help() {
     log '⚠ 无法自动打开授权页面，请手动前往系统设置 → 隐私与安全性 → 输入监控。'
   fi
   log 'ℹ 如果已有开关仍未生效，请在输入监控列表中移除旧项，再添加上面的 App 并开启；随后重新运行脚本。'
-  log 'ℹ 当前尚未开始记录。只有看到“记录器已成功启动”才可关闭终端。'
+  log 'ℹ 当前尚未开始记录。看到“记录器已成功启动”后，仍需保持启动终端运行。'
 }
-# 交给 LaunchServices 独立启动，收到实际就绪应答后才提示可关闭终端。
+# 持续等待本次会话，终端或脚本退出时由清理钩子撤销记录资格。
+wait_for_recorder() {
+  local ticket="${WORK_DIR}/startup-ticket"
+  while "$HELPER" --status "$CONTROL_PATH" "$ticket" >/dev/null 2>&1; do
+    /bin/sleep 0.25
+  done
+  print -r -- '■ 记录会话已结束，启动脚本即将退出。'
+}
+# 由 LaunchServices 打开授权对象，启动脚本保持运行并拥有本次会话。
 run_recorder() {
   local ticket="${WORK_DIR}/startup-ticket"
   : >"$ticket" || fail '无法准备启动确认。'
-  /usr/bin/open -g -n "$APP_PATH" --args --record "$RECORD_PATH" "$LOG_FILE" "$CONTROL_PATH" "$ticket" || fail '无法打开原生记录器。'
+  /usr/bin/open -g -n "$APP_PATH" --args --record "$RECORD_PATH" "$LOG_FILE" "$CONTROL_PATH" "$ticket" "$$" || fail '无法打开原生记录器。'
   local start_seconds="$SECONDS"
   while (( SECONDS - start_seconds < 15 )); do
     if "$HELPER" --status "$CONTROL_PATH" "$ticket" >/dev/null 2>&1; then
       RECORDER_STARTED=1
-      log '✔ 记录器已成功启动，现在可以关闭终端。'
+      log '✔ 记录器已成功启动，请保持此终端运行。'
       log "ℹ 实际保存位置：${RECORD_PATH}（下载目录，不在文稿目录）"
-      log 'ℹ 后台运行不弹浮窗，菜单栏显示记录状态。'
-      log '■ 关闭方法：打开终端，输入 stop 后按回车；看到“已停止并保存”即关闭完成。'
+      log 'ℹ 菜单栏显示记录状态；启动脚本退出后，不再创建或重建记录路径。'
+      log '■ 关闭方法：Ctrl+C、关闭此终端、菜单栏“停止并保存”，或另一个终端输入 stop。'
       log 'ℹ 注销或重启后不会自动启动。'
+      wait_for_recorder
       return 0
     fi
     if /usr/bin/grep -Fq '✖ 启动失败：' "$LOG_FILE"; then
@@ -1752,7 +1859,7 @@ run_recorder() {
   /bin/rm -f "$ticket"
   fail '启动未在预期时间内确认，已取消启动；请检查运行状态日志。'
 }
-# 编排说明、停止分流、原生 App 准备与独立运行。
+# 编排说明、停止分流、原生 App 准备与前台会话管理。
 main() {
   show_script_intro_and_wait "$@" # 启动先确认；停止参数只显示停止说明。
   initialize_runtime # 确认后初始化私有日志和清理钩子。
@@ -1762,7 +1869,7 @@ main() {
   confirm_recording # 明确确认允许记录当前会话的键盘事件。
   prepare_record_location # 检查下载位置，保持首次单文件和多次编号目录的规则。
   install_stop_command # 提供可从新终端直接执行的 stop 命令。
-  run_recorder # 由 App 自查权限并独立运行，确认成功后允许关闭终端。
+  run_recorder # 由 App 自查权限并绑定启动脚本，持续等待会话结束。
 }
 
 main "$@"
