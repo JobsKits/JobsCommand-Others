@@ -12,11 +12,47 @@
 
 ![Jobs出品，必属精品](https://picsum.photos/1500/400)
 
-[toc]
+<!-- jobs-toc:start -->
+<!-- jobs-toc:source {"v":2,"token":"[toc]"} -->
+<details>
+<summary>📚 目录（点击展开 / 收起）</summary>
+
+- [🔥 前言](#jobs-toc-heading-1)
+- [一、🎯 项目定位](#jobs-toc-heading-2)
+- [二、📦 目录结构](#jobs-toc-heading-3)
+- [三、🚀 快速开始](#jobs-toc-heading-4)
+  - [3.1、授权脚本](#jobs-toc-heading-5)
+  - [3.2、启动 Mock 服务](#jobs-toc-heading-6)
+  - [3.3、常用管理命令](#jobs-toc-heading-7)
+- [四、🧭 工作流程](#jobs-toc-heading-8)
+  - [4.1、流程图](#jobs-toc-heading-9)
+  - [4.2、核心启动链路](#jobs-toc-heading-10)
+- [五、🌐 访问方式](#jobs-toc-heading-11)
+  - [5.1、浏览器访问](#jobs-toc-heading-12)
+  - [5.2、App 里请求](#jobs-toc-heading-13)
+- [六、🧩 脚本能力说明](#jobs-toc-heading-14)
+  - [6.1、MacOS 限制](#jobs-toc-heading-15)
+  - [6.2、Homebrew 检测逻辑](#jobs-toc-heading-16)
+  - [6.3、依赖安装策略](#jobs-toc-heading-17)
+  - [6.4、端口与进程策略](#jobs-toc-heading-18)
+  - [6.5、JSON 文件选择策略](#jobs-toc-heading-19)
+- [七、🧪 添加自己的 Mock 数据](#jobs-toc-heading-20)
+- [八、🧾 日志与运行文件](#jobs-toc-heading-21)
+- [九、🧯 常见问题](#jobs-toc-heading-22)
+  - [9.1、提示没有执行权限](#jobs-toc-heading-23)
+  - [9.2、提示无法打开，因为无法验证开发者](#jobs-toc-heading-24)
+  - [9.3、8080 端口被占用](#jobs-toc-heading-25)
+  - [9.4、fzf 选择后没有打开 JSON](#jobs-toc-heading-26)
+  - [9.5、真机访问不到](#jobs-toc-heading-27)
+- [十、🛡️ 使用建议](#jobs-toc-heading-28)
+- [十一、📌 README 升级说明](#jobs-toc-heading-29)
+
+</details>
+<!-- jobs-toc:end -->
 
 > **Python 环境预检**：实际调用 [**Python**](https://www.python.org/) 前使用本文件内嵌的环境预检函数，通过 [**Homebrew**](https://brew.sh/) 管理运行时；脚本可单文件复制运行，不需要旁边的支持目录。终端自述确认后执行 `brew update` 更新本体及公式索引；只在指定公式 `python@3.13` 缺失、损坏或版本不满足 `3.11+` 时安装或修复，健康运行时直接复用。缺失 Homebrew 时强提示选安装路径：精确大写 `YES` 选系统标准目录，其它输入或回车选用户目录；失败停止，不自动换路。必需安装或修复直接回车执行，任意非空输入（含空格）取消。预检不执行全局 `brew upgrade`。
 
-## 🔥 <font id=前言>前言</font>
+## <span id="jobs-toc-heading-1" data-jobs-toc="v2">🔥 <font id=前言>前言</font></span><!-- jobs-toc:heading-end -->
 
 > 当前总行数：612
 
@@ -56,7 +92,7 @@
 
 ---
 
-## 一、🎯 项目定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-2" data-jobs-toc="v2">一、🎯 项目定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 `JobsMockData` 的目标很明确：**把一堆本地 JSON 文件变成本地可请求的 HTTP 接口**。
 
@@ -79,7 +115,7 @@
 
 ---
 
-## 二、📦 目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-3" data-jobs-toc="v2">二、📦 目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 当前压缩包解开后，核心结构如下：
 
@@ -118,9 +154,9 @@
 
 ---
 
-## 三、🚀 快速开始 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-4" data-jobs-toc="v2">三、🚀 快速开始 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 3.1、授权脚本 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-5" data-jobs-toc="v2">3.1、授权脚本 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 首次下载后，如果系统提示脚本没有执行权限，在终端进入脚本目录后执行：
 
@@ -142,7 +178,7 @@ xattr -dr com.apple.quarantine './【MacOS】Mock.command'
 
 ---
 
-### 3.2、启动 Mock 服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-6" data-jobs-toc="v2">3.2、启动 Mock 服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 双击 `【MacOS】Mock.command`，或者在终端执行：
 
@@ -173,7 +209,7 @@ xattr -dr com.apple.quarantine './【MacOS】Mock.command'
 
 ---
 
-### 3.3、常用管理命令 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-7" data-jobs-toc="v2">3.3、常用管理命令 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
 # 启动服务，并交互选择 JSON
@@ -204,9 +240,9 @@ xattr -dr com.apple.quarantine './【MacOS】Mock.command'
 
 ---
 
-## 四、🧭 工作流程 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-8" data-jobs-toc="v2">四、🧭 工作流程 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 4.1、流程图 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-9" data-jobs-toc="v2">4.1、流程图 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```mermaid
 graph TD
@@ -247,7 +283,7 @@ graph TD
 
 ---
 
-### 4.2、核心启动链路 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-10" data-jobs-toc="v2">4.2、核心启动链路 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本真正启动 HTTP 服务的核心命令是：
 
@@ -266,9 +302,9 @@ nohup python3 -m http.server 8080 --bind 127.0.0.1 >"$HTTP_LOG_FILE" 2>&1 < /dev
 
 ---
 
-## 五、🌐 访问方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-11" data-jobs-toc="v2">五、🌐 访问方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 5.1、浏览器访问 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-12" data-jobs-toc="v2">5.1、浏览器访问 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 启动后，服务根地址是：
 
@@ -302,7 +338,7 @@ http://127.0.0.1:8080/jsons/%E5%81%87%E6%95%B0%E6%8D%AE.json
 
 ---
 
-### 5.2、App 里请求 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-13" data-jobs-toc="v2">5.2、App 里请求 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 在本机调试或 iOS 模拟器里，可以直接使用：
 
@@ -327,9 +363,9 @@ let url = URL(string: "http://localhost:8080/jsons/users.json")!
 
 ---
 
-## 六、🧩 脚本能力说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-14" data-jobs-toc="v2">六、🧩 脚本能力说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 6.1、MacOS 限制 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-15" data-jobs-toc="v2">6.1、MacOS 限制 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本开头会检测系统：
 
@@ -341,7 +377,7 @@ uname -s
 
 ---
 
-### 6.2、Homebrew 检测逻辑 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-16" data-jobs-toc="v2">6.2、Homebrew 检测逻辑 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会按顺序寻找：
 
@@ -375,7 +411,7 @@ eval "$($(brew --prefix)/bin/brew shellenv)"
 
 ---
 
-### 6.3、依赖安装策略 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-17" data-jobs-toc="v2">6.3、依赖安装策略 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会检查两个核心依赖：
 
@@ -397,7 +433,7 @@ eval "$($(brew --prefix)/bin/brew shellenv)"
 
 ---
 
-### 6.4、端口与进程策略 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-18" data-jobs-toc="v2">6.4、端口与进程策略 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本固定使用：
 
@@ -414,7 +450,7 @@ eval "$($(brew --prefix)/bin/brew shellenv)"
 
 ---
 
-### 6.5、JSON 文件选择策略 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-19" data-jobs-toc="v2">6.5、JSON 文件选择策略 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 扫描规则：
 
@@ -433,7 +469,7 @@ fzf --prompt='请选择一个 JSON 文件: ' --height=40% --reverse
 
 ---
 
-## 七、🧪 添加自己的 Mock 数据 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-20" data-jobs-toc="v2">七、🧪 添加自己的 Mock 数据 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 推荐把自己的 JSON 文件放进 `jsons/` 目录：
 
@@ -473,7 +509,7 @@ http://127.0.0.1:8080/jsons/products.json
 
 ---
 
-## 八、🧾 日志与运行文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-21" data-jobs-toc="v2">八、🧾 日志与运行文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会把日志和 PID 文件写在 `$TMPDIR` 目录：
 
@@ -505,9 +541,9 @@ tail -f $TMPDIR/【MacOS】Mock.log
 
 ---
 
-## 九、🧯 常见问题 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-22" data-jobs-toc="v2">九、🧯 常见问题 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 9.1、提示没有执行权限 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-23" data-jobs-toc="v2">9.1、提示没有执行权限 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 执行：
 
@@ -519,7 +555,7 @@ chmod +x './【MacOS】Mock.command'
 
 ---
 
-### 9.2、提示无法打开，因为无法验证开发者 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-24" data-jobs-toc="v2">9.2、提示无法打开，因为无法验证开发者 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 执行：
 
@@ -531,7 +567,7 @@ xattr -dr com.apple.quarantine './【MacOS】Mock.command'
 
 ---
 
-### 9.3、8080 端口被占用 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-25" data-jobs-toc="v2">9.3、8080 端口被占用 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 先看状态：
 
@@ -555,7 +591,7 @@ lsof -nP -iTCP:8080 -sTCP:LISTEN
 
 ---
 
-### 9.4、fzf 选择后没有打开 JSON <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-26" data-jobs-toc="v2">9.4、fzf 选择后没有打开 JSON <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 常见原因：
 
@@ -572,7 +608,7 @@ http://127.0.0.1:8080/jsons/users.json
 
 ---
 
-### 9.5、真机访问不到 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-27" data-jobs-toc="v2">9.5、真机访问不到 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 这是当前脚本的预期行为之一。因为它绑定的是：
 
@@ -586,7 +622,7 @@ http://127.0.0.1:8080/jsons/users.json
 
 ---
 
-## 十、🛡️ 使用建议 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-28" data-jobs-toc="v2">十、🛡️ 使用建议 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 - Mock 数据建议尽量小而清晰，不要把整套生产数据塞进来。
 - 不要提交真实用户隐私、手机号、证件号、Token、Cookie。
@@ -597,7 +633,7 @@ http://127.0.0.1:8080/jsons/users.json
 
 ---
 
-## 十一、📌 README 升级说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-29" data-jobs-toc="v2">十一、📌 README 升级说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 本次 README 做了这些升级：
 

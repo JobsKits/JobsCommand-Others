@@ -11,9 +11,52 @@
 
 ![Jobs出品，必属精品](https://picsum.photos/1500/400)
 
-[toc]
+<!-- jobs-toc:start -->
+<!-- jobs-toc:source {"v":2,"token":"[toc]"} -->
+<details>
+<summary>📚 目录（点击展开 / 收起）</summary>
 
-## 🔥 <font id=前言>前言</font>
+- [🔥 前言](#jobs-toc-heading-1)
+- [一、🎯 项目白皮书](#jobs-toc-heading-2)
+- [二、🧭 脚本执行流程](#jobs-toc-heading-3)
+- [三、🧩 功能清单](#jobs-toc-heading-4)
+  - [1、启动前置说明](#jobs-toc-heading-5)
+  - [2、旧服务清理](#jobs-toc-heading-6)
+  - [3、开发环境自检](#jobs-toc-heading-7)
+  - [4、统一升级交互规范](#jobs-toc-heading-8)
+  - [5、源码目录选择](#jobs-toc-heading-9)
+  - [6、官方仓库校验](#jobs-toc-heading-10)
+  - [7、安装与检查任务](#jobs-toc-heading-11)
+  - [8、前后端开发服务](#jobs-toc-heading-12)
+- [四、🌐 Caddy 本地域名映射](#jobs-toc-heading-13)
+  - [1、映射入口](#jobs-toc-heading-14)
+  - [2、域名输入](#jobs-toc-heading-15)
+  - [3、hosts 写入](#jobs-toc-heading-16)
+  - [4、系统代理绕过](#jobs-toc-heading-17)
+  - [5、Caddy 反向代理](#jobs-toc-heading-18)
+  - [6、后台运行](#jobs-toc-heading-19)
+- [五、🧪 常用自检命令](#jobs-toc-heading-20)
+  - [1、检查前端服务](#jobs-toc-heading-21)
+  - [2、检查后端服务](#jobs-toc-heading-22)
+  - [3、检查域名解析](#jobs-toc-heading-23)
+  - [4、检查 Caddy](#jobs-toc-heading-24)
+  - [5、检查 HTTPS 映射](#jobs-toc-heading-25)
+- [六、⚠️ 常见问题](#jobs-toc-heading-26)
+  - [1、浏览器显示 502](#jobs-toc-heading-27)
+  - [2、浏览器提示 Host 不允许](#jobs-toc-heading-28)
+  - [3、Chrome 报 SSL 协议错误](#jobs-toc-heading-29)
+  - [4、443 端口被占用](#jobs-toc-heading-30)
+  - [5、关闭终端后还能访问吗？](#jobs-toc-heading-31)
+- [七、🧹 停止与清理](#jobs-toc-heading-32)
+  - [1、停止本地服务](#jobs-toc-heading-33)
+  - [2、手动停止 Caddy](#jobs-toc-heading-34)
+  - [3、查看日志](#jobs-toc-heading-35)
+- [八、✅ 总结](#jobs-toc-heading-36)
+
+</details>
+<!-- jobs-toc:end -->
+
+## <span id="jobs-toc-heading-1" data-jobs-toc="v2">🔥 <font id=前言>前言</font></span><!-- jobs-toc:heading-end -->
 
 - 采用 Shell 脚本的原因：Shell 来自 [**macOS**](https://www.apple.com/macos/) 原生系统底层，虽然写法相对繁琐冗杂，但执行效率高，并且不需要额外介入 [**Ruby**](https://www.ruby-lang.org)、[**Python**](https://www.python.org) 等第三方运行环境，因此具备更好的移植性。
 
@@ -37,7 +80,7 @@
 
 - [**Caddy**](https://caddyserver.com) 映射启动后会在后台运行，关闭终端窗口不会影响映射继续生效。若需要结束映射，可重新运行脚本；脚本在用户确认自述文件后，会优先关闭旧的后台映射。
 
-## 一、🎯 项目白皮书 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-2" data-jobs-toc="v2">一、🎯 项目白皮书 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 这个脚本解决的是完整的本地部署与本地域名访问链路：
 
@@ -58,7 +101,7 @@
 | 后端 | `http://localhost:8080` | API 服务入口 |
 | 域名映射 | `https://你的域名` | 由 [**Caddy**](https://caddyserver.com) 反向代理到本地端口 |
 
-## 二、🧭 脚本执行流程 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-3" data-jobs-toc="v2">二、🧭 脚本执行流程 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 基础部署主流程如下：
 
@@ -107,17 +150,17 @@ graph TD
     S --> |否| Z([结束])
 ```
 
-## 三、🧩 功能清单 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-4" data-jobs-toc="v2">三、🧩 功能清单 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 1、启动前置说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-5" data-jobs-toc="v2">1、启动前置说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本双击运行后，会先显示完整自述文件，并等待用户按回车确认。这样可以避免误触后直接修改系统环境、端口占用或后台服务。
 
-### 2、旧服务清理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-6" data-jobs-toc="v2">2、旧服务清理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会主动清理旧的 [**Stirling-PDF**](https://www.stirling.com) 后台服务、前端端口、后端端口，以及旧的 [**Caddy**](https://caddyserver.com) 后台映射，避免历史进程影响本次启动。
 
-### 3、开发环境自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-7" data-jobs-toc="v2">3、开发环境自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会自检：
 
@@ -135,7 +178,7 @@ graph TD
 
 其中 [**Homebrew**](https://brew.sh/) 未安装时会按芯片架构自动安装；已安装时会询问是否升级。
 
-### 4、统一升级交互规范 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-8" data-jobs-toc="v2">4、统一升级交互规范 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 所有升级类操作统一使用以下规则：
 
@@ -146,7 +189,7 @@ graph TD
 
 这个规则适用于 [**Homebrew**](https://brew.sh/)、`node`、`jenv`、`openjdk@21`、`uv`、`go-task`、[**Caddy**](https://caddyserver.com) 等依赖。
 
-### 5、源码目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-9" data-jobs-toc="v2">5、源码目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会优先读取本地记录文件，复用上次成功验证过的项目目录。如果没有记录或记录失效，则会要求用户输入或拖入目录。
 
@@ -157,13 +200,13 @@ graph TD
 - 输入或拖入路径：校验父目录是否存在
 - 末级项目目录不存在时：自动创建
 
-### 6、官方仓库校验 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-10" data-jobs-toc="v2">6、官方仓库校验 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会校验当前目录是否为官方 [**Stirling-PDF**](https://www.stirling.com) 仓库。
 
 如果发现 remote 是 SSH 地址，会统一修正为 HTTPS 地址，避免后续机器环境、密钥、权限差异导致拉取失败。
 
-### 7、安装与检查任务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-11" data-jobs-toc="v2">7、安装与检查任务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 源码准备完成后，脚本会执行：
 
@@ -174,7 +217,7 @@ task check
 
 这一步用于完成项目依赖准备、格式检查、测试检查等流程。若上游项目任务本身发生变化，请以当前仓库内 `Taskfile` 为准。
 
-### 8、前后端开发服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-12" data-jobs-toc="v2">8、前后端开发服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会后台启动：
 
@@ -197,9 +240,9 @@ task frontend:dev
 前端日志：~/Library/Logs/Stirling-PDF-Dev/frontend.log
 ```
 
-## 四、🌐 [**Caddy**](https://caddyserver.com) 本地域名映射 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-13" data-jobs-toc="v2">四、🌐 [**Caddy**](https://caddyserver.com) 本地域名映射 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 1、映射入口 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-14" data-jobs-toc="v2">1、映射入口 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 前后端服务启动完成后，脚本会询问：
 
@@ -218,7 +261,7 @@ task frontend:dev
 
 配置完一个以后，不会立刻退出，会继续询问是否配置另一个服务。
 
-### 2、域名输入 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-15" data-jobs-toc="v2">2、域名输入 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 示例：
 
@@ -230,7 +273,7 @@ api.pdf.test
 
 `.com` 是公网 TLD，本机开发依赖 `$SYSTEM_CONFIG_DIR/hosts`，长期本地开发更建议使用 `.test`。
 
-### 3、hosts 写入 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-16" data-jobs-toc="v2">3、hosts 写入 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会写入：
 
@@ -240,11 +283,11 @@ api.pdf.test
 
 并刷新 macOS DNS 缓存，确保浏览器能解析到本机。
 
-### 4、系统代理绕过 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-17" data-jobs-toc="v2">4、系统代理绕过 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 如果系统存在代理、VPN、Clash、Surge、LetsVPN 等网络环境，浏览器可能不走本机 hosts。脚本会把映射域名加入 macOS 系统代理绕过列表，降低 SSL 异常、代理污染、错误公网解析的概率。
 
-### 5、[**Caddy**](https://caddyserver.com) 反向代理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-18" data-jobs-toc="v2">5、[**Caddy**](https://caddyserver.com) 反向代理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会生成 [**Caddy**](https://caddyserver.com) 配置文件，并使用：
 
@@ -257,7 +300,7 @@ reverse_proxy
 
 同时脚本会禁用 HTTP/3，只保留 HTTP/1.1 和 HTTP/2，降低 Chrome、代理、QUIC 在本地域名环境下的干扰。
 
-### 6、后台运行 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-19" data-jobs-toc="v2">6、后台运行 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 [**Caddy**](https://caddyserver.com) 使用后台方式启动。
 
@@ -265,23 +308,23 @@ reverse_proxy
 
 如果要结束映射，可以重新运行脚本。脚本在用户确认自述文件后，会优先停止旧的 [**Caddy**](https://caddyserver.com) 后台映射。
 
-## 五、🧪 常用自检命令 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-20" data-jobs-toc="v2">五、🧪 常用自检命令 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 1、检查前端服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-21" data-jobs-toc="v2">1、检查前端服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
 curl -I http://127.0.0.1:5173/
 lsof -nP -iTCP:5173 -sTCP:LISTEN
 ```
 
-### 2、检查后端服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-22" data-jobs-toc="v2">2、检查后端服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
 curl -v http://127.0.0.1:8080/api/v1/info/status
 lsof -nP -iTCP:8080 -sTCP:LISTEN
 ```
 
-### 3、检查域名解析 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-23" data-jobs-toc="v2">3、检查域名解析 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
 dscacheutil -q host -a name jobs.pdf.com
@@ -293,7 +336,7 @@ dscacheutil -q host -a name jobs.pdf.com
 ip_address: 127.0.0.1
 ```
 
-### 4、检查 [**Caddy**](https://caddyserver.com) <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-24" data-jobs-toc="v2">4、检查 [**Caddy**](https://caddyserver.com) <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
 sudo lsof -nP -iTCP:443 -sTCP:LISTEN
@@ -302,7 +345,7 @@ sudo lsof -nP -iTCP:2019 -sTCP:LISTEN
 
 正常情况下，`443` 应该由 [**Caddy**](https://caddyserver.com) 监听。
 
-### 5、检查 HTTPS 映射 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-25" data-jobs-toc="v2">5、检查 HTTPS 映射 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
 curl -vk https://jobs.pdf.com/
@@ -315,9 +358,9 @@ curl -vk https://jobs.pdf.com/api/v1/info/status
 {"status":"UP"}
 ```
 
-## 六、⚠️ 常见问题 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-26" data-jobs-toc="v2">六、⚠️ 常见问题 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 1、浏览器显示 502 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-27" data-jobs-toc="v2">1、浏览器显示 502 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 通常表示 [**Caddy**](https://caddyserver.com) 启动成功，但目标本地端口没有服务。
 
@@ -328,7 +371,7 @@ curl -I http://127.0.0.1:5173/
 curl -v http://127.0.0.1:8080/api/v1/info/status
 ```
 
-### 2、浏览器提示 Host 不允许 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-28" data-jobs-toc="v2">2、浏览器提示 Host 不允许 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 如果目标服务是 Vite，可能需要 allowed host。
 
@@ -344,7 +387,7 @@ __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=你的映射域名
 __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=jobs.pdf.com task frontend:dev
 ```
 
-### 3、Chrome 报 SSL 协议错误 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-29" data-jobs-toc="v2">3、Chrome 报 SSL 协议错误 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 优先检查系统代理绕过列表：
 
@@ -359,7 +402,7 @@ jobs.pdf.com
 *.pdf.com
 ```
 
-### 4、443 端口被占用 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-30" data-jobs-toc="v2">4、443 端口被占用 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 检查：
 
@@ -369,7 +412,7 @@ sudo lsof -nP -iTCP:443 -sTCP:LISTEN
 
 如果不是 [**Caddy**](https://caddyserver.com)，需要先停止占用 443 的服务。
 
-### 5、关闭终端后还能访问吗？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-31" data-jobs-toc="v2">5、关闭终端后还能访问吗？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 可以。
 
@@ -377,9 +420,9 @@ sudo lsof -nP -iTCP:443 -sTCP:LISTEN
 
 但 [**Stirling-PDF**](https://www.stirling.com) 前后端服务也必须保持后台运行；如果前端或后端进程被关闭，对应页面或接口会变成 502 或连接失败。
 
-## 七、🧹 停止与清理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-32" data-jobs-toc="v2">七、🧹 停止与清理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### 1、停止本地服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-33" data-jobs-toc="v2">1、停止本地服务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本保留停止参数：
 
@@ -389,13 +432,13 @@ sudo lsof -nP -iTCP:443 -sTCP:LISTEN
 
 该流程用于清理 [**Stirling-PDF**](https://www.stirling.com) 后台服务、端口占用以及 [**Caddy**](https://caddyserver.com) 后台映射。
 
-### 2、手动停止 [**Caddy**](https://caddyserver.com) <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-34" data-jobs-toc="v2">2、手动停止 [**Caddy**](https://caddyserver.com) <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
 sudo caddy stop
 ```
 
-### 3、查看日志 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-35" data-jobs-toc="v2">3、查看日志 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
 cat $TMPDIR/StirlingPDF.log
@@ -403,7 +446,7 @@ tail -n 120 ~/Library/Logs/Stirling-PDF-Dev/backend.log
 tail -n 120 ~/Library/Logs/Stirling-PDF-Dev/frontend.log
 ```
 
-## 八、✅ 总结 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+## <span id="jobs-toc-heading-36" data-jobs-toc="v2">八、✅ 总结 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 这个脚本把 [**Stirling-PDF**](https://www.stirling.com) 本地开发部署和 [**Caddy**](https://caddyserver.com) 本地域名 HTTPS 映射整合到同一套流程中。
 

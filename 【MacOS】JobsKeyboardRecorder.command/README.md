@@ -2,7 +2,30 @@
 
 ![Jobs出品，必属精品](https://picsum.photos/1500/400)
 
-[toc]
+<!-- jobs-toc:start -->
+<!-- jobs-toc:source {"v":2,"token":"[toc]"} -->
+<details>
+<summary>📚 目录（点击展开 / 收起）</summary>
+
+- [🔥 前言](#%E5%89%8D%E8%A8%80)
+- [一、功能与边界](#capabilities)
+- [二、环境与运行方式](#requirements)
+  - [2.1、环境要求](#jobs-toc-heading-4)
+  - [2.2、目录与启动命令](#jobs-toc-heading-5)
+- [三、启动确认与权限](#startup)
+  - [3.1、两次回车各自负责什么](#jobs-toc-heading-7)
+  - [3.2、授权给哪个 App](#jobs-toc-heading-8)
+- [四、状态与停止](#stop)
+- [五、记录文件与编号](#records)
+  - [5.1、首次与后续记录](#jobs-toc-heading-11)
+  - [5.2、已有内容与写入保护](#jobs-toc-heading-12)
+- [六、写入范围与日志](#files-and-logs)
+- [七、执行流程](#flow)
+- [八、常见问题与清理](#faq)
+- [九、验证说明](#verification)
+
+</details>
+<!-- jobs-toc:end -->
 
 ---
 
@@ -49,7 +72,7 @@
 
 ## 二、<span id="requirements">环境与运行方式</span> <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 2.1、环境要求 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-4" data-jobs-toc="v2">2.1、环境要求 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 - 源码和 App 声明的最低系统为 macOS `10.15`，以当前登录的普通用户运行，不使用 `sudo`。
 - 需要可交互的终端。无参数启动时，标准输入和输出都必须连接终端；不支持通过管道自动确认。记录期间保持启动终端和脚本运行。
@@ -71,7 +94,7 @@ xcrun --sdk macosx --show-sdk-path
 xcode-select --install
 ```
 
-### 2.2、目录与启动命令 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-5" data-jobs-toc="v2">2.2、目录与启动命令 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```text
 【MacOS】JobsKeyboardRecorder.command/
@@ -89,7 +112,7 @@ xcode-select --install
 
 ## 三、<span id="startup">启动确认与权限</span> <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-### 3.1、两次回车各自负责什么 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-7" data-jobs-toc="v2">3.1、两次回车各自负责什么 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 | 阶段 | 操作 | 已发生的影响 |
 | --- | --- | --- |
@@ -101,7 +124,7 @@ xcode-select --install
 
 源码未变且缓存 App 校验通过时复用原生程序；源码变化或缓存失效时重新编译并本地签名。缓存 App 和缓存源码会更新，不保留旧版本备份。
 
-### 3.2、授权给哪个 App <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-8" data-jobs-toc="v2">3.2、授权给哪个 App <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 授权对象是当前用户 `Library/Caches` 中 `JobsKeyboardRecorder` 目录内的 **`JobsKeyboardRecorder.app`**，不是 `.command` 文本文件。授权失败时，脚本自动请求打开输入监控页面，并在支持颜色的交互终端中将“需要授权的 App”整行标红加粗；非彩色终端与状态日志保持纯文本。
 
@@ -153,7 +176,7 @@ stop
 
 固定保存到当前用户的 **下载目录（`Downloads`）**，不是文稿目录，也不在脚本旁边。入口没有自定义输出目录参数。
 
-### 5.1、首次与后续记录 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-11" data-jobs-toc="v2">5.1、首次与后续记录 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 首次记录使用一个无后缀的普通文件：
 
@@ -175,7 +198,7 @@ stop
 
 正文可用文本编辑器打开。目录和编号区分会话，正文没有时间标签，也不会把多次会话合并到同一个编号中。
 
-### 5.2、已有内容与写入保护 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
+### <span id="jobs-toc-heading-12" data-jobs-toc="v2">5.2、已有内容与写入保护 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 - 新会话创建文件时不覆盖已有目标；同一会话向当前记录追加。已有其它会话正在运行时，会拒绝重复启动。
 - 已存在、归当前用户且权限为 `600` 的同名普通文件会被当作首份记录迁入 `0`，不会检查正文格式。**不要把无关文件放在这个固定名称下。**
