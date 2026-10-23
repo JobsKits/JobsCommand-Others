@@ -1,0 +1,196 @@
+#!/bin/zsh
+# 脚本自述：
+# - 脚本名称：【MacOS】🧬MD5.command
+# - 核心用途：执行“🧬MD5”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
+
+# ======================== 基础信息 ========================
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
+SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')
+LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+color_echo()     { log "\033[1;32m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+info_echo()      { log "\033[1;34mℹ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+success_echo()   { log "\033[1;32m✔ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+warn_echo()      { log "\033[1;33m⚠ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+warm_echo()      { log "\033[1;33m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+note_echo()      { log "\033[1;35m➤ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+error_echo()     { log "\033[1;31m✖ $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+err_echo()       { log "\033[1;31m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+debug_echo()     { log "\033[1;35m🐞 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+highlight_echo() { log "\033[1;36m🔹 $1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+gray_echo()      { log "\033[0;90m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+bold_echo()      { log "\033[1m$1\033[0m"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+underline_echo() { log "\033[4m$1\033[0m"; }
+
+MD5_TOOL=""
+# ======================== 自述 ========================
+print_intro() {
+  bold_echo "======== 文件 MD5 计算助手（${SCRIPT_BASENAME}）========" | jobs_intro_style title
+  note_echo "使用方法：" | jobs_intro_style title
+  echo "  1. 运行脚本之后，按提示操作；" | jobs_intro_style body
+  echo "  2. 每次需要计算 MD5 时，把目标文件从 Finder 拖到终端里，回车；" | jobs_intro_style body
+  echo "  3. 计算完成后，脚本不会退出，会继续等待你拖下一个文件；" | jobs_intro_style body
+  echo "  4. 如果不想继续算了，直接按 [Enter]（空输入）即可退出。" | jobs_intro_style body
+  echo "" | jobs_intro_style body
+  note_echo "按 [Enter] 开始使用，或 Ctrl+C 取消..." | jobs_intro_style body
+  IFS= read -r _
+}
+# ======================== 检测 MD5 工具 ========================
+detect_md5_tool() {
+  if command -v md5 &>/dev/null; then
+    MD5_TOOL="md5"       # macOS 自带
+  elif command -v md5sum &>/dev/null; then
+    MD5_TOOL="md5sum"    # Linux 常见
+  else
+    error_echo "当前系统未找到 md5 / md5sum 命令，无法计算 MD5。"
+    exit 1
+  fi
+  info_echo "已选择 MD5 工具：$MD5_TOOL"
+}
+# ======================== 计算单个文件的 MD5 ========================
+calc_md5_for_file() {
+  local file="$1"
+  local hash=""
+
+  case "$MD5_TOOL" in
+    md5)
+      # macOS：优先 -q 只输出哈希
+      if hash=$(md5 -q "$file" 2>/dev/null); then
+        :
+      else
+        # 部分系统无 -q，退化为解析最后一个字段
+        hash=$(md5 "$file" | awk '{print $NF}')
+      fi
+      ;;
+    md5sum)
+      hash=$(md5sum "$file" | awk '{print $1}')
+      ;;
+  esac
+
+  if [[ -z "$hash" ]]; then
+    error_echo "计算失败：$file"
+    return 1
+  fi
+
+  success_echo "文件：$file"
+  highlight_echo "MD5：$hash"
+}
+# ======================== 主循环：反复要文件 ========================
+interactive_loop() {
+  while true; do
+    echo ""
+    note_echo "请拖入要计算 MD5 的文件，然后回车："
+    echo "👉 不想算了就按 Ctrl+C 结束脚本"
+
+    local input raw
+    IFS= read -r raw
+
+    # 空输入：继续下一轮（不退出）
+    if [[ -z "$raw" ]]; then
+      note_echo "未输入任何路径，如需退出请按 Ctrl+C。"
+      continue
+    fi
+
+    # 1) 去掉结尾的 \r（某些终端会带）
+    input="${raw%$'\r'}"
+
+    # 2) 去掉首尾所有空白字符（空格 / Tab / 换行等）
+    #   前导空白
+    input="${input#"${input%%[![:space:]]*}"}"
+    #   末尾空白
+    input="${input%"${input##*[![:space:]]}"}"
+
+    # 3) 去掉首尾成对引号（Finder 拖拽常见）
+    if [[ ( "$input" == \"*\" && "$input" == *\" ) || ( "$input" == \'*\' && "$input" == *\' ) ]]; then
+      input="${input:1:${#input}-2}"
+    fi
+
+    # 再做一遍空字符串检查（比如用户只输入了几个空格）
+    if [[ -z "$input" ]]; then
+      note_echo "只输入了空白字符，如需退出请按 Ctrl+C。"
+      continue
+    fi
+
+    # 校验文件
+    if [[ ! -e "$input" ]]; then
+      error_echo "路径不存在：$input"
+      continue
+    fi
+    if [[ ! -f "$input" ]]; then
+      warn_echo "目标不是普通文件（可能是目录或其他类型）：$input"
+      continue
+    fi
+
+    calc_md5_for_file "$input"
+    # 计算完自动回到 while true 的下一轮，继续等下一个文件
+  done
+}
+# 打印脚本内置自述，并按运行入口决定是否等待用户确认。
+show_script_intro_and_wait() {
+  print -r -- '============================== 脚本内置自述 ==============================' | jobs_intro_style title
+  print -r -- '脚本名称：【MacOS】🧬MD5.command' | jobs_intro_style body
+  print -r -- '核心用途：执行“🧬MD5”对应的自动化任务。' | jobs_intro_style body
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。' | jobs_intro_style body
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。' | jobs_intro_style body
+  print -r -- '============================================================================' | jobs_intro_style title
+  if [[ ! -t 0 ]]; then
+    print -u2 -r -- '当前没有可交互输入，请在终端中重新运行。'
+    exit 1
+  fi
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _ || exit 1
+}
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+initialize_script_runtime() {
+  setopt NO_NOMATCH TYPESET_SILENT
+  set -euo pipefail
+  : > "$LOG_FILE"
+}
+# 编排脚本的高层业务流程。
+main() {
+  show_script_intro_and_wait # 展示脚本内置自述，并按运行入口完成防误触确认。
+  initialize_script_runtime # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  print_intro # 执行 print_intro 对应的独立业务步骤。
+  detect_md5_tool # 解析当前任务所需的路径、参数或运行上下文。
+  interactive_loop # 执行 interactive_loop 对应的独立业务步骤。
+}
+
+main "$@"
