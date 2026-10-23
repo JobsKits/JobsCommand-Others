@@ -1,0 +1,272 @@
+# `【MacOS】Jobs计划任务`
+
+![Jobs出品，必属精品](https://picsum.photos/1500/400)
+
+<!-- jobs-toc:start -->
+<!-- jobs-toc:source {"v":2,"token":"[toc]"} -->
+<details>
+<summary>📚 目录（点击展开 / 收起）</summary>
+
+- [🔥 前言](#jobs-toc-heading-1)
+- [一、主要能力](#jobs-toc-heading-2)
+  - [1.1、可执行目标](#jobs-toc-heading-3)
+  - [1.2、计划类型](#jobs-toc-heading-4)
+  - [1.3、任务治理](#jobs-toc-heading-5)
+- [二、目录结构](#jobs-toc-heading-6)
+- [三、安装与启动](#jobs-toc-heading-7)
+  - [3.1、双击入口](#jobs-toc-heading-8)
+  - [3.2、菜单栏入口](#jobs-toc-heading-9)
+- [四、任务数据与系统文件](#jobs-toc-heading-10)
+  - [4.1、用户数据](#jobs-toc-heading-11)
+  - [4.2、LaunchAgent](#jobs-toc-heading-12)
+- [五、睡眠、关机与错过执行](#jobs-toc-heading-13)
+- [六、管理员权限与无人值守](#jobs-toc-heading-14)
+- [七、执行策略与日志](#jobs-toc-heading-15)
+  - [7.1、重叠任务](#jobs-toc-heading-16)
+  - [7.2、日志](#jobs-toc-heading-17)
+- [八、用户偏好与退出 UI](#jobs-toc-heading-18)
+- [九、卸载](#jobs-toc-heading-19)
+- [十、已知边界](#jobs-toc-heading-20)
+- [十一、静态诊断](#jobs-toc-heading-21)
+
+</details>
+<!-- jobs-toc:end -->
+
+---
+
+## <span id="jobs-toc-heading-1" data-jobs-toc="v2">🔥 <font id=前言>前言</font></span><!-- jobs-toc:heading-end -->
+
+`Jobs 计划任务` 是一个面向 macOS 的原生菜单栏计划任务管理器。它不重新实现计时守护进程，而是为每个任务生成独立的 `LaunchAgent`，由系统原生 `launchd` 调度。
+
+项目使用 [**Swift**](https://www.swift.org/) 与 AppKit/SwiftUI 构建菜单栏和管理界面，使用 `./Jobs计划任务.command` 作为统一安装、启动、升级、诊断和卸载入口。
+
+## <span id="jobs-toc-heading-2" data-jobs-toc="v2">一、主要能力 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+### <span id="jobs-toc-heading-3" data-jobs-toc="v2">1.1、可执行目标 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+- 打开 App、文件夹和各种资料文件。
+- 打开文本文档、PDF、图片、视频和音频。
+- 打开 URL。
+- 执行 `.command`、`.sh` 和 `.zsh` 脚本。
+- 执行自定义 Shell 命令。
+- 自定义命令目标留空时，保存后默认执行 `update -t`。
+- 通过 `shortcuts run` 运行快捷指令。
+- 支持拖拽目标和文件选择器两种录入方式；选入 `.command` / `.sh` / `.zsh` 时自动设为执行脚本，其它文件、文件夹和 App 自动设为打开。
+
+### <span id="jobs-toc-heading-4" data-jobs-toc="v2">1.2、计划类型 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+- 仅执行一次。
+- 每天指定时间；今天的设定时刻尚未过（包含恰好相等）时，下次执行时间取今天，已经过了才取明天。
+- 每周指定星期和时间。
+- 时间使用小时、分钟双滚轮选择，支持类似 iOS Picker 的惯性滚动和吸附效果。
+- 每隔若干分钟执行。
+- 用户登录后执行。
+- 支持启用、停用、重新定义时间和立即执行。
+- 支持在设置页打开终端配置、查看或取消 `pmset` 全局重复唤醒规则。
+
+### <span id="jobs-toc-heading-5" data-jobs-toc="v2">1.3、任务治理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+- 设置任务超时时间。
+- 选择允许并行、跳过重叠或终止运行中的实例。
+- 任务列表直接显示已配置的计划时间、下次执行时间，以及按“时:分:秒”每秒刷新的倒计时；最近一次执行结果单独显示。
+- 保存执行时间、退出码、结果和完整日志。
+- 成功或失败时发送系统通知。
+- 删除任务先进入软件内部回收站，默认保留 `30` 天。
+- 支持恢复、彻底删除和清空回收站；清空前必须在二次确认对话框中确认永久删除。
+- 任务行使用齿轮图标进入编辑；右键任务可显示目标、查看日志或移入回收站。
+- 任务行的“显示详情”可切换到应用内执行记录，自动选中当前任务；默认只加载最近 `2,000` 行，后续按新增字节增量刷新，并且只在用户原本位于底部时跟随最新输出。
+- 支持全部任务的 JSON 导入和导出。
+
+## <span id="jobs-toc-heading-6" data-jobs-toc="v2">二、目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+```text
+Jobs计划任务.command/
+├── Jobs计划任务.command
+├── Package.swift
+├── README.md
+├── Resources/
+│   ├── AppIcon.icns
+│   └── Info.plist
+├── Sources/
+│   └── JobsScheduler/
+│       ├── ANSITextSanitizer.swift
+│       ├── AppPaths.swift
+│       ├── ContentView.swift
+│       ├── ExecutionLogReader.swift
+│       ├── JobsSchedulerApp.swift
+│       ├── LaunchdManager.swift
+│       ├── LogTextView.swift
+│       ├── SchedulerTask.swift
+│       ├── SupportingViews.swift
+│       ├── TaskEditorView.swift
+│       ├── TaskLock.swift
+│       ├── TaskRunner.swift
+│       └── TaskStore.swift
+└── Tests/
+    └── JobsSchedulerTests/
+        ├── ExecutionLogReaderTests.swift
+        └── TaskLockTests.swift
+```
+
+## <span id="jobs-toc-heading-7" data-jobs-toc="v2">三、安装与启动 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+### <span id="jobs-toc-heading-8" data-jobs-toc="v2">3.1、双击入口 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+双击：
+
+```text
+./Jobs计划任务.command
+```
+
+确认脚本自述后选择：
+
+```text
+1. 安装并启动
+```
+
+脚本会执行 Release 编译，把 App 安装到当前用户的 `Applications` 目录，然后启动菜单栏 App。整个过程不需要 `sudo`。
+
+### <span id="jobs-toc-heading-9" data-jobs-toc="v2">3.2、菜单栏入口 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+启动后，Dock 与菜单栏都会显示醒目的红色闹钟入口；App 也会出现在 `Command-Option-Escape` 打开的“强制退出应用程序”列表中。菜单栏提供：
+
+- 打开任务中心；
+- 新建计划任务；
+- 查看日志目录；
+- 用户偏好；
+- 退出 UI。
+
+带刘海的 MacBook 会把过多的菜单栏项目挤到刘海后面。本 App 为状态项设置稳定位置标识，并在首次启动时默认放到距屏幕右侧约 `200` 点的位置，避免红色闹钟落入刘海遮挡区。
+
+退出 UI 不会停止已经注册的计划任务，因为实际调度由 `launchd` 承担。
+
+## <span id="jobs-toc-heading-10" data-jobs-toc="v2">四、任务数据与系统文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+### <span id="jobs-toc-heading-11" data-jobs-toc="v2">4.1、用户数据 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+任务、偏好、互斥锁文件和日志保存在当前用户的 `Library/Application Support/com.jobs.scheduler` 目录中。锁文件只保存运行信息，是否正在执行由系统文件锁判断；文件残留本身不会再被当成“任务尚未结束”。
+
+### <span id="jobs-toc-heading-12" data-jobs-toc="v2">4.2、LaunchAgent <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+每个启用的任务都会在当前用户的 `Library/LaunchAgents` 目录生成一个文件：
+
+```text
+com.jobs.scheduler.task.<任务UUID>.plist
+```
+
+停用、删除或重新定义任务时，App 会同步注销旧任务并更新 plist。
+
+## <span id="jobs-toc-heading-13" data-jobs-toc="v2">五、睡眠、关机与错过执行 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+- Mac 处于清醒状态时，任务按计划执行。
+- Mac 睡眠时，普通 LaunchAgent 不会主动唤醒电脑。
+- `StartCalendarInterval` 类型的任务通常会在唤醒后补执行一次。
+- 任务选择“错过后跳过”时，延迟超过 `10` 分钟会记录为跳过；手动“立即运行”不受此限制。
+- Mac 关机时不能执行任务。
+- 必须准点唤醒时，需要额外使用 `pmset`；该能力涉及管理员权限和系统级重复唤醒规则，不由普通任务静默修改。
+
+设置页可以把配置命令送入终端，再由用户亲自输入管理员密码。对应命令示例：
+
+```shell
+sudo pmset repeat wakeorpoweron MTWRFSU 02:55:00
+```
+
+执行前应先查看现有规则，避免覆盖其他唤醒设置：
+
+```shell
+pmset -g sched
+```
+
+## <span id="jobs-toc-heading-14" data-jobs-toc="v2">六、管理员权限与无人值守 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+- App 永远不保存开机密码。
+- App 不会把密码写入脚本、plist、日志或钥匙串。
+- 需要 `sudo` 的脚本无法依靠模拟回车实现无人值守。
+- 确需无人值守时，应在 `/etc/sudoers.d/` 中只授权必要命令和固定参数。
+- 不要配置不受限制的 `NOPASSWD: ALL`。
+- 需要交互式 `read`、菜单选择或密码输入的脚本，不适合作为后台计划任务。
+
+## <span id="jobs-toc-heading-15" data-jobs-toc="v2">七、执行策略与日志 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+由 `launchd` 启动的后台任务不继承终端的完整环境。App 会为任务补齐 `~/.local/bin`、Apple Silicon / Intel Homebrew 和 macOS 系统命令目录的 `PATH`；自定义命令应是可执行文件或 Shell 内建命令，不应只依赖交互式 `.zshrc` 中的 alias。任务触发后立即写回“正在执行”状态，命令输出实时写入该任务日志，执行完成后再写回退出码和最终结果；前台窗口会自动刷新这些状态。
+
+日志详情会在展示前过滤 ANSI 颜色与终端控制序列，避免显示 `ESC[0m` 一类乱码；任务结束后也会将落盘日志清洗为纯文本。被执行脚本本身无需修改，在真实终端中仍可保留彩色输出。
+
+### <span id="jobs-toc-heading-16" data-jobs-toc="v2">7.1、重叠任务 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+- `已有实例运行则跳过`：适合更新、备份等不可重入任务。
+- `允许并行`：适合互不影响的打开类任务。
+- `终止运行中的实例后执行`：适合只需要保留最新实例的任务。
+
+非并行任务使用 macOS 系统文件锁判断真实占用状态。锁由任务运行进程持有，进程正常结束、异常退出或电脑重启后都会由系统自动释放；磁盘上的锁文件可以长期保留，不会单独触发“已有实例运行”的判断。
+
+### <span id="jobs-toc-heading-17" data-jobs-toc="v2">7.2、日志 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+每个任务拥有独立日志，“执行记录”只展示实际包含日志内容的任务。可以在任务列表中查看日志，也可以从菜单栏或“执行记录”页面打开日志目录。在“执行记录”页面的左右空白处点击右键，可在二次确认后清除全部日志；清除后执行记录列表立即置空，不会删除任务或取消调度。
+
+日志详情使用 AppKit 原生文本视图和非连续布局，避免 SwiftUI 对整段大文本反复排版。默认最多读取日志尾部 `1 MB` 并保留最近 `2,000` 行；日志继续增长时只读取新增字节。需要查看更早内容时可以点击“加载完整日志”，加载后也可以切回“只看最近 2,000 行”。“跟随最新”只会在用户原本位于日志底部时自动滚动，手动向上查看历史内容后不会被强制拉回底部。
+
+日志包含：
+
+- 开始时间和结束结果；
+- 标准输出和标准错误；
+- 退出码；
+- 超时和重叠跳过信息。
+
+## <span id="jobs-toc-heading-18" data-jobs-toc="v2">八、用户偏好与退出 UI <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+用户偏好支持“跟随系统”“浅色”和“深色”三种主题。切换后当前窗口立即生效并保存，下次启动时继续使用已选主题。
+
+默认关闭管理窗口时会询问：
+
+- 关闭管理窗口并驻留到屏幕顶部、日期时间旁边的菜单栏；
+- 退出 UI；
+- 取消。
+
+用户偏好中可以改成固定行为。选择驻留时会隐藏管理窗口，并在屏幕顶部菜单栏保留醒目的 `⏰ 计划任务` 入口；无论选择驻留还是退出 UI，已注册计划任务都继续由系统执行。
+
+## <span id="jobs-toc-heading-19" data-jobs-toc="v2">九、卸载 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+再次双击 `./Jobs计划任务.command`，选择：
+
+```text
+5. 卸载
+```
+
+卸载必须输入 `YES`。脚本会：
+
+- 退出菜单栏 App；
+- 注销并删除本软件生成的任务 LaunchAgent；
+- 删除已安装 App；
+- 再次询问是否删除任务数据和日志。
+
+只有继续输入 `DELETE`，数据和日志才会被彻底删除。
+
+## <span id="jobs-toc-heading-20" data-jobs-toc="v2">十、已知边界 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+- 当前实现使用用户级 LaunchAgent，不负责无人登录状态下的系统级任务。
+- 一次性计划由指定月、日和时间触发，执行成功或失败后自动停用；不应把日期设置到过去。
+- Shell 参数按空格拆分，不负责还原复杂引号语法；复杂参数建议写入独立脚本。
+- 文件被移动或改名后，原路径任务会失效，需要重新选择目标。
+- `pmset` 的重复唤醒规则属于全局系统设置，多个任务不能无冲突地各自占用一套规则。
+
+## <span id="jobs-toc-heading-21" data-jobs-toc="v2">十一、静态诊断 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+入口菜单的“环境诊断”会检查：
+
+- macOS 与 Swift 版本；
+- App 是否已安装；
+- 数据目录是否存在；
+- 已生成的 LaunchAgent 数量；
+- `Info.plist` 是否有效。
+
+开发时还可以执行：
+
+```shell
+zsh -n ./Jobs计划任务.command
+swift build --package-path .
+swift test --package-path .
+plutil -lint ./Resources/Info.plist
+```
+
+<a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>

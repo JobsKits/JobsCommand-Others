@@ -1,0 +1,515 @@
+#!/bin/zsh
+# 脚本自述：
+# - 脚本名称：【MacOS】📦Fastfile.command
+# - 核心用途：执行“📦Fastfile”对应的自动化任务。
+# - 影响范围：可能修改当前项目、用户环境或脚本指定的目标。
+# - 运行提示：运行后会先打印内置自述；终端模式按回车确认后继续，按 Ctrl+C 可取消。
+
+
+# 仅渲染自述：标题红色加粗，编号正文蓝色常规字重；非彩色终端输出纯文本。
+# >>> Jobs Homebrew install choice >>>
+# 输出安装诊断，避免混入返回的命令路径。
+jobs_brew_note() {
+  print -u2 -r -- "ℹ $*"
+}
+# 验证候选能够执行；共享安装只读不代表未安装。
+jobs_brew_candidate_ok() {
+  local candidate="$1" prefix
+  [[ -n "$candidate" && -x "$candidate" ]] || return 1
+  HOMEBREW_NO_AUTO_UPDATE=1 "$candidate" --version >/dev/null 2>&1 || return 1
+  prefix="$("$candidate" --prefix 2>/dev/null)" || return 1
+  [[ "$prefix" == /* && -d "$prefix" ]]
+}
+# 发现既有健康安装，不以目录可写性决定是否重新安装。
+jobs_brew_find() {
+  local candidate
+  local -a candidates
+  candidates=("${JOBS_HOMEBREW_BIN:-}" "$(command -v brew 2>/dev/null)" /opt/homebrew/bin/brew /usr/local/bin/brew
+    "${JOBS_HOMEBREW_INSTALL_PREFIX:-$HOME/.local/homebrew}/bin/brew" "$HOME/.homebrew/bin/brew")
+  for candidate in "${candidates[@]}"; do
+    if jobs_brew_candidate_ok "$candidate"; then
+      print -r -- "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+# 计算官方系统目录；实际支持范围和授权交由官方安装器处理。
+jobs_brew_system_prefix() {
+  case "$(/usr/bin/uname -m)" in
+    arm64) print -r -- /opt/homebrew ;;
+    *) print -r -- /usr/local ;;
+  esac
+}
+# 缺失时强提示选择安装路径；YES 只表示选择系统目录，不验证密码或权限。
+jobs_brew_choose_installation() {
+  local answer="" system_prefix="$(jobs_brew_system_prefix)"
+  if [[ ! -t 0 || ! -t 2 || "${IS_SOURCETREE_RUNTIME:-0}" == 1 ]]; then
+    jobs_brew_note "缺少 Homebrew，需要人工选择安装路径；请在可交互终端重新运行，未执行安装。"
+    return 1
+  fi
+  print -u2 -r -- "⚠ Homebrew 尚未就绪，必须先选择安装路径："
+  print -u2 -r -- "1、输入精确大写 YES：选择系统标准目录 $system_prefix（Apple Silicon：/opt/homebrew；Intel：/usr/local）。"
+  print -u2 -r -- "   这表示你准备向系统目录安装；官方安装器可能随后要求管理员密码，并自行验证权限。"
+  print -u2 -r -- "2、其它输入或直接回车：选择用户目录 ${JOBS_HOMEBREW_INSTALL_PREFIX:-$HOME/.local/homebrew}，不使用 sudo；有管理员权限也可选此路径。"
+  print -u2 -r -- "本步骤只选择路径，不收集或验证密码；选定路径失败就停止，不自动切换。按 Ctrl+C 取消整个任务。"
+  print -u2 -n -r -- "➤ 安装路径选择："
+  if ! IFS= read -r answer; then
+    jobs_brew_note "输入已取消或结束，停止安装。"
+    return 1
+  fi
+  if [[ "$answer" == YES ]]; then
+    typeset -g JOBS_HOMEBREW_INSTALL_MODE=system
+  else
+    typeset -g JOBS_HOMEBREW_INSTALL_MODE=user
+  fi
+}
+# 将官方系统安装器下载到临时文件后执行，失败不自动改装到用户目录。
+jobs_brew_install_system() {
+  local installer system_prefix="$(jobs_brew_system_prefix)" installer_result=0
+  command -v curl >/dev/null 2>&1 || { jobs_brew_note "缺少 curl，无法获取官方安装器。"; return 1; }
+  installer="$(mktemp "${TMPDIR:-/tmp}/jobs-homebrew-install.XXXXXX")" || return 1
+  if curl -fsSL --connect-timeout 10 --max-time 120 https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$installer"; then
+    /bin/bash "$installer" || installer_result=$?
+  else
+    installer_result=1
+  fi
+  rm -- "$installer"
+  if (( installer_result != 0 )); then
+    jobs_brew_note "系统目录安装失败（退出码 $installer_result）；停止，不自动切换安装路径。"
+    return 1
+  fi
+  typeset -g JOBS_HOMEBREW_BIN="$system_prefix/bin/brew"
+  jobs_brew_candidate_ok "$JOBS_HOMEBREW_BIN" || { jobs_brew_note "官方安装器结束后未找到健康 Homebrew：$JOBS_HOMEBREW_BIN"; return 1; }
+}
+# 克隆官方稳定版本到用户目录；不覆盖非空目录，不调用 sudo。
+jobs_brew_install_user() {
+  local prefix="${JOBS_HOMEBREW_INSTALL_PREFIX:-$HOME/.local/homebrew}" stage release_tag git_bin
+  [[ "$prefix" == /* && "$prefix" != / && "$prefix" != *[[:space:]:]* ]] || {
+    jobs_brew_note "Homebrew 用户前缀须为不含空白或冒号的绝对目录：$prefix"
+    return 1
+  }
+  if [[ -L "$prefix" || ( -e "$prefix" && ! -d "$prefix" ) || ( -d "$prefix" && -n "$(ls -A "$prefix" 2>/dev/null)" ) ]]; then
+    jobs_brew_note "用户安装目标非空或不是普通目录，不覆盖：$prefix"
+    return 1
+  fi
+  git_bin="$(command -v git 2>/dev/null)"
+  [[ -n "$git_bin" ]] && "$git_bin" --version >/dev/null 2>&1 || { jobs_brew_note "用户目录安装需要可用 Git；请先准备 Git / Command Line Tools。"; return 1; }
+  command -v curl >/dev/null 2>&1 || { jobs_brew_note "缺少 curl，无法获取官方稳定版本。"; return 1; }
+  export HOMEBREW_NO_SUDO=1
+  mkdir -p "${prefix:h}" || return 1
+  stage="$(mktemp -d "${prefix:h}/.jobs-homebrew.XXXXXX")" || return 1
+  if ! curl -fsSL --connect-timeout 10 --max-time 60 https://api.github.com/repos/Homebrew/brew/releases/latest -o "$stage/release.json"; then
+    rm -r -- "$stage"
+    jobs_brew_note "获取官方稳定版本失败，停止安装。"
+    return 1
+  fi
+  release_tag="$(sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([0-9][0-9.]*\)".*/\1/p' "$stage/release.json" | head -n 1)"
+  if [[ ! "$release_tag" =~ '^[0-9]+\.[0-9]+\.[0-9]+$' ]] ||
+     ! GIT_TERMINAL_PROMPT=0 "$git_bin" -c http.lowSpeedLimit=1 -c http.lowSpeedTime=60 clone --depth 1 --branch "$release_tag" --single-branch https://github.com/Homebrew/brew.git "$stage/brew" ||
+     ! "$git_bin" -C "$stage/brew" checkout -b stable ||
+     ! "$git_bin" -C "$stage/brew" config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' ||
+     ! mkdir -p "$stage/brew/Cellar" "$stage/brew/Caskroom" "$stage/brew/etc" "$stage/brew/var"; then
+    rm -r -- "$stage"
+    jobs_brew_note "Homebrew 用户目录初始化失败，停止安装。"
+    return 1
+  fi
+  # 空目录也只在下载成功后移除，避免提前改动用户的目标目录。
+  if [[ -d "$prefix" ]] && ! rmdir -- "$prefix"; then
+    rm -r -- "$stage"
+    return 1
+  fi
+  if ! mv "$stage/brew" "$prefix"; then
+    rm -r -- "$stage"
+    return 1
+  fi
+  rm -r -- "$stage"
+  typeset -g JOBS_HOMEBREW_BIN="$prefix/bin/brew"
+  jobs_brew_candidate_ok "$JOBS_HOMEBREW_BIN" || { jobs_brew_note "用户目录安装后复检失败：$prefix"; return 1; }
+}
+# 只更新本模块的 shellenv 配置块，并保留配置文件的符号链接和权限。
+jobs_brew_save_shellenv() {
+  local profile_file="$HOME/.zprofile" profile_stage shellenv_line current_shell="${SHELL:-/bin/zsh}"
+  [[ "${current_shell##*/}" != bash ]] || profile_file="$HOME/.bash_profile"
+  shellenv_line='eval "$('"${(q)JOBS_HOMEBREW_BIN}"' shellenv)"'
+  profile_stage="$(mktemp "${TMPDIR:-/tmp}/jobs-homebrew-profile.XXXXXX")" || return 1
+  if [[ -e "$profile_file" || -L "$profile_file" ]]; then
+    awk '
+      $0 == "# >>> Jobs Homebrew shellenv >>>" { inside = 1; block = $0 ORS; next }
+      inside {
+        block = block $0 ORS
+        if ($0 == "# <<< Jobs Homebrew shellenv <<<") { inside = 0; block = "" }
+        next
+      }
+      { print }
+      END { if (inside) printf "%s", block }
+    ' "$profile_file" > "$profile_stage" || { rm -- "$profile_stage"; return 1; }
+  fi
+  {
+    print -r -- '# >>> Jobs Homebrew shellenv >>>'
+    print -rl -- "$shellenv_line" '# <<< Jobs Homebrew shellenv <<<'
+  } >> "$profile_stage"
+  if ! cmp -s "$profile_stage" "$profile_file"; then
+    cat "$profile_stage" > "$profile_file" || { rm -- "$profile_stage"; jobs_brew_note "无法写入用户配置：$profile_file"; return 1; }
+  fi
+  rm -- "$profile_stage"
+}
+# 激活当前进程并验证 Ruby 命令层；只有新安装才持久化 shellenv。
+jobs_brew_activate() {
+  local brew_env
+  brew_env="$("$JOBS_HOMEBREW_BIN" shellenv)" || return 1
+  eval "$brew_env" || return 1
+  typeset -g JOBS_HOMEBREW_PREFIX="$("$JOBS_HOMEBREW_BIN" --prefix)"
+  export PATH="$JOBS_HOMEBREW_PREFIX/bin:$JOBS_HOMEBREW_PREFIX/sbin:$PATH"
+  rehash
+  HOMEBREW_NO_AUTO_UPDATE=1 "$JOBS_HOMEBREW_BIN" config >/dev/null || { jobs_brew_note "Homebrew 命令层复检失败，停止后续业务。"; return 1; }
+  if [[ "${1:-}" == installed ]]; then
+    if [[ "${JOBS_HOMEBREW_INSTALL_MODE:-}" == user && -z "${HOMEBREW_CASK_OPTS:-}" ]]; then
+      export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
+    fi
+    jobs_brew_save_shellenv || return 1
+  fi
+}
+# 在原版安装位置复用或安装 Homebrew，安装失败必须终止外层业务。
+jobs_brew_install_or_exit() {
+  local installed=""
+  if [[ "${DRY_RUN:-0}" == 1 ]]; then
+    jobs_brew_note "演练：Homebrew 系统路径 $(jobs_brew_system_prefix)；用户路径 ${JOBS_HOMEBREW_INSTALL_PREFIX:-$HOME/.local/homebrew}；未询问或执行安装。"
+    return 0
+  fi
+  if ! JOBS_HOMEBREW_BIN="$(jobs_brew_find)"; then
+    jobs_brew_choose_installation || exit 1
+    case "$JOBS_HOMEBREW_INSTALL_MODE" in
+      system) jobs_brew_install_system || exit 1 ;;
+      user) jobs_brew_install_user || exit 1 ;;
+      *) jobs_brew_note "安装路径选择无效，停止。"; exit 1 ;;
+    esac
+    installed=installed
+  fi
+  jobs_brew_activate "$installed" || exit 1
+}
+# <<< Jobs Homebrew install choice <<<
+jobs_intro_style() {
+  local intro_color=0
+  if [ -t 1 ] && [ -n "${TERM:-}" ] && [ "${TERM:-}" != dumb ] &&
+     [ -z "${NO_COLOR+x}" ] && [ "${PLAIN_OUTPUT:-0}" != 1 ] &&
+     [ "${IS_SOURCETREE_RUNTIME:-0}" != 1 ]; then
+    intro_color=1
+  fi
+  /usr/bin/awk -v color="$intro_color" -v role="${1:-body}" '
+    BEGIN { esc = sprintf("%c", 27) }
+    {
+      gsub(esc "\\[[0-9;]*m", "")
+      gsub(/\\(033|e|x1[bB])\[[0-9;]*m/, "")
+      if (!color || $0 ~ /^[[:space:]]*$/) { print; next }
+      numbered = ($0 ~ /^[[:space:]➤ℹ🔹✔⚠]*([0-9]+[、.)）]|[0-9]+️⃣|[-•])/)
+      heading = ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/ || $0 ~ /[：:][[:space:]]*$/ || $0 ~ /^[[:space:]]*[=━─-]{3}/)
+      title = (!numbered && (role == "title" || heading))
+      if (role == "auto" && !seen && !numbered) title = 1
+      if ($0 !~ /^[[:space:]]*[=━─-]+[[:space:]]*$/) seen = 1
+      printf "%s%s%s\n", esc (title ? "[1;31m" : "[0;34m"), $0, esc "[0m"
+    }
+  '
+}
+SCRIPT_BASENAME=$(basename "$0" | sed 's/\.[^.]*$//')   # 当前脚本名（去掉扩展名）
+LOG_FILE="/tmp/${SCRIPT_BASENAME}.log"                  # 设置对应的日志文件路径
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+log()            { echo -e "$1" | tee -a "$LOG_FILE"; }
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+color_echo()     { log "\033[1;32m$1\033[0m"; }         # ✅ 正常绿色输出
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+info_echo()      { log "\033[1;34mℹ $1\033[0m"; }       # ℹ 信息
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+success_echo()   { log "\033[1;32m✔ $1\033[0m"; }       # ✔ 成功
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+warn_echo()      { log "\033[1;33m⚠ $1\033[0m"; }       # ⚠ 警告
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+warm_echo()      { log "\033[1;33m$1\033[0m"; }         # 🟡 温馨提示（无图标）
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+note_echo()      { log "\033[1;35m➤ $1\033[0m"; }       # ➤ 说明
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+error_echo()     { log "\033[1;31m✖ $1\033[0m"; }       # ✖ 错误
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+err_echo()       { log "\033[1;31m$1\033[0m"; }         # 🔴 错误纯文本
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+debug_echo()     { log "\033[1;35m🐞 $1\033[0m"; }      # 🐞 调试
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+highlight_echo() { log "\033[1;36m🔹 $1\033[0m"; }      # 🔹 高亮
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+gray_echo()      { log "\033[0;90m$1\033[0m"; }         # ⚫ 次要信息
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+bold_echo()      { log "\033[1m$1\033[0m"; }            # 📝 加粗
+# 按当前输出级别记录终端信息，并同步写入脚本日志。
+underline_echo() { log "\033[4m$1\033[0m"; }            # 🔗 下划线
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
+SCRIPT_PATH="${SCRIPT_DIR}/$(basename -- "$0")"
+# 展示脚本用途和影响范围，并在执行前等待用户确认。
+show_script_intro_and_wait() {
+  clear
+  print -r -- '============================== 脚本内置自述 ==============================' | jobs_intro_style title
+  print -r -- '脚本名称：【MacOS】📦Fastfile.command' | jobs_intro_style title
+  print -r -- '核心用途：执行“📦Fastfile”对应的自动化任务。' | jobs_intro_style body
+  print -r -- '影响范围：可能修改当前项目、用户环境或脚本指定的目标。' | jobs_intro_style body
+  print -r -- '取消方式：确认前按 Ctrl+C 终止，不会继续执行后续业务。' | jobs_intro_style body
+  print -r -- '============================================================================' | jobs_intro_style title
+  echo "" | jobs_intro_style body
+  read -r "?👉 已了解脚本用途与影响，按回车继续；按 Ctrl+C 取消：" _
+}
+# 封装 pause_to_exit 对应的独立处理逻辑。
+pause_to_exit() {
+  echo ""
+  read -r "?🔚 按回车退出..." _
+}
+# 收集并校验用户输入，决定后续执行路径。
+ask_any_to_run() {
+  local message="$1"
+  local answer=""
+  read -r "?${message}（直接回车跳过；输入任意字符后回车执行）：" answer
+  [[ -n "$answer" ]]
+}
+# 封装 strip_outer_quotes 对应的独立处理逻辑。
+strip_outer_quotes() {
+  local value="$1"
+  value="${value%$'\r'}"
+  value="${value%$'\n'}"
+  value="${value#\"}"
+  value="${value%\"}"
+  value="${value#\'}"
+  value="${value%\'}"
+  print -r -- "$value"
+}
+
+PROJECT_TYPE="unknown"
+PROJECT_ROOT="$SCRIPT_DIR"
+FASTLANE_DIR="$SCRIPT_DIR/fastlane"
+FASTFILE_PATH="$FASTLANE_DIR/Fastfile"
+# 判断芯片架构。
+get_cpu_arch() {
+  [[ "$(uname -m)" == "arm64" ]] && echo "arm64" || echo "x86_64"
+}
+# 查找 brew 可执行文件。
+find_brew_bin() {
+  jobs_brew_find
+}
+# 根据当前 shell 选择配置文件。
+get_profile_file() {
+  local shell_path="${SHELL##*/}"
+  case "$shell_path" in
+    zsh)  echo "$HOME/.zprofile" ;;
+    bash) echo "$HOME/.bash_profile" ;;
+    *)    echo "$HOME/.profile" ;;
+  esac
+}
+# 写入 Homebrew shellenv，避免重复追加。
+# 安装或接入 Homebrew；已安装时按规范选择是否更新。
+install_homebrew() {
+  local jobs_existing_brew=""
+  if jobs_existing_brew="$(jobs_brew_find)"; then
+    JOBS_HOMEBREW_BIN="$jobs_existing_brew"
+    jobs_brew_activate || exit 1
+  fi
+  local arch="$(get_cpu_arch)"
+  local profile_file="$(get_profile_file)"
+  local brew_bin="$(find_brew_bin)"
+  local shellenv_cmd=""
+  local confirm=""
+
+  if [[ -z "$brew_bin" ]]; then
+    warn_echo "未检测到 Homebrew，正在安装中...（架构：$arch）"
+
+    if [[ "$arch" == "arm64" ]]; then
+      jobs_brew_install_or_exit || {
+        error_echo "Homebrew 安装失败（arm64）"
+        exit 1
+      }
+      brew_bin="${JOBS_HOMEBREW_BIN:-$(jobs_brew_find 2>/dev/null || true)}"
+    else
+      jobs_brew_install_or_exit || {
+        error_echo "Homebrew 安装失败（x86_64）"
+        exit 1
+      }
+      brew_bin="${JOBS_HOMEBREW_BIN:-$(jobs_brew_find 2>/dev/null || true)}"
+    fi
+
+    [[ -x "$brew_bin" ]] || brew_bin="$(find_brew_bin)"
+    [[ -n "$brew_bin" && -x "$brew_bin" ]] || {
+      error_echo "Homebrew 安装后仍未找到 brew 可执行文件"
+      exit 1
+    }
+
+    success_echo "Homebrew 安装成功：$brew_bin"
+    shellenv_cmd="eval \"\$(${brew_bin} shellenv)\""
+    inject_shellenv_block "$profile_file" "$shellenv_cmd"
+    return 0
+  fi
+
+  shellenv_cmd="eval \"\$(${brew_bin} shellenv)\""
+  inject_shellenv_block "$profile_file" "$shellenv_cmd"
+  success_echo "Homebrew 已安装：$brew_bin"
+
+  info_echo "是否执行 Homebrew 更新？"
+  echo "👉 直接按 [Enter]：跳过更新" | tee -a "$LOG_FILE"
+  echo "👉 输入任意字符后回车：执行 brew update && brew upgrade && brew cleanup && brew doctor && brew -v" | tee -a "$LOG_FILE"
+  IFS= read -r confirm
+
+  if [[ -z "$confirm" ]]; then
+    note_echo "已选择跳过 Homebrew 更新"
+    return 0
+  fi
+
+  info_echo "正在更新 Homebrew..."
+  brew update  || { error_echo "brew update 失败"; exit 1; }
+  brew upgrade || { error_echo "brew upgrade 失败"; exit 1; }
+  brew cleanup || { error_echo "brew cleanup 失败"; exit 1; }
+  brew doctor  || { warn_echo  "brew doctor 有警告/错误，请按提示处理"; }
+  brew -v      || { warn_echo  "打印 brew 版本失败，可忽略"; }
+  success_echo "Homebrew 已更新"
+}
+# 兼容脚本主流程里的命名。
+ensure_homebrew() {
+  install_homebrew
+}
+# 检查工程类型并确定 Fastfile 目录。
+detect_project_type() {
+  if [[ -f "$SCRIPT_DIR/pubspec.yaml" && -d "$SCRIPT_DIR/ios" ]]; then
+    PROJECT_TYPE="flutter"
+    PROJECT_ROOT="$SCRIPT_DIR/ios"
+    FASTLANE_DIR="$PROJECT_ROOT/fastlane"
+    FASTFILE_PATH="$FASTLANE_DIR/Fastfile"
+    success_echo "检测到 Flutter 工程，Fastfile 将放在 ios/fastlane。"
+  elif ls "$SCRIPT_DIR"/*.xcodeproj >/dev/null 2>&1 || ls "$SCRIPT_DIR"/*.xcworkspace >/dev/null 2>&1; then
+    PROJECT_TYPE="ios"
+    PROJECT_ROOT="$SCRIPT_DIR"
+    FASTLANE_DIR="$PROJECT_ROOT/fastlane"
+    FASTFILE_PATH="$FASTLANE_DIR/Fastfile"
+    success_echo "检测到原生 iOS 工程。"
+  else
+    warn_echo "未识别到 Flutter / iOS 工程，将按当前目录处理。"
+  fi
+}
+# 安装或按需升级 brew 包。
+ensure_brew_formula() {
+  local formula="$1"
+  if brew list --formula "$formula" >/dev/null 2>&1; then
+    success_echo "$formula 已安装。"
+    if ask_any_to_run "是否升级 $formula"; then
+      brew upgrade "$formula" || warn_echo "$formula 升级失败或无需升级。"
+    else
+      info_echo "已跳过 $formula 升级。"
+    fi
+  else
+    note_echo "安装 $formula。"
+    brew install "$formula" || {
+      error_echo "$formula 安装失败。"
+      exit 1
+    }
+  fi
+}
+# 创建默认 Fastfile。
+create_default_fastfile() {
+  mkdir -p "$FASTLANE_DIR"
+  if [[ -f "$FASTFILE_PATH" ]]; then
+    success_echo "Fastfile 已存在：$FASTFILE_PATH"
+    return 0
+  fi
+
+  cat > "$FASTFILE_PATH" <<'EOF'
+default_platform(:ios)
+
+platform :ios do
+  desc "Build app locally"
+  lane :build do
+    build_app
+  end
+end
+EOF
+  success_echo "已创建 Fastfile：$FASTFILE_PATH"
+}
+# 选择编辑器打开 Fastfile。
+open_fastfile() {
+  local editor=""
+  if command -v fzf >/dev/null 2>&1; then
+    editor="$(printf "Xcode\nVSCode\nAndroid Studio\nFinder\n跳过" | fzf --prompt="🎨 选择打开方式: " --height=10 --reverse)"
+  else
+    echo "1) Xcode"
+    echo "2) VSCode"
+    echo "3) Android Studio"
+    echo "4) Finder"
+    echo "5) 跳过"
+    read -r "?请选择打开方式：" editor_choice
+    case "$editor_choice" in
+      1) editor="Xcode" ;;
+      2) editor="VSCode" ;;
+      3) editor="Android Studio" ;;
+      4) editor="Finder" ;;
+      *) editor="跳过" ;;
+    esac
+  fi
+
+  case "$editor" in
+    "Xcode") open -a Xcode "$FASTFILE_PATH" ;;
+    "VSCode") open -a "Visual Studio Code" "$FASTFILE_PATH" ;;
+    "Android Studio") open -a "Android Studio" "$FASTFILE_PATH" ;;
+    "Finder") open -R "$FASTFILE_PATH" ;;
+    *) info_echo "已跳过打开 Fastfile。" ;;
+  esac
+}
+# 编排脚本的高层业务流程。
+# 初始化脚本运行环境，并集中承载原有的顶层执行逻辑。
+# 将 Homebrew shellenv 写入用户配置并在当前终端生效。
+inject_shellenv_block() {
+  local profile_file="$1"
+  local shellenv_cmd="$2"
+  local header="# >>> Jobs Homebrew shellenv >>>"
+  local footer="# <<< Jobs Homebrew shellenv <<<"
+  if [[ -z "$profile_file" || -z "$shellenv_cmd" ]]; then
+    error_echo "缺少参数：inject_shellenv_block <profile_file> <shellenv_cmd>"
+    return 1
+  fi
+  mkdir -p "$(dirname "$profile_file")"
+  touch "$profile_file"
+  if grep -Fq "$shellenv_cmd" "$profile_file"; then
+    info_echo "Homebrew shellenv 已存在：$profile_file"
+  else
+    {
+      echo ""
+      echo "$header"
+      echo "$shellenv_cmd"
+      echo "$footer"
+    } >> "$profile_file"
+    success_echo "已写入 Homebrew shellenv：$profile_file"
+  fi
+  eval "$shellenv_cmd"
+  success_echo "Homebrew shellenv 已在当前终端生效"
+}
+# 初始化脚本运行环境和后续流程所需状态。
+initialize_script_runtime() {
+  setopt NO_NOMATCH
+  : > "$LOG_FILE"
+}
+# 编排脚本的高层业务流程。
+main() {
+  # 展示脚本内置自述，并按运行入口完成防误触确认。
+  show_script_intro_and_wait
+  # 初始化 Shell 选项、日志、依赖和入口运行状态。
+  initialize_script_runtime
+  # 解析当前任务所需的路径、参数或运行上下文。
+  detect_project_type
+  # 检查当前环境与执行条件是否满足脚本要求。
+  ensure_homebrew
+  # 检查当前环境与执行条件是否满足脚本要求。
+  ensure_brew_formula "fzf"
+  # 检查当前环境与执行条件是否满足脚本要求。
+  ensure_brew_formula "fastlane"
+  # 执行 create_default_fastfile 对应的核心业务步骤。
+  create_default_fastfile
+  # 执行 open_fastfile 对应的独立业务步骤。
+  open_fastfile
+  # 输出脚本执行结果、摘要和日志位置。
+  success_echo "处理完成。"
+  # 执行 pause_to_exit 对应的独立业务步骤。
+  pause_to_exit
+}
+
+main "$@"

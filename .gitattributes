@@ -1,0 +1,35 @@
+
+# jobs-markdown-toc:start
+"/.jobs-markdown-toc/README.md" filter=jobs-markdown-toc
+"/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】Caddy本地域名映射.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】JobsKeyboardRecorder.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】Jobs计划任务.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】Mock.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】Mock.command/【MacOS】Mock.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】StirlingPDF.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】⏬下载Mock数据.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】⚙️『 已损坏，无法打开： 来自身份不明的开发者』等问题修复工具.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】⚙️双击写入文件：不带#的字符串.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】⚙️双击安装（升级）Homebrew.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】⚙️给文件添加和删除执行权限.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】⚙️运行授权.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】全文件搜索文字替换.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】去乱码.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】文件分拆（合并）测试. command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】文件分拆（合并）测试. command/【MacOS】✂️源文件压缩拆分➤子卷.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】文件分拆（合并）测试. command/【MacOS】🧩子卷➤合而为一源文件.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】文件分拆（合并）测试. command/【MacOS】🧬MD5.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】时间戳转换工具.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】静态网页截全图.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】🎈双击打开当前路径终端.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】📦Fastfile.command/README.md" filter=jobs-markdown-toc
+"/MacOS/【MacOS】🧮双击文件数统计.command/README.md" filter=jobs-markdown-toc
+"/MacOS/README.md" filter=jobs-markdown-toc
+"/WindowsOS/README.md" filter=jobs-markdown-toc
+"/MacOS/\343\200\220MacOS\343\200\221Xcode\347\274\226\350\257\221\350\200\227\346\227\266\350\217\234\345\215\225\346\240\217.command/README.md" filter=jobs-markdown-toc
+"/MacOS/\343\200\220MacOS\343\200\221Jobs\350\256\241\345\210\222\344\273\273\345\212\241.command/Scripts/README.md" filter=jobs-markdown-toc
+"/WindowsOS/Tests/README.md" filter=jobs-markdown-toc
+# jobs-markdown-toc:end
+
+"/WindowsOS/*.cmd" text eol=crlf
