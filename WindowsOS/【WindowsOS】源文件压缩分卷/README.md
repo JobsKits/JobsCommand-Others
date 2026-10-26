@@ -11,6 +11,7 @@
 - [一、功能与边界](#jobs-toc-heading-2)
 - [二、运行方式](#jobs-toc-heading-3)
 - [三、文件依赖与验证](#jobs-toc-heading-4)
+- [四、共享工具与测试样本](#jobs-toc-heading-5)
 
 </details>
 <!-- jobs-toc:end -->
@@ -50,5 +51,14 @@
 入口按脚本位置加载 [公共模块](../Common/README.md) 中的 `../Common/JobsTools.ps1`。复制使用时保留本功能目录与 `Common/` 的相邻关系。业务状态与备份位于当前用户本地应用数据目录；运行日志位于系统临时目录，确认自述后显示实际位置。
 
 隔离回归与验证范围见 [Tests 说明](../Tests/README.md)；外部软件安装、服务和桌面操作须按各自环境验收。
+
+## <span id="jobs-toc-heading-5" data-jobs-toc="v2">四、共享工具与测试样本 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+共享资源统一位于仓库根目录的 `Release/`，详见 [Release 说明](../../Release/README.md)。
+
+- [libiPhone-lib 测试分卷](../../Release/libiPhone-lib/) 保留 `libiPhone-lib.a@001of004` 至 `libiPhone-lib.a@004of004` 四个旧格式二进制分卷，没有 `JobsSplit-1` 的 `manifest.json`；[Windows 子卷合并入口](<../【WindowsOS】子卷合并/README.md>) 不能直接接收这组样本。
+- [MacOS MD5 工具说明](<../../Release/【MacOS】🧬MD5.command/README.md>) 对应的 `.command` 入口仅供 [**macOS**](https://www.apple.com/macos/) 使用；Windows 校验文件 MD5 请使用 [【WindowsOS】MD5.cmd](<../【WindowsOS】MD5/【WindowsOS】MD5.cmd>)。
+
+验证 Windows 分卷与合并流程时，先用本目录脚本选择普通源文件，生成带 `JobsSplit-1` 清单的新输出目录，再将其中的 `manifest.json` 交给 Windows 子卷合并入口；需要对照 MD5 时，分别校验源文件与重建文件。
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>

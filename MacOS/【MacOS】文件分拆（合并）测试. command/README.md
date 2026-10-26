@@ -81,13 +81,22 @@
 
 ## <span id="前言">一、前言</span>
 
-- 这个自述文件对应三个 MacOS `.command` 脚本：
+- 这个自述文件说明三个 MacOS `.command` 脚本：拆分、合并工具包位于本目录，MD5 工具包与分卷测试样本集中在仓库根目录的 [Release](../../Release/README.md)。下文命令均以本 `README.md` 所在目录为基准。
 
   ```text
   【MacOS】✂️源文件压缩拆分➤子卷.command
   【MacOS】🧩子卷➤合而为一源文件.command
   【MacOS】🧬MD5.command
   ```
+
+- 共享资源位置：
+
+  | 资源 | 当前路径与用途 |
+  |---|---|
+  | [MD5 工具包](<../../Release/【MacOS】🧬MD5.command/README.md>) | `../../Release/【MacOS】🧬MD5.command/`，包含主脚本与配套说明。 |
+  | [libiPhone-lib 分卷样本](../../Release/libiPhone-lib/) | `../../Release/libiPhone-lib/`，包含 `libiPhone-lib.a@001of004` 至 `libiPhone-lib.a@004of004` 四个二进制分卷。 |
+
+- 合并该样本时，目标目录选择 `../../Release/`，脚本扫描其一级子目录 `libiPhone-lib/`，输出为 `../../Release/libiPhone-lib.a`；合并后在删除提示处直接回车，保留测试分卷。样本不含 Windows `JobsSplit-1` 的 `manifest.json`，不能直接交给 Windows 子卷合并入口。
 
 - 这三个脚本是一组本地文件处理工具，主要用于：
 
@@ -126,9 +135,9 @@
 三个脚本首次下载后，建议先赋予执行权限：
 
 ```shell
-chmod +x './【MacOS】✂️源文件压缩拆分➤子卷.command'
-chmod +x './【MacOS】🧩子卷➤合而为一源文件.command'
-chmod +x './【MacOS】🧬MD5.command'
+chmod +x './【MacOS】✂️源文件压缩拆分➤子卷.command/【MacOS】✂️源文件压缩拆分➤子卷.command'
+chmod +x './【MacOS】🧩子卷➤合而为一源文件.command/【MacOS】🧩子卷➤合而为一源文件.command'
+chmod +x '../../Release/【MacOS】🧬MD5.command/【MacOS】🧬MD5.command'
 ```
 
 ---
@@ -138,7 +147,7 @@ chmod +x './【MacOS】🧬MD5.command'
 运行：
 
 ```shell
-./'【MacOS】✂️源文件压缩拆分➤子卷.command'
+./'【MacOS】✂️源文件压缩拆分➤子卷.command/【MacOS】✂️源文件压缩拆分➤子卷.command'
 ```
 
 正常流程：
@@ -161,7 +170,7 @@ chmod +x './【MacOS】🧬MD5.command'
 运行：
 
 ```shell
-./'【MacOS】🧩子卷➤合而为一源文件.command'
+./'【MacOS】🧩子卷➤合而为一源文件.command/【MacOS】🧩子卷➤合而为一源文件.command'
 ```
 
 正常流程：
@@ -184,7 +193,7 @@ chmod +x './【MacOS】🧬MD5.command'
 运行：
 
 ```shell
-./'【MacOS】🧬MD5.command'
+../../Release/'【MacOS】🧬MD5.command/【MacOS】🧬MD5.command'
 ```
 
 正常流程：
@@ -814,8 +823,8 @@ Example.zip@001of005
 
 | 输入 | 行为 |
 |---|---|
-| 直接按 `[Enter]` | 删除子卷目录 |
-| 输入任意字符后回车 | 保留子卷目录 |
+| 精确输入 `YES` 后回车 | 删除子卷目录 |
+| 直接按 `[Enter]` 或其他输入 | 保留子卷目录 |
 
 建议先保留子卷目录，使用 MD5 或手动打开文件确认无误后，再删除。
 
@@ -970,13 +979,29 @@ md5sum
 
 ### <span id="jobs-toc-heading-43" data-jobs-toc="v2">7.1、推荐目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-推荐把三个脚本放在一个固定工具目录中：
+仓库中的工具包与测试样本按以下结构存放；MD5 工具包内的脚本与 `README.md` 保持同层：
 
 ```text
-Tools/
-├── 【MacOS】✂️源文件压缩拆分➤子卷.command
-├── 【MacOS】🧩子卷➤合而为一源文件.command
-└── 【MacOS】🧬MD5.command
+JobsCommand@Others/
+├── Release/
+│   ├── README.md
+│   ├── 【MacOS】🧬MD5.command/
+│   │   ├── 【MacOS】🧬MD5.command
+│   │   └── README.md
+│   └── libiPhone-lib/
+│       ├── libiPhone-lib.a@001of004
+│       ├── libiPhone-lib.a@002of004
+│       ├── libiPhone-lib.a@003of004
+│       └── libiPhone-lib.a@004of004
+└── MacOS/
+    └── 【MacOS】文件分拆（合并）测试. command/
+        ├── README.md
+        ├── 【MacOS】✂️源文件压缩拆分➤子卷.command/
+        │   ├── 【MacOS】✂️源文件压缩拆分➤子卷.command
+        │   └── README.md
+        └── 【MacOS】🧩子卷➤合而为一源文件.command/
+            ├── 【MacOS】🧩子卷➤合而为一源文件.command
+            └── README.md
 ```
 
 实际处理文件时，建议单独准备工作目录：
@@ -1154,7 +1179,7 @@ GitHub Releases 安全标准（1900 MiB）
 直接运行：
 
 ```shell
-./'【MacOS】🧬MD5.command'
+../../Release/'【MacOS】🧬MD5.command/【MacOS】🧬MD5.command'
 ```
 
 拖入文件后回车即可。

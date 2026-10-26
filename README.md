@@ -45,7 +45,7 @@
 
 ## <span id="jobs-toc-heading-2" data-jobs-toc="v2">双平台入口 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-原脚本包和资源位于[MacOS](./MacOS/README.md)；Windows对照实现位于[WindowsOS](./WindowsOS/README.md)，使用PowerShell 5.1+与可双击CMD。Apple模拟器、Xcode与macOS专属权限工具保留在MacOS。Windows安装、服务和配置变更均先说明目标并按提示确认，实际平台验收状态见Windows说明。
+原脚本包和资源位于[MacOS](./MacOS/README.md)；MD5 工具包与共享分卷测试样本位于 [Release](./Release/README.md)。Windows对照实现位于[WindowsOS](./WindowsOS/README.md)，使用PowerShell 5.1+与可双击CMD。Apple模拟器、Xcode与macOS专属权限工具保留在MacOS。Windows安装、服务和配置变更均先说明目标并按提示确认，实际平台验收状态见Windows说明。
 
 ## <span id="jobs-toc-heading-3" data-jobs-toc="v2">一、📦 包结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
@@ -75,7 +75,7 @@
 
 ## 三、<span id="repository-layout">目录结构</span> <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-下面按平台目录与 MacOS 保留包列出真实文件与目录；包内主脚本由下方完整名称直接进入。
+下面按平台目录与 Release 资源列出真实文件与目录；包内主脚本由下方完整名称直接进入。
 
 Windows 每项功能独占同名目录，目录内放成对的 `.cmd`、`.ps1` 和 `README.md`；公共函数集中在 `WindowsOS/Common/`，功能专属资源随对应目录保存。例如 [MD5 功能目录](<./WindowsOS/【WindowsOS】MD5/README.md>)，完整清单见 [WindowsOS 总览](./WindowsOS/README.md)。
 
@@ -83,6 +83,10 @@ Windows 每项功能独占同名目录，目录内放成对的 `.cmd`、`.ps1` �
 JobsCommand@Others/
 ├── MacOS/  # 原脚本包、资源与分类链接
 ├── WindowsOS/  # PowerShell 5.1+ 与双击 CMD
+├── Release/  # MD5 工具包与共享分卷测试样本
+│   ├── README.md
+│   ├── 【MacOS】🧬MD5.command/  # 1 个 macOS 入口及其 README
+│   └── libiPhone-lib/  # 4 个二进制分卷
 └── README.md
 
 MacOS/
@@ -101,7 +105,7 @@ MacOS/
 ├── 【MacOS】⚙️运行授权.command/  # 1 个入口
 ├── 【MacOS】全文件搜索文字替换.command/  # 1 个入口
 ├── 【MacOS】去乱码.command/  # 1 个入口
-├── 【MacOS】文件分拆（合并）测试. command/  # 3 个入口
+├── 【MacOS】文件分拆（合并）测试. command/  # 2 个入口
 ├── 【MacOS】时间戳转换工具.command/  # 1 个入口
 ├── 【MacOS】静态网页截全图.command/  # 1 个入口
 ├── 【MacOS】🎈双击打开当前路径终端.command/  # 1 个入口
@@ -111,7 +115,7 @@ MacOS/
 
 ## 四、<span id="script-workflows">脚本执行流程</span> <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a>
 
-MacOS 目录共有 22 个用户入口（按主 `.command` 文本脚本计数，不含公共模块、测试及资源；依据当前目录，2026-10-23）。这里只列本仓维护的主入口；独立子 Git、测试、函数库及打包资源模板不作为用户运行入口。步骤来自静态源码与配套说明，未执行安装、清理、构建或 Git 写操作。
+MacOS 目录共有 21 个用户入口，Release 目录另有 1 个 MD5 入口（按主 `.command` 文本脚本计数，不含公共模块、测试及资源；依据当前目录，2026-10-26）。这里只列本仓维护的主入口；独立子 Git、测试、函数库及打包资源模板不作为用户运行入口。步骤来自静态源码与配套说明，未执行安装、清理、构建或 Git 写操作。
 
 当前入口使用脚本内置自述，README 用于运行前静态阅读；具体处理范围与交互以各入口的源码和下方流程为准。
 
@@ -245,7 +249,7 @@ MacOS 目录共有 22 个用户入口（按主 `.command` 文本脚本计数，�
 - 检查卷集与重建工具，按对应压缩 / 拆分格式合并或解包。
 - 核对重建结果与校验信息，显示输出位置。
 
-### <span id="jobs-toc-heading-23" data-jobs-toc="v2">[【MacOS】🧬MD5.command](<./MacOS/【MacOS】文件分拆（合并）测试. command/【MacOS】🧬MD5.command/【MacOS】🧬MD5.command>)</span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-23" data-jobs-toc="v2">[【MacOS】🧬MD5.command](<./Release/【MacOS】🧬MD5.command/【MacOS】🧬MD5.command>)</span><!-- jobs-toc:heading-end -->
 
 > **目的：** 计算指定文件的 MD5 校验值。
 
