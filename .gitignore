@@ -1,0 +1,29 @@
+# Swift Package Manager / Xcode 本地构建与用户状态
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcarchive/
+*.dSYM/
+*.dSYM.zip
+
+# 各工具的本地构建、打包与中间产物目录
+build/
+Build/
+dist/
+work/
+
+# 编译中间文件
+*.o
+*.obj
+*.pcm
+*.pch
+*.swiftmodule
+*.swiftdoc
+*.swiftsourceinfo
+
+# 系统生成文件
+.DS_Store
+Thumbs.db
+Desktop.ini
