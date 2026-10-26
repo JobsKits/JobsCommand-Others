@@ -64,14 +64,16 @@ try{
             Assert-Equal (Test-Path -LiteralPath ($merged+'.other')) $false '损坏卷不发布目标'
         }
         $hostPath=(Get-Process -Id $PID).Path
-        Invoke-JobsNative $hostPath @('-NoLogo','-NoProfile','-Command','[Console]::Error.WriteLine("fixture stderr"); exit 0')
+        # 以编码源码保留引号，避免 5.1 的传统原生参数规则破坏此 PowerShell 夹具。
+        $stderrProbe=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('[Console]::Error.WriteLine("fixture stderr"); exit 0'))
+        Invoke-JobsNative $hostPath @('-NoLogo','-NoProfile','-EncodedCommand',$stderrProbe)
         Assert-Throws {Invoke-JobsNative $hostPath @('-NoLogo','-NoProfile','-Command','exit 7')} '原生命令非零失败'
         Assert-Throws {Invoke-JobsNative 'jobs-regression-command-does-not-exist' @()} '缺命令失败'
     }
     if(!$SkipEntrypoints){
         $hostPath=(Get-Process -Id $PID).Path
         foreach($entry in Get-ChildItem -LiteralPath $root -File -Filter '【WindowsOS】*.ps1'){
-            & $hostPath -NoLogo -NoProfile -File $entry.FullName -Check|Out-Null
+            & $hostPath -NoLogo -NoProfile -ExecutionPolicy Bypass -File $entry.FullName -Check|Out-Null
             Assert-Equal $LASTEXITCODE 0 ('只读入口 '+$entry.Name)
         }
     }

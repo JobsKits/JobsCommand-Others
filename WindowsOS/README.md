@@ -44,6 +44,8 @@
 
 `JobsTools.ps1`只定义公共与业务函数；各脚本入口按自身路径加载，不能单独拷贝一个入口后遗漏模块。状态/备份分别保存在当前用户的本地应用数据目录 `JobsCommandOthers` 或 `JobsSh`；每次运行的状态日志保存于系统临时目录中的独立 `Jobs-*.log` 或 `JobsSh-*.log`，自述确认后显示真实位置。下载前显示来源与目标，URL凭据/查询参数脱敏。
 
+CMD 转发关闭继承的延迟展开，保留路径和参数中的 `!`，并为本次 PowerShell 进程指定 `-ExecutionPolicy Bypass`；不持久修改策略，企业组策略仍优先。
+
 递归文件工具默认排除 `.git`、`node_modules`、`Pods`、`.dart_tool`、`build`、`DerivedData`与链接。服务仅绑定回环地址；[**Docker**](https://docs.docker.com/)只操作专属标签容器，不卸载其它软件或清理其它数据。命令失败返回非零，备份保留供检查恢复。
 
 ## <span id="jobs-toc-heading-3" data-jobs-toc="v2">二、入口与流程 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
