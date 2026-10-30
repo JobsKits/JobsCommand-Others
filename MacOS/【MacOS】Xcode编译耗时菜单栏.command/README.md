@@ -26,6 +26,8 @@
 - 使用 Scheme Pre/Post Action 的 Hook 精确记录构建开始和结束；未配置 Hook 时读取 DerivedData 的 `.xcactivitylog`，同时根据构建进程提供推断状态。
 - 菜单栏与可拖拽悬浮窗显示实时耗时、工程、Scheme、配置、SDK 与设备；查看最近构建、慢任务及 Swift 编译信息。
 - 在当前用户 `.xcode-build-timer` 工作目录生成 Swift、App Bundle、Hook、状态与历史记录；按当前 arm64 或 x86_64 编译，部署目标 [**macOS**](https://www.apple.com/macos/) 13.0。
+- App 内携带 `Contents/Resources/xbt-build-hook.sh`，可单独复制分享；在界面配置 Scheme 时，目标用户缺少 Hook 才从包内复制到自己的工作目录。已识别的可执行 Jobs Hook 保留，未知文件、目录和符号链接拒绝使用且不覆盖；缺资源时显示具体路径。只启动 App 不写 Scheme 或部署 Hook。
+- 生成的 Scheme Hook 命令保留双引号引用的 `${HOME}`，由实际构建用户在运行时解析，不写入配置者的用户名或主目录；每台机器先准备自己的 Hook，已有 Scheme 不会被批量改写。
 
 ## <span id="jobs-toc-heading-3" data-jobs-toc="v2">二、运行与结果 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 

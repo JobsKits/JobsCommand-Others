@@ -46,6 +46,60 @@ try{
             $script:answers.Enqueue((Join-Path $linked 'keep.txt'));Assert-Throws {Get-JobsPath '路径'} '拒绝链接上层的已有文件'
             $script:answers.Enqueue((Join-Path $linked 'new.txt'));Assert-Throws {Get-JobsPath '路径' -AllowNew} '拒绝链接上层的新目标'
         }
+        & {
+            $replaceRoot=Join-Path $fixture 'replace tree';[void][IO.Directory]::CreateDirectory($replaceRoot)
+            $replaceFile=Join-Path $replaceRoot '中文 [text].txt';Write-JobsUtf8 $replaceFile 'old $value [literal]' $true
+            $untouched=Join-Path $replaceRoot 'other.txt';Write-JobsUtf8 $untouched 'keep' $false
+            foreach($answer in @($replaceRoot,'old $value','new $value','YES')){$script:answers.Enqueue($answer)}
+            Invoke-JobsReplace
+            Assert-Equal (Read-JobsUtf8 $replaceFile).Text 'new $value [literal]' '目录替换按字面量处理特殊字符'
+            Assert-Equal (Read-JobsUtf8 $replaceFile).Bom $true '目录替换保留 BOM'
+            Assert-Equal (Read-JobsUtf8 $untouched).Text 'keep' '未命中文件保持'
+            foreach($answer in @($replaceFile,'new $value','old $value','YES')){$script:answers.Enqueue($answer)}
+            Invoke-JobsReplace
+            Assert-Equal (Read-JobsUtf8 $replaceFile).Text 'old $value [literal]' '单文件替换仍可用'
+            $linkKind='SymbolicLink';if([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT){$linkKind='Junction'}
+            $replaceLink=Join-Path $fixture 'replace link'
+            try{
+                New-Item -ItemType $linkKind -Path $replaceLink -Target $replaceRoot|Out-Null
+                foreach($path in @($replaceLink,(Join-Path $replaceLink '中文 [text].txt'))){
+                    $script:answers.Enqueue($path)
+                    Assert-Throws {Invoke-JobsReplace} '替换入口拒绝链接目录与链接祖先的文件'
+                }
+                Assert-Equal (Read-JobsUtf8 $replaceFile).Text 'old $value [literal]' '链接拒绝后源文件保持'
+                Assert-Equal $script:answers.Count 0 '链接拒绝在读取替换文本与确认之前'
+            }finally{if(Test-Path -LiteralPath $replaceLink){[IO.Directory]::Delete($replaceLink)}}
+            $swapTarget=Join-Path $fixture 'swap target';[void][IO.Directory]::CreateDirectory($swapTarget)
+            $swapFile=Join-Path $swapTarget '中文 [text].txt';Write-JobsUtf8 $swapFile 'old $value [literal]' $true
+            $moved=Join-Path $fixture 'replace moved'
+            function Confirm-JobsChange([string]$Message){
+                [IO.Directory]::Move($replaceRoot,$moved)
+                New-Item -ItemType $linkKind -Path $replaceRoot -Target $swapTarget|Out-Null
+            }
+            try{
+                foreach($answer in @($replaceFile,'old $value','must not write')){$script:answers.Enqueue($answer)}
+                Assert-Throws {Invoke-JobsReplace} '确认期间目录变为链接时停止'
+                Assert-Equal (Read-JobsUtf8 $swapFile).Text 'old $value [literal]' '确认期间链接替换不写入新目标'
+                Assert-Equal (Read-JobsUtf8 (Join-Path $moved '中文 [text].txt')).Text 'old $value [literal]' '确认期间保留原目录内容'
+                Assert-Equal (@(Get-ChildItem -LiteralPath $swapTarget -File).Count) 1 '链接拒绝不在替代目标创建备份'
+            }finally{if(Test-Path -LiteralPath $replaceRoot){[IO.Directory]::Delete($replaceRoot)}}
+        }
+        & {
+            $literal=Join-Path $fixture 'literal %TEMP% [path].txt';Write-JobsUtf8 $literal 'keep'
+            $script:answers.Enqueue($literal)
+            Assert-Equal (Get-JobsPath '夹具') $literal '已有路径中的环境变量字面量保持'
+            $newLiteral=Join-Path $fixture 'new %TEMP% [path].txt';$script:answers.Enqueue($newLiteral)
+            Assert-Equal (Get-JobsPath '夹具' -AllowNew) $newLiteral '新目标路径中的环境变量字面量保持'
+            $savedPathRoot=[Environment]::GetEnvironmentVariable('JOBS_REGRESSION_PATH_ROOT','Process')
+            try{
+                [Environment]::SetEnvironmentVariable('JOBS_REGRESSION_PATH_ROOT',$fixture,'Process')
+                $script:answers.Enqueue('%JOBS_REGRESSION_PATH_ROOT%'+[IO.Path]::DirectorySeparatorChar+'literal %TEMP% [path].txt')
+                Assert-Equal (Get-JobsPath '夹具') $literal '显式环境变量根仅展开首段'
+                [Environment]::SetEnvironmentVariable('JOBS_REGRESSION_PATH_ROOT',$null,'Process')
+                $script:answers.Enqueue('%JOBS_REGRESSION_PATH_ROOT%'+[IO.Path]::DirectorySeparatorChar+'missing.txt')
+                Assert-Throws {Get-JobsPath '夹具' -AllowNew} '未设置环境变量根停止'
+            }finally{[Environment]::SetEnvironmentVariable('JOBS_REGRESSION_PATH_ROOT',$savedPathRoot,'Process')}
+        }
         $source=Join-Path $fixture 'binary source.bin';$bytes=New-Object byte[] (2*1024*1024+7)
         for($i=0;$i -lt $bytes.Length;$i++){$bytes[$i]=[byte]($i%251)}
         [IO.File]::WriteAllBytes($source,$bytes)

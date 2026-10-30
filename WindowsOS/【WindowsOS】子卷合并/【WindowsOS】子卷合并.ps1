@@ -1,9 +1,11 @@
 ﻿#requires -Version 5.1
-# 子卷合并：对应 Windows 原生 / Docker 适配入口。确认前不执行业务；-Check 只加载检查。
-param([switch]$Check)
+# 数字卷号完整组还原；-LegacyManifest 保留旧清单/gzip；确认前不写业务。
+param([switch]$Check, [string]$Path, [switch]$LegacyManifest)
 try {
     . (Join-Path (Split-Path -Parent $PSScriptRoot) 'Common/JobsTools.ps1')
-    Invoke-JobsTool -Tool 'MergeFile' -Check:$Check
+    . (Join-Path (Split-Path -Parent $PSScriptRoot) 'Common/FileVolumes.ps1')
+    . (Join-Path (Split-Path -Parent $PSScriptRoot) 'Common/FileVolumeWorkflow.ps1')
+    Invoke-JobsPortableVolumeTool -Tool 'MergeFile' -Check:$Check -Path $Path -LegacyManifest:$LegacyManifest -DefaultRoot $PSScriptRoot
     exit 0
 } catch {
     Write-Host ('✖ ' + $_.Exception.Message) -ForegroundColor Red

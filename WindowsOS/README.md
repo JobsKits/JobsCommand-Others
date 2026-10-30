@@ -135,14 +135,14 @@ WindowsOS/
 
 > **目的：** 原文件压缩分卷。
 
-- 选择源文件、新输出目录及每卷MiB，可选gzip后分卷；确认后用流处理并生成 JobsSplit-1 清单，记录原文件/每卷SHA-256。源文件保留，输出目录必须不存在。
+- 默认生成与 macOS 融合版互通的 `完整原文件名@序号of总数` 原始分卷；支持源文件或目录输入，目录在 fzf 中单选文件，50 / 100 / 1900 MiB 或自定义小数上限。均衡分卷、SHA-256 与大小复核后无覆盖发布 `完整文件名.chunks`；源文件始终保留。`-Path` 指定文件 / 目录，`-LimitMiB` 指定上限；旧 `JobsSplit-1` 清单及可选 gzip 通过 `-LegacyManifest` 使用。
 - [功能说明](<./【WindowsOS】源文件压缩分卷/README.md>)；[PowerShell入口](<./【WindowsOS】源文件压缩分卷/【WindowsOS】源文件压缩分卷.ps1>)；只读检查：`& .\【WindowsOS】源文件压缩分卷\【WindowsOS】源文件压缩分卷.ps1 -Check`。
 
 ### <span id="jobs-toc-heading-14" data-jobs-toc="v2">[【WindowsOS】子卷合并.cmd](<./【WindowsOS】子卷合并/【WindowsOS】子卷合并.cmd>)</span><!-- jobs-toc:heading-end -->
 
 > **目的：** 分卷重建。
 
-- 选择 Windows JobsSplit-1 manifest.json 与新目标文件；先核对卷名和所有SHA-256，再确认重建，支持gzip解压并核对原文件SHA-256。拒绝覆盖已有目标；MacOS旧卷格式需原工具或7-Zip，不能直接混用。
+- 默认识别当前目录和一级子目录中的原始分卷组，fzf 单选一组；检查缺卷、重复卷号、总数及空卷，按数字顺序合并，与 macOS 融合版互通。直接输入分卷目录时输出到其父目录，从父目录选择组时输出到所输入目录；拒绝覆盖、始终保留分卷。`-LegacyManifest` 保留旧 `JobsSplit-1` 清单重建和 gzip 解压。
 - [功能说明](<./【WindowsOS】子卷合并/README.md>)；[PowerShell入口](<./【WindowsOS】子卷合并/【WindowsOS】子卷合并.ps1>)；只读检查：`& .\【WindowsOS】子卷合并\【WindowsOS】子卷合并.ps1 -Check`。
 
 ### <span id="jobs-toc-heading-15" data-jobs-toc="v2">[【WindowsOS】MD5.cmd](<./【WindowsOS】MD5/【WindowsOS】MD5.cmd>)</span><!-- jobs-toc:heading-end -->
@@ -191,7 +191,7 @@ WindowsOS/
 
 MacOS原入口22个，Windows提供17个入口。Xcode编译耗时、iOS Fastfile、Gatekeeper损坏修复、POSIX执行权限切换与运行授权共5项只保留MacOS；Windows无法等价运行其Apple工具或权限语义。Homebrew管理对应winget；计划任务对应当前用户Windows任务计划程序，未提供SwiftUI桌面界面；Stirling使用官方容器运行服务，未复刻源码开发服务器。键盘记录器采用可见WinForms会话并只记按键名/时间，与MacOS可见字符文本格式不同；Windows键盘钩子、锁屏停止和实际桌面交互须实机验收。
 
-[`KeyboardRecorder.cs`](<./【WindowsOS】JobsKeyboardRecorder/KeyboardRecorder.cs>) 为同进程可见记录窗口，随入口运行编译到内存；[`MockServer.ps1`](<./【WindowsOS】Mock服务/MockServer.ps1>) 为后台只读JSON服务内部实现，不直接作为用户双击入口。分卷采用Windows原生JobsSplit-1格式，保留压缩、拆分、校验、重建能力，不能冒充MacOS历史卷集格式相同。
+[`KeyboardRecorder.cs`](<./【WindowsOS】JobsKeyboardRecorder/KeyboardRecorder.cs>) 为同进程可见记录窗口，随入口运行编译到内存；[`MockServer.ps1`](<./【WindowsOS】Mock服务/MockServer.ps1>) 为后台只读JSON服务内部实现，不直接作为用户双击入口。分卷默认采用与 macOS 互通的原始卷格式；旧 Windows `JobsSplit-1` 清单与 gzip 仍由 `-LegacyManifest` 模式承接，不能把压缩载荷直接当作原始卷拼接。
 
 来源：[Caddy CLI](https://caddyserver.com/docs/command-line)、[Stirling Docker安装](https://docs.stirlingpdf.com/Server/Install/Docker/)、[Windows任务注册](https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/register-scheduledtask)。
 

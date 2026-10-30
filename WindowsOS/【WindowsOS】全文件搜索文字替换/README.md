@@ -25,7 +25,7 @@
 
 > **目的：** 文件树文本替换。
 
-- 输入文件或目录、查找与替换文字；递归跳过依赖、Git与构建目录及链接。仅严格UTF-8文本，先展示全部命中，YES后逐文件保留独立备份，复核SHA-256未并发改变再字面量替换，保留BOM。
+- 输入文件或目录、查找与替换文字；递归跳过依赖、Git与构建目录及链接。输入目标及全部祖先不能是符号链接或目录联接；确认后写入前再次检查，路径被替换时停止。仅严格UTF-8文本，先展示全部命中，YES后逐文件保留独立备份，复核SHA-256未并发改变再字面量替换，保留BOM。
 
 ## <span id="jobs-toc-heading-3" data-jobs-toc="v2">二、运行方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 

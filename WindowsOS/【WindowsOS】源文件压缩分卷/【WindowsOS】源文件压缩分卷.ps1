@@ -1,9 +1,11 @@
 ﻿#requires -Version 5.1
-# 源文件压缩分卷：对应 Windows 原生 / Docker 适配入口。确认前不执行业务；-Check 只加载检查。
-param([switch]$Check)
+# 原始分卷与旧 JobsSplit-1/gzip：确认后执行业务；-Check 只读，原件保留。
+param([switch]$Check, [string]$Path, [Nullable[decimal]]$LimitMiB, [switch]$LegacyManifest)
 try {
     . (Join-Path (Split-Path -Parent $PSScriptRoot) 'Common/JobsTools.ps1')
-    Invoke-JobsTool -Tool 'SplitFile' -Check:$Check
+    . (Join-Path (Split-Path -Parent $PSScriptRoot) 'Common/FileVolumes.ps1')
+    . (Join-Path (Split-Path -Parent $PSScriptRoot) 'Common/FileVolumeWorkflow.ps1')
+    Invoke-JobsPortableVolumeTool -Tool 'SplitFile' -Check:$Check -Path $Path -LimitMiB $LimitMiB -LegacyManifest:$LegacyManifest -DefaultRoot $PSScriptRoot
     exit 0
 } catch {
     Write-Host ('✖ ' + $_.Exception.Message) -ForegroundColor Red

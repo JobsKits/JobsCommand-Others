@@ -15,66 +15,47 @@
   - [3.3、合并子卷文件](#jobs-toc-heading-6)
   - [3.4、计算文件 MD5](#jobs-toc-heading-7)
 - [四、【MacOS】✂️源文件压缩拆分➤子卷.command 详细说明](#jobs-toc-heading-8)
-  - [4.1、流程简述](#jobs-toc-heading-9)
-  - [4.2、脚本定位](#jobs-toc-heading-10)
-  - [4.3、环境自检](#jobs-toc-heading-11)
-  - [4.4、Homebrew 自检逻辑](#jobs-toc-heading-12)
-  - [4.5、fzf 自检逻辑](#jobs-toc-heading-13)
-  - [4.6、拆分标准](#jobs-toc-heading-14)
-  - [4.7、目标目录选择](#jobs-toc-heading-15)
-  - [4.8、扫描规则](#jobs-toc-heading-16)
-  - [4.9、子卷目录命名规则](#jobs-toc-heading-17)
-  - [4.10、子卷文件命名规则](#jobs-toc-heading-18)
-  - [4.11、实际拆分方式](#jobs-toc-heading-19)
-  - [4.12、拆分成功后是否删除源文件](#jobs-toc-heading-20)
-  - [4.13、注意事项](#jobs-toc-heading-21)
-- [五、【MacOS】🧩子卷➤合而为一源文件.command 详细说明](#jobs-toc-heading-22)
-  - [5.1、流程简述](#jobs-toc-heading-23)
-  - [5.2、脚本定位](#jobs-toc-heading-24)
-  - [5.3、环境自检](#jobs-toc-heading-25)
-  - [5.4、目标目录选择](#jobs-toc-heading-26)
-  - [5.5、子卷目录识别规则](#jobs-toc-heading-27)
-  - [5.6、子卷目录选择](#jobs-toc-heading-28)
-  - [5.7、合并规则](#jobs-toc-heading-29)
-  - [5.8、源文件名推断规则](#jobs-toc-heading-30)
-  - [5.9、总卷数校验](#jobs-toc-heading-31)
-  - [5.10、目标文件已存在时的处理](#jobs-toc-heading-32)
-  - [5.11、合并成功后是否删除子卷目录](#jobs-toc-heading-33)
-  - [5.12、注意事项](#jobs-toc-heading-34)
-- [六、【MacOS】🧬MD5.command 详细说明](#jobs-toc-heading-35)
-  - [6.1、流程简述](#jobs-toc-heading-36)
-  - [6.2、脚本定位](#jobs-toc-heading-37)
-  - [6.3、MD5 工具检测](#jobs-toc-heading-38)
-  - [6.4、输入规则](#jobs-toc-heading-39)
-  - [6.5、空输入行为](#jobs-toc-heading-40)
-  - [6.6、推荐校验方式](#jobs-toc-heading-41)
-- [七、文件命名与目录结构建议](#jobs-toc-heading-42)
-  - [7.1、推荐目录结构](#jobs-toc-heading-43)
-  - [7.2、不推荐的文件名](#jobs-toc-heading-44)
-  - [7.3、不推荐的目录结构](#jobs-toc-heading-45)
-- [八、日志文件](#jobs-toc-heading-46)
-- [九、常见使用场景](#jobs-toc-heading-47)
-  - [场景 1：大文件准备放进 GitHub 普通仓库](#jobs-toc-heading-48)
-  - [场景 2：大文件准备走 GitHub Releases](#jobs-toc-heading-49)
-  - [场景 3：没有安装 fzf](#jobs-toc-heading-50)
-  - [场景 4：只想计算 MD5](#jobs-toc-heading-51)
-- [十、失败排查顺序](#jobs-toc-heading-52)
-  - [10.1、拆分脚本失败](#jobs-toc-heading-53)
-  - [10.2、合并脚本失败](#jobs-toc-heading-54)
-  - [10.3、MD5 脚本失败](#jobs-toc-heading-55)
-- [十一、FAQ](#jobs-toc-heading-56)
-  - [11.1、这个拆分脚本真的会压缩文件吗？](#jobs-toc-heading-57)
-  - [11.2、为什么默认是 50 MB？](#jobs-toc-heading-58)
-  - [11.3、为什么 2GB 选项实际是 1900 MiB？](#jobs-toc-heading-59)
-  - [11.4、为什么拆分后的子卷不是每个都刚好等于我选择的大小？](#jobs-toc-heading-60)
-  - [11.5、为什么合并脚本要求文件名里有 @？](#jobs-toc-heading-61)
-  - [11.6、源文件名能不能包含 @？](#jobs-toc-heading-62)
-  - [11.7、为什么合并脚本没有自动验证 MD5？](#jobs-toc-heading-63)
-  - [11.8、为什么 MD5 脚本直接按 Enter 不退出？](#jobs-toc-heading-64)
-  - [11.9、为什么合并时提示目标文件已存在？](#jobs-toc-heading-65)
-  - [11.10、为什么拆分成功后不建议立刻删除源文件？](#jobs-toc-heading-66)
-- [十二、设计原则](#jobs-toc-heading-67)
-- [十三、外部链接](#jobs-toc-heading-68)
+  - [4.1、输入、选择与输出](#jobs-toc-heading-9)
+  - [4.2、命名与分卷大小](#jobs-toc-heading-10)
+  - [4.3、校验、发布与取消](#jobs-toc-heading-11)
+- [五、【MacOS】🧩子卷➤合而为一源文件.command 详细说明](#jobs-toc-heading-12)
+  - [5.1、扫描与输出位置](#jobs-toc-heading-13)
+  - [5.2、完整性与无覆盖发布](#jobs-toc-heading-14)
+  - [5.3、精确删除边界](#jobs-toc-heading-15)
+- [六、【MacOS】🧬MD5.command 详细说明](#jobs-toc-heading-16)
+  - [6.1、流程简述](#jobs-toc-heading-17)
+  - [6.2、脚本定位](#jobs-toc-heading-18)
+  - [6.3、MD5 工具检测](#jobs-toc-heading-19)
+  - [6.4、输入规则](#jobs-toc-heading-20)
+  - [6.5、空输入行为](#jobs-toc-heading-21)
+  - [6.6、推荐校验方式](#jobs-toc-heading-22)
+- [七、文件命名与目录结构建议](#jobs-toc-heading-23)
+  - [7.1、推荐目录结构](#jobs-toc-heading-24)
+  - [7.2、文件名与卷号后缀](#jobs-toc-heading-25)
+  - [7.3、不推荐的目录结构](#jobs-toc-heading-26)
+- [八、日志文件](#jobs-toc-heading-27)
+- [九、常见使用场景](#jobs-toc-heading-28)
+  - [场景 1：大文件准备放进 GitHub 普通仓库](#jobs-toc-heading-29)
+  - [场景 2：大文件准备走 GitHub Releases](#jobs-toc-heading-30)
+  - [场景 3：没有安装 fzf](#jobs-toc-heading-31)
+  - [场景 4：只想计算 MD5](#jobs-toc-heading-32)
+- [十、失败排查顺序](#jobs-toc-heading-33)
+  - [10.1、拆分脚本失败](#jobs-toc-heading-34)
+  - [10.2、合并脚本失败](#jobs-toc-heading-35)
+  - [10.3、MD5 脚本失败](#jobs-toc-heading-36)
+- [十一、FAQ](#jobs-toc-heading-37)
+  - [11.1、这个拆分脚本真的会压缩文件吗？](#jobs-toc-heading-38)
+  - [11.2、为什么默认是 50 MiB？](#jobs-toc-heading-39)
+  - [11.3、为什么大分卷标准使用 1900 MiB？](#jobs-toc-heading-40)
+  - [11.4、为什么拆分后的子卷不是每个都刚好等于我选择的大小？](#jobs-toc-heading-41)
+  - [11.5、为什么合并脚本要求文件名里有 @？](#jobs-toc-heading-42)
+  - [11.6、源文件名能不能包含 @？](#jobs-toc-heading-43)
+  - [11.7、自动校验与 MD5 工具各负责什么？](#jobs-toc-heading-44)
+  - [11.8、为什么 MD5 脚本直接按 Enter 不退出？](#jobs-toc-heading-45)
+  - [11.9、为什么合并时提示目标文件已存在？](#jobs-toc-heading-46)
+  - [11.10、为什么拆分成功后不建议立刻删除源文件？](#jobs-toc-heading-47)
+- [十二、设计原则](#jobs-toc-heading-48)
+- [十三、外部链接](#jobs-toc-heading-49)
 
 </details>
 <!-- jobs-toc:end -->
@@ -96,7 +77,7 @@
   | [MD5 工具包](<../../Release/【MacOS】🧬MD5.command/README.md>) | `../../Release/【MacOS】🧬MD5.command/`，包含主脚本与配套说明。 |
   | [libiPhone-lib 分卷样本](../../Release/libiPhone-lib/) | `../../Release/libiPhone-lib/`，包含 `libiPhone-lib.a@001of004` 至 `libiPhone-lib.a@004of004` 四个二进制分卷。 |
 
-- 合并该样本时，目标目录选择 `../../Release/`，脚本扫描其一级子目录 `libiPhone-lib/`，输出为 `../../Release/libiPhone-lib.a`；合并后在删除提示处直接回车，保留测试分卷。样本不含 Windows `JobsSplit-1` 的 `manifest.json`，不能直接交给 Windows 子卷合并入口。
+- 合并该样本时，目标目录选择 `../../Release/`，脚本扫描其一级子目录 `libiPhone-lib/`，输出为 `../../Release/libiPhone-lib.a`；合并后在删除提示处直接回车，保留测试分卷。样本不含 Windows `JobsSplit-1` 的 `manifest.json`，应交给 Windows 子卷合并入口的默认原始卷模式，不使用 `-LegacyManifest`。
 
 - 这三个脚本是一组本地文件处理工具，主要用于：
 
@@ -108,11 +89,13 @@
 
 - 如果你确实想“先压缩、再拆分”，建议先手动生成 `.zip`、`.tar.gz` 或其他压缩包，再把压缩包交给拆分脚本处理。
 
-- 拆分脚本默认使用 `50 MB` 作为保守拆分标准，也可以选择 `100 MiB`、GitHub Releases 安全标准或自定义 MB 数值。
+- 拆分脚本默认使用 `50 MiB` 作为保守拆分标准，也可以选择 `100 MiB`、GitHub Releases 安全标准或自定义 MiB 数值。
 
 - 合并脚本依赖拆分脚本生成的命名规则。不要手动改动子卷文件名，否则合并脚本可能无法正确识别顺序和源文件名。
 
-- 有交互选择需求时，脚本会使用 [**fzf**](https://github.com/junegunn/fzf)；环境准备依赖 [**Homebrew**](https://brew.sh/)。
+- 拆分、合并使用 [**fzf**](https://github.com/junegunn/fzf) 与 macOS 系统命令；只检查工具，不安装、升级或修改 Shell 配置。拆分目录以系统 JXA 调用排他重命名发布，不需要 Python、Node.js 或编译器。
+
+- 两套命名入口与 `WindowsOS_11/split.command`、`merge.command` 分别保持相同源码，均可单文件独立运行；标题和日志按自身文件名生成。
 
 - 流程图可以复制到 [**ProcessOn**](https://www.processon.com/) 或支持 Mermaid 的 Markdown 工具中查看。
 
@@ -122,8 +105,8 @@
 
 | 脚本 | 作用 | 是否需要 Homebrew | 是否需要 fzf | 主要输出 |
 |---|---|---|---|---|
-| `【MacOS】✂️源文件压缩拆分➤子卷.command` | 扫描目标目录中的大文件，并拆分为多个子卷 | 可选自检安装 | 可选，用于选择拆分标准 | 子卷目录 |
-| `【MacOS】🧩子卷➤合而为一源文件.command` | 扫描子卷目录，并合并为源文件 | 可选自检安装 | 多个子卷目录时建议安装 | 合并后的源文件 |
+| `【MacOS】✂️源文件压缩拆分➤子卷.command` | 单文件或目录勾选拆分 | 不需要 | 必需，用于上限及目录多选 | 经 SHA-256 验证的新子卷目录 |
+| `【MacOS】🧩子卷➤合而为一源文件.command` | 平铺、分卷目录或父目录按组还原 | 不需要 | 必需，用于明确勾选分卷组 | 经流摘要验证的完整文件 |
 | `【MacOS】🧬MD5.command` | 计算文件 MD5 | 不需要 | 不需要 | MD5 字符串 |
 
 ---
@@ -144,47 +127,27 @@ chmod +x '../../Release/【MacOS】🧬MD5.command/【MacOS】🧬MD5.command'
 
 ### <span id="jobs-toc-heading-5" data-jobs-toc="v2">3.2、拆分大文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-运行：
+运行后先阅读内置自述并回车，拖入单个文件或目录；也可直接传入一个位置参数：
 
 ```shell
-./'【MacOS】✂️源文件压缩拆分➤子卷.command/【MacOS】✂️源文件压缩拆分➤子卷.command'
+/bin/zsh './【MacOS】✂️源文件压缩拆分➤子卷.command/【MacOS】✂️源文件压缩拆分➤子卷.command' \
+  '/待拆分/大文件.iso'
 ```
 
-正常流程：
-
-- 展示脚本说明。
-- 询问是否进行环境自检。
-- 选择拆分标准。
-- 选择目标目录。
-- 扫描目标目录一级文件。
-- 找出超过拆分标准的大文件。
-- 为每个大文件创建子卷目录。
-- 使用 `split` 按体积拆分。
-- 重命名子卷文件。
-- 拆分成功后询问是否删除源文件。
+随后以 fzf 选择 50 MiB、100 MiB、1900 MiB 或自定义 MiB。单文件模式只处理指定文件；目录模式只扫描本层符合条件的文件，并明确勾选。大小及 SHA-256 验证通过后发布新目录；已有目标拒绝覆盖，回车保留源文件。
 
 ---
 
 ### <span id="jobs-toc-heading-6" data-jobs-toc="v2">3.3、合并子卷文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-运行：
+拖入父目录扫描本层和一级子目录，也可直接拖入分卷目录：
 
 ```shell
-./'【MacOS】🧩子卷➤合而为一源文件.command/【MacOS】🧩子卷➤合而为一源文件.command'
+/bin/zsh './【MacOS】🧩子卷➤合而为一源文件.command/【MacOS】🧩子卷➤合而为一源文件.command' \
+  '/工作目录/大文件'
 ```
 
-正常流程：
-
-- 展示脚本说明。
-- 询问是否进行环境自检。
-- 选择目标目录。
-- 扫描目标目录下的一级子目录。
-- 找出包含 `@` 子卷标记的目录。
-- 如果只有一个子卷目录，自动处理。
-- 如果有多个子卷目录，通过 `fzf` 选择要合并的目录。
-- 按文件名顺序合并子卷。
-- 输出合并后的源文件到目标目录。
-- 合并成功后询问是否删除子卷目录。
+显式指定的目录本层有分卷时，本层组还原到其父目录；扫描父目录时，子目录组还原到所选父目录。直接回车默认扫描脚本目录，本层平铺分卷输出到该默认目录。fzf 始终要求明确勾选组；检查连续卷号后按数字排序合并，经大小、SHA-256 和输入状态校验再无覆盖发布。默认保留分卷，仅精确输入 `YES` 才删除本组清单，目录仍有其它内容时保留。
 
 ---
 
@@ -214,637 +177,85 @@ Ctrl+C
 
 ## <span id="jobs-toc-heading-8" data-jobs-toc="v2">四、`【MacOS】✂️源文件压缩拆分➤子卷.command` 详细说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### <span id="jobs-toc-heading-9" data-jobs-toc="v2">4.1、流程简述 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-9" data-jobs-toc="v2">4.1、输入、选择与输出 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+- 支持拖入单个普通文件或目录，或通过一个位置参数传入；不接受多个路径。路径可包含空格、中文、引号、`@` 等字符；安全去引用，不执行输入中的命令。
+- 空输入使用脚本目录。目录模式仅扫描当前层，排除隐藏项和已有分卷，且只处理大于所选上限的文件；单文件模式只处理明确指定的文件，符号链接拒绝处理。
+- fzf 上限单选：回车确认、Esc 取消；自定义使用 MiB，允许小数，换算后至少一个字节。目录文件多选：回车勾选 / 取消、空格确认、Ctrl+A 全选、Ctrl+D 清空、`←` 返回上限、Esc 取消。空选不处理高亮项。
+- 文件未超过上限时可返回调低上限；上层标准变更后重新计算待选文件。单文件无需再次勾选文件。
+
+| 源文件 | 新分卷目录 |
+| --- | --- |
+| `image.iso` | `image/` |
+| `archive.tar.gz` | `archive.tar/` |
+| `README` | `README.parts/` |
+
+### <span id="jobs-toc-heading-10" data-jobs-toc="v2">4.2、命名与分卷大小 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+完整原文件名保留，卷名为 `文件名@序号of总数`。新生成的序号和总数按实际总卷数位宽补零；已有 `001of004` 等更宽编号同样可合并。不是压缩归档，不改变文件内容。
+
+设文件大小为 `S`、上限为 `L`，计划卷数为 `ceil(S/L)`，实际主卷大小为 `ceil(S/计划卷数)`；每卷大于零且不超过上限，尾卷不刻意补齐。50 MiB 是 `50 × 1024 × 1024` 字节。
+
+### <span id="jobs-toc-heading-11" data-jobs-toc="v2">4.3、校验、发布与取消 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```mermaid
-graph TD
-    A([开始]) --> B[展示脚本说明]
-    B --> C{是否进行环境自检？}
-    C -->|是| D[安装或更新 Homebrew]
-    D --> E[安装或更新 fzf]
-    E --> F[选择拆分标准]
-    C -->|否| F
-    F --> G[选择目标目录]
-    G --> H[扫描目标目录一级文件]
-    H --> I{是否存在超过阈值的大文件？}
-    I -->|否| Z([结束])
-    I -->|是| J[列出待拆分文件]
-    J --> K[按顺序处理大文件]
-    K --> L[创建子卷目录]
-    L --> M[按体积拆分为子卷文件]
-    M --> N{是否拆分成功？}
-    N -->|否| O[保留源文件并处理下一个]
-    N -->|是| P[重命名子卷文件]
-    P --> Q[询问是否删除源文件]
-    Q --> R{是否还有待处理文件？}
-    O --> R
-    R -->|是| K
-    R -->|否| Z
+flowchart TD
+    A[自述回车与工具检查] --> B[选择文件或目录和上限]
+    B --> C[仅处理明确指定或勾选文件]
+    C --> D[同父目录独占暂存区拆分]
+    D --> E{大小与 SHA-256 一致}
+    E -->|通过| F[排他重命名发布完整目录]
+    E -->|失败或中断| G[保留源文件及暂存区]
+    F --> H{精确 YES}
+    H -->|是且源身份摘要未变| I[删除该源文件]
+    H -->|回车其它输入或 EOF| J[保留源文件]
 ```
+
+拆分前源摘要、分卷流摘要及拆分后源摘要必须一致，发布后再次校验完整分卷清单。目标已存在（包括目录或符号链接）直接报错；系统或文件系统不支持排他发布时安全停止，不回退为覆盖或嵌套移动。失败、中断保留候选并显示路径，源文件不因失败而删除。
 
 ---
 
-### <span id="jobs-toc-heading-10" data-jobs-toc="v2">4.2、脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-12" data-jobs-toc="v2">五、`【MacOS】🧩子卷➤合而为一源文件.command` 详细说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-`【MacOS】✂️源文件压缩拆分➤子卷.command` 用于把目标目录中的大文件拆成多个较小的子卷文件。
+### <span id="jobs-toc-heading-13" data-jobs-toc="v2">5.1、扫描与输出位置 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-它适合这些场景：
+| 输入方式 | 扫描范围 | 输出位置 |
+| --- | --- | --- |
+| 回车使用脚本目录 | 本层及一级子目录 | 脚本目录 |
+| 显式父目录，本层没有分卷 | 一级子目录 | 所选父目录 |
+| 显式分卷目录，本层含合法格式分卷 | 本层及一级子目录 | 本层组到父目录，子目录组到所选目录 |
 
-- 文件太大，不适合直接提交到 GitHub 普通仓库。
-- 文件太大，不方便通过聊天工具、网盘、邮件等渠道传输。
-- 想把一个大文件拆成多个固定大小附近的小文件。
-- 需要和合并脚本配套使用，后续恢复成原始文件。
+同目录按完整原文件名分别分组，支持同层多组，不把它们互相拼接。`.partial` 不参与合并；扫描跳过缓存、第三方和隐藏子目录。fzf 使用回车勾选 / 取消、空格确认、Ctrl+A 全选、Ctrl+D 清空、Esc 取消，空选或取消不会默认全选。
 
-注意：当前实现不做压缩，只做拆分。
-
----
-
-### <span id="jobs-toc-heading-11" data-jobs-toc="v2">4.3、环境自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本启动后会询问是否进行环境自检：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 跳过环境自检，直接开始工作 |
-| 输入任意字符后回车 | 执行 Homebrew / fzf 自检、安装或升级 |
-
-环境自检包含：
-
-- 检查 [**Homebrew**](https://brew.sh/) 是否存在。
-- 不存在时，根据 CPU 架构安装 Homebrew。
-- 已存在时，询问是否更新 Homebrew。
-- 检查 [**fzf**](https://github.com/junegunn/fzf) 是否存在。
-- 不存在时，通过 Homebrew 安装 fzf。
-- 已存在时，询问是否升级 fzf。
-
----
-
-### <span id="jobs-toc-heading-12" data-jobs-toc="v2">4.4、Homebrew 自检逻辑 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本会先检查：
-
-```shell
-command -v brew
-```
-
-如果没有检测到 Homebrew，会根据 CPU 架构执行官方安装脚本：
-
-```shell
-$SYSTEM_BIN_DIR/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-安装路径按架构区分：
-
-| Mac 类型 | Homebrew 常见路径 |
-|---|---|
-| Apple Silicon | `$(brew --prefix)/bin/brew` |
-| Intel | `$(brew --prefix)/bin/brew` |
-
-安装完成后，脚本会向当前 Shell 的配置文件注入 `brew shellenv`：
-
-| Shell | 写入文件 |
-|---|---|
-| `zsh` | `~/.zprofile` |
-| `bash` | `~/.bash_profile` |
-| 其他 | `~/.profile` |
-
-写入内容类似：
-
-```shell
-eval "$($(brew --prefix)/bin/brew shellenv)"
-```
-
-或：
-
-```shell
-eval "$($(brew --prefix)/bin/brew shellenv)"
-```
-
-如果 Homebrew 已安装，脚本会询问是否更新：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 执行 `brew update`、`brew upgrade`、`brew cleanup`、`brew doctor`、`brew -v` |
-| 输入任意字符后回车 | 跳过 Homebrew 更新 |
-
-这个交互和很多脚本习惯相反：这里是 **回车更新，输入内容跳过**。
-
----
-
-### <span id="jobs-toc-heading-13" data-jobs-toc="v2">4.5、fzf 自检逻辑 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本会检查：
-
-```shell
-command -v fzf
-```
-
-如果没有检测到 fzf，会执行：
-
-```shell
-brew install fzf
-```
-
-如果 fzf 已安装，脚本会询问是否升级：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 执行 `brew upgrade fzf` 和 `brew cleanup` |
-| 输入任意字符后回车 | 跳过 fzf 升级 |
-
-fzf 的作用主要是提供更舒服的交互选择，例如选择拆分标准。
-
----
-
-### <span id="jobs-toc-heading-14" data-jobs-toc="v2">4.6、拆分标准 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本支持四种拆分标准：
-
-| 选项 | 实际大小 | 说明 |
-|---|---:|---|
-| `50MB` | `50 * 1024 * 1024` 字节 | 脚本默认保守标准 |
-| `100MiB` | `100 * 1024 * 1024` 字节 | GitHub 普通仓库阻止线附近 |
-| `2GB` | `1900 * 1024 * 1024` 字节 | GitHub Releases / LFS 场景下的安全上限 |
-| `CUSTOM` | 用户输入的 MB 数值 | 自定义拆分大小 |
-
-有 fzf 时，脚本会弹出选择列表：
-
-```text
-50MB    脚本当前标准（警告线，默认）
-100MiB  GitHub 仓库限制线标准
-2GB     GitHub Releases 标准
-CUSTOM  自定义标准（单位：MB）
-```
-
-没有 fzf 时，会回退为数字输入模式：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 使用 `50 MB` |
-| `1` | 使用 `100 MiB` |
-| `2` | 使用 GitHub Releases 安全标准，即 `1900 MiB` |
-| `3` | 输入自定义 MB 数值 |
-| 其他 | 回退为 `50 MB` |
-
----
-
-### <span id="jobs-toc-heading-15" data-jobs-toc="v2">4.7、目标目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本会要求拖入或输入目标目录：
-
-```text
-请拖入要处理的【目标目录】，然后回车。
-```
-
-交互规则：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 使用脚本所在目录 |
-| 拖入 / 输入目录路径 | 使用该目录作为目标目录 |
-| 输入无效路径 | 报错并退出 |
-| 输入文件路径 | 报错并退出 |
-
-脚本只扫描目标目录的一级文件，不递归扫描子目录。
-
----
-
-### <span id="jobs-toc-heading-16" data-jobs-toc="v2">4.8、扫描规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本会执行类似下面的扫描逻辑：
-
-```shell
-find "$TARGET_DIR" -maxdepth 1 -type f
-```
-
-只有满足下面条件的文件才会被拆分：
-
-- 是普通文件。
-- 位于目标目录一级。
-- 文件大小大于当前拆分标准。
-
-不会处理：
-
-- 子目录里的文件。
-- 目录。
-- 符号链接目录。
-- 小于或等于拆分标准的文件。
-
----
-
-### <span id="jobs-toc-heading-17" data-jobs-toc="v2">4.9、子卷目录命名规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-对于源文件：
-
-```text
-Example.zip
-```
-
-脚本会创建目录：
-
-```text
-Example/
-```
-
-规则是：
-
-- 取源文件名。
-- 如果文件名包含后缀，去掉最后一个后缀。
-- 使用去掉后缀后的名称作为子卷目录名。
-
-示例：
-
-| 源文件 | 子卷目录 |
-|---|---|
-| `Video.mp4` | `Video/` |
-| `Archive.zip` | `Archive/` |
-| `Backup.tar.gz` | `Backup.tar/` |
-| `LargeFile` | `LargeFile/` |
-
----
-
-### <span id="jobs-toc-heading-18" data-jobs-toc="v2">4.10、子卷文件命名规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-拆分后的子卷文件命名格式是：
-
-```text
-原文件名@当前序号of总序号
-```
-
-例如：
-
-```text
-Example.zip@001of005
-Example.zip@002of005
-Example.zip@003of005
-Example.zip@004of005
-Example.zip@005of005
-```
-
-说明：
-
-| 字段 | 说明 |
-|---|---|
-| `Example.zip` | 原始文件名 |
-| `@` | 子卷标记 |
-| `001` | 当前子卷序号 |
-| `005` | 总子卷数 |
-
-序号会自动补零，方便按字典序排序。
-
----
-
-### <span id="jobs-toc-heading-19" data-jobs-toc="v2">4.11、实际拆分方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本使用系统 `split` 命令进行拆分：
-
-```shell
-split -b "$actual_chunk_size_bytes" -d -a 3 -- "$file" "$tmp_prefix"
-```
-
-重点：
-
-- `-b`：按字节大小拆分。
-- `-d`：使用数字后缀。
-- `-a 3`：临时后缀长度为 3。
-- 拆分后会再重命名为脚本自己的 `@001of005` 格式。
-
-脚本不是简单粗暴地每个子卷都等于上限大小，而是会根据文件大小计算一个较均衡的实际主卷大小，尽量避免最后一个子卷特别小。
-
----
-
-### <span id="jobs-toc-heading-20" data-jobs-toc="v2">4.12、拆分成功后是否删除源文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-每个文件拆分成功后，脚本会询问：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 删除源文件 |
-| 输入任意字符后回车 | 保留源文件 |
-
-这是高危操作。
-
-建议第一次使用时输入任意字符保留源文件，确认合并脚本能正常还原后，再手动删除源文件。
-
----
-
-### <span id="jobs-toc-heading-21" data-jobs-toc="v2">4.13、注意事项 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-- 文件名中最好不要包含 `@`，因为合并脚本会用 `@` 判断子卷标记。
-- 不要手动修改子卷文件名。
-- 不要删掉任何一个子卷，否则合并脚本会跳过该目录。
-- 不要把不同源文件的子卷混进同一个子卷目录。
-- 拆分脚本不会写校验文件，如果需要强校验，请配合 MD5 脚本使用。
-- 当前脚本不压缩文件，只拆分文件。
-
----
-
-## <span id="jobs-toc-heading-22" data-jobs-toc="v2">五、`【MacOS】🧩子卷➤合而为一源文件.command` 详细说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-### <span id="jobs-toc-heading-23" data-jobs-toc="v2">5.1、流程简述 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-14" data-jobs-toc="v2">5.2、完整性与无覆盖发布 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```mermaid
-graph TD
-    A([开始]) --> B[展示脚本说明]
-    B --> C{是否进行环境自检？}
-    C -->|是| D[安装或更新 Homebrew]
-    D --> E[安装或更新 fzf]
-    E --> F[选择目标目录]
-    C -->|否| F
-    F --> G[扫描目标目录的一级子目录]
-    G --> H{是否发现子卷目录？}
-    H -->|否| Z([结束])
-    H -->|是| I{是否只有一个子卷目录？}
-    I -->|是| J[自动选择该子卷目录]
-    I -->|否| K[使用 fzf 选择子卷目录或全部]
-    J --> L[按顺序合并子卷文件]
-    K --> L
-    L --> M{合并是否成功？}
-    M -->|是| N[询问是否删除子卷目录]
-    M -->|否| O[跳过当前目录]
-    N --> P{是否还有待处理目录？}
-    O --> P
-    P -->|是| L
-    P -->|否| Z
+flowchart TD
+    A[确认自述与扫描目录] --> B[明确勾选分卷组]
+    B --> C{总数一致 卷号唯一 连续且非空}
+    C -->|通过| D[数字顺序流式写入独占候选]
+    C -->|失败| E[报错 保留原件]
+    D --> F{大小 SHA-256 与分卷状态一致}
+    F -->|通过| G[硬链接无覆盖发布]
+    F -->|失败或中断| H[保留候选和全部分卷]
+    G --> I[回车保留 精确 YES 才删除本组]
 ```
+
+- 使用末尾合法 `@数字of数字` 后缀解析，保留原文件名内已有的 `@`。
+- 卷号按十进制数值排序，兼容 `1` / `01` 等补零；同组同时出现 `1` 与 `01` 视为重复。缺号、总数冲突、零号、越界号和空卷都拒绝合并。
+- 流式读取不把大文件整体放入内存；候选大小、复制流摘要和落盘摘要一致，且输入身份 / 大小 / 修改状态未变，才发布目标。
+- 已有目标一律保留，不提供覆盖确认；并发出现文件、目录或符号链接时发布失败并保留候选。
+- 此 SHA-256 验证复制一致性；没有可信原始摘要时不能验证下载来源。MD5 工具继续独立提供人工比对。
+
+### <span id="jobs-toc-heading-15" data-jobs-toc="v2">5.3、精确删除边界 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+回车、其它输入或 EOF 保留全部分卷。只有精确输入 `YES`，并再次复核输入状态，才删除已经合并的本组清单；不递归删除目录，也不删除无关文件。空分卷子目录可以移除，仍有其它内容则保留。某组失败继续汇总其它所选组，并返回真实失败状态。
 
 ---
 
-### <span id="jobs-toc-heading-24" data-jobs-toc="v2">5.2、脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-16" data-jobs-toc="v2">六、`【MacOS】🧬MD5.command` 详细说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-`【MacOS】🧩子卷➤合而为一源文件.command` 用于把拆分脚本生成的子卷目录重新合并成源文件。
-
-它适合这些场景：
-
-- 已经拿到一组 `@001of005`、`@002of005` 这类子卷文件。
-- 想从子卷文件恢复原始文件。
-- 想批量处理目标目录下的多个子卷目录。
-- 想在合并成功后选择是否删除子卷目录。
-
----
-
-### <span id="jobs-toc-heading-25" data-jobs-toc="v2">5.3、环境自检 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本启动后会询问是否进行环境自检：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 跳过环境自检，直接开始工作 |
-| 输入任意字符后回车 | 执行 Homebrew / fzf 自检、安装或升级 |
-
-如果目标目录下只有一个子卷目录，即使没有 fzf，也可以自动处理。
-
-如果目标目录下有多个子卷目录，脚本会调用 fzf 进行选择；这种情况下建议先执行环境自检，确保 fzf 已安装。
-
----
-
-### <span id="jobs-toc-heading-26" data-jobs-toc="v2">5.4、目标目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本会要求拖入或输入目标目录：
-
-```text
-请拖入要处理的【目标目录】，然后回车。
-```
-
-交互规则：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 使用脚本所在目录 |
-| 拖入 / 输入目录路径 | 使用该目录作为目标目录 |
-| 输入无效路径 | 报错并退出 |
-| 输入文件路径 | 报错并退出 |
-
-目标目录应该是子卷目录的上级目录。
-
-推荐结构：
-
-```text
-Target/
-├── Example/
-│   ├── Example.zip@001of005
-│   ├── Example.zip@002of005
-│   ├── Example.zip@003of005
-│   ├── Example.zip@004of005
-│   └── Example.zip@005of005
-└── Other/
-    ├── Other.dmg@001of003
-    ├── Other.dmg@002of003
-    └── Other.dmg@003of003
-```
-
-合并完成后，输出文件会放在目标目录：
-
-```text
-Target/
-├── Example.zip
-├── Other.dmg
-├── Example/
-└── Other/
-```
-
----
-
-### <span id="jobs-toc-heading-27" data-jobs-toc="v2">5.5、子卷目录识别规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-脚本只扫描目标目录的一级子目录：
-
-```shell
-for dir in "$TARGET_DIR"/*; do
-  [[ -d "$dir" ]] || continue
-done
-```
-
-如果某个一级子目录里存在文件名包含 `@` 的普通文件，就会被认为是疑似子卷目录。
-
-例如：
-
-```text
-Example/
-├── Example.zip@001of005
-└── Example.zip@002of005
-```
-
-会被识别。
-
-但下面这种不会被递归识别：
-
-```text
-Target/
-└── A/
-    └── B/
-        ├── Example.zip@001of005
-        └── Example.zip@002of005
-```
-
-因为子卷目录不在目标目录的一级。
-
----
-
-### <span id="jobs-toc-heading-28" data-jobs-toc="v2">5.6、子卷目录选择 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-识别到子卷目录后，脚本会分两种情况：
-
-| 情况 | 行为 |
-|---|---|
-| 只检测到 1 个子卷目录 | 自动选择并处理 |
-| 检测到多个子卷目录 | 使用 fzf 选择一个目录，或选择全部目录 |
-
-多个目录时，fzf 里会出现：
-
-```text
-【全部子卷目录】
-子卷目录A
-子卷目录B
-子卷目录C
-```
-
-如果选择 `【全部子卷目录】`，脚本会依次合并所有识别到的子卷目录。
-
----
-
-### <span id="jobs-toc-heading-29" data-jobs-toc="v2">5.7、合并规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-合并脚本会读取子卷目录中所有文件名包含 `@` 的普通文件：
-
-```text
-Example.zip@001of005
-Example.zip@002of005
-Example.zip@003of005
-```
-
-然后按 shell glob 默认字典序合并。
-
-这也是拆分脚本为什么使用补零序号的原因：
-
-```text
-001
-002
-003
-...
-010
-011
-```
-
-补零之后，字典序和实际卷序一致。
-
----
-
-### <span id="jobs-toc-heading-30" data-jobs-toc="v2">5.8、源文件名推断规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-合并脚本会从第一个子卷文件名中提取源文件名：
-
-```text
-Example.zip@001of005
-```
-
-提取结果：
-
-```text
-Example.zip
-```
-
-规则是：
-
-```text
-取第一个 @ 之前的内容
-```
-
-所以源文件名本身最好不要包含 `@`。
-
-如果原始文件名是：
-
-```text
-A@B.zip
-```
-
-拆分后可能是：
-
-```text
-A@B.zip@001of005
-```
-
-合并脚本会把源文件名误判为：
-
-```text
-A
-```
-
-这就是为什么不建议源文件名包含 `@`。
-
----
-
-### <span id="jobs-toc-heading-31" data-jobs-toc="v2">5.9、总卷数校验 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-合并脚本会从第一个子卷文件的后缀中解析总卷数。
-
-例如：
-
-```text
-Example.zip@001of005
-```
-
-会解析出总卷数：
-
-```text
-5
-```
-
-然后对比目录中的实际子卷数量。
-
-| 状态 | 行为 |
-|---|---|
-| 标记总数等于实际数量 | 继续合并 |
-| 标记总数不等于实际数量 | 警告并跳过该目录 |
-| 无法解析总数 | 不做总数校验，继续尝试合并 |
-
-如果缺少某个子卷，脚本会跳过，避免生成明显不完整的文件。
-
----
-
-### <span id="jobs-toc-heading-32" data-jobs-toc="v2">5.10、目标文件已存在时的处理 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-如果目标目录中已经存在同名输出文件，脚本会询问：
-
-| 输入 | 行为 |
-|---|---|
-| 直接按 `[Enter]` | 覆盖现有文件 |
-| 输入任意字符后回车 | 跳过当前子卷目录 |
-
-这是高危操作。
-
-建议第一次合并时先确认目标目录里没有同名文件，避免误覆盖。
-
----
-
-### <span id="jobs-toc-heading-33" data-jobs-toc="v2">5.11、合并成功后是否删除子卷目录 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-每个目录合并成功后，脚本会询问：
-
-| 输入 | 行为 |
-|---|---|
-| 精确输入 `YES` 后回车 | 删除子卷目录 |
-| 直接按 `[Enter]` 或其他输入 | 保留子卷目录 |
-
-建议先保留子卷目录，使用 MD5 或手动打开文件确认无误后，再删除。
-
----
-
-### <span id="jobs-toc-heading-34" data-jobs-toc="v2">5.12、注意事项 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-- 子卷目录必须位于目标目录一级。
-- 多个子卷目录时建议安装 fzf。
-- 不要修改子卷文件名。
-- 不要混入无关的 `@` 文件。
-- 源文件名最好不要包含 `@`。
-- 合并脚本不计算 MD5，不保证内容语义正确，只负责按字节拼接。
-- 合并后建议使用 MD5 脚本核对文件一致性。
-
----
-
-## <span id="jobs-toc-heading-35" data-jobs-toc="v2">六、`【MacOS】🧬MD5.command` 详细说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
-
-### <span id="jobs-toc-heading-36" data-jobs-toc="v2">6.1、流程简述 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-17" data-jobs-toc="v2">6.1、流程简述 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```mermaid
 graph TD
@@ -864,7 +275,7 @@ graph TD
 
 ---
 
-### <span id="jobs-toc-heading-37" data-jobs-toc="v2">6.2、脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-18" data-jobs-toc="v2">6.2、脚本定位 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 `【MacOS】🧬MD5.command` 用于计算文件 MD5。
 
@@ -877,7 +288,7 @@ graph TD
 
 ---
 
-### <span id="jobs-toc-heading-38" data-jobs-toc="v2">6.3、MD5 工具检测 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-19" data-jobs-toc="v2">6.3、MD5 工具检测 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会优先检测 macOS 自带的：
 
@@ -901,7 +312,7 @@ md5sum
 
 ---
 
-### <span id="jobs-toc-heading-39" data-jobs-toc="v2">6.4、输入规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-20" data-jobs-toc="v2">6.4、输入规则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会反复提示：
 
@@ -926,7 +337,7 @@ md5sum
 
 ---
 
-### <span id="jobs-toc-heading-40" data-jobs-toc="v2">6.5、空输入行为 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-21" data-jobs-toc="v2">6.5、空输入行为 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 当前脚本开头说明写的是：
 
@@ -948,7 +359,7 @@ md5sum
 
 ---
 
-### <span id="jobs-toc-heading-41" data-jobs-toc="v2">6.6、推荐校验方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-22" data-jobs-toc="v2">6.6、推荐校验方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 拆分前，先计算源文件 MD5：
 
@@ -975,9 +386,9 @@ md5sum
 
 ---
 
-## <span id="jobs-toc-heading-42" data-jobs-toc="v2">七、文件命名与目录结构建议 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-23" data-jobs-toc="v2">七、文件命名与目录结构建议 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### <span id="jobs-toc-heading-43" data-jobs-toc="v2">7.1、推荐目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-24" data-jobs-toc="v2">7.1、推荐目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 仓库中的工具包与测试样本按以下结构存放；MD5 工具包内的脚本与 `README.md` 保持同层：
 
@@ -1013,7 +424,7 @@ Work/
 └── Backup.dmg
 ```
 
-拆分后：
+拆分后默认仍保留源文件；下图仅展开分卷目录（示例使用受支持的三位编号）：
 
 ```text
 Work/
@@ -1054,37 +465,15 @@ Work/
 
 ---
 
-### <span id="jobs-toc-heading-44" data-jobs-toc="v2">7.2、不推荐的文件名 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-25" data-jobs-toc="v2">7.2、文件名与卷号后缀 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-不建议源文件名包含：
-
-```text
-@
-```
-
-原因是合并脚本会把第一个 `@` 前面的内容当作源文件名。
-
-不推荐：
-
-```text
-A@B.zip
-Video@2026.mp4
-Backup@Mac.dmg
-```
-
-推荐：
-
-```text
-A-B.zip
-Video-2026.mp4
-Backup-Mac.dmg
-```
+源文件名允许包含 `@`，例如 `A@B.zip`。合并器从最后一个合法 `@序号of总数` 后缀解析，完整保留名称；不要修改卷号后缀、遗漏分卷或混入同名重复卷。
 
 ---
 
-### <span id="jobs-toc-heading-45" data-jobs-toc="v2">7.3、不推荐的目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-26" data-jobs-toc="v2">7.3、不推荐的目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-不推荐把多个不同文件的子卷混在同一个目录：
+同目录多组已按完整原文件名隔离处理；为便于人工检查，仍建议分别放目录。以下平铺形式也支持：
 
 ```text
 Bad/
@@ -1108,7 +497,7 @@ Good/
 
 ---
 
-## <span id="jobs-toc-heading-46" data-jobs-toc="v2">八、日志文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-27" data-jobs-toc="v2">八、日志文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 三个脚本都会把运行日志写入 `$TMPDIR`。
 
@@ -1127,23 +516,23 @@ $TMPDIR/【MacOS】🧬MD5.log
 示例：
 
 ```shell
-cat '$TMPDIR/【MacOS】✂️源文件压缩拆分➤子卷.log'
-cat '$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log'
-cat '$TMPDIR/【MacOS】🧬MD5.log'
+cat "${TMPDIR:-/tmp}/【MacOS】✂️源文件压缩拆分➤子卷.log"
+cat "${TMPDIR:-/tmp}/【MacOS】🧩子卷➤合而为一源文件.log"
+cat "${TMPDIR:-/tmp}/【MacOS】🧬MD5.log"
 ```
 
 ---
 
-## <span id="jobs-toc-heading-47" data-jobs-toc="v2">九、常见使用场景 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-28" data-jobs-toc="v2">九、常见使用场景 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### <span id="jobs-toc-heading-48" data-jobs-toc="v2">场景 1：大文件准备放进 GitHub 普通仓库 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-29" data-jobs-toc="v2">场景 1：大文件准备放进 GitHub 普通仓库 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-GitHub 普通仓库对大文件有限制。脚本默认的 `50 MB` 是比较保守的拆分标准。
+GitHub 普通仓库对大文件有限制。脚本默认的 `50 MiB` 是比较保守的拆分标准。
 
 推荐流程：
 
 1. 运行 MD5 脚本，记录源文件 MD5。
-2. 运行拆分脚本，选择 `50 MB` 或 `100 MiB`。
+2. 运行拆分脚本，选择 `50 MiB` 或 `100 MiB`。
 3. 确认拆分结果。
 4. 不建议立刻删除源文件。
 5. 到另一台机器后运行合并脚本。
@@ -1152,7 +541,7 @@ GitHub 普通仓库对大文件有限制。脚本默认的 `50 MB` 是比较保�
 
 ---
 
-### <span id="jobs-toc-heading-49" data-jobs-toc="v2">场景 2：大文件准备走 GitHub Releases <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-30" data-jobs-toc="v2">场景 2：大文件准备走 GitHub Releases <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 如果文件不是要直接进普通 Git 仓库，而是准备放到 GitHub Releases，可以选择：
 
@@ -1164,17 +553,13 @@ GitHub Releases 安全标准（1900 MiB）
 
 ---
 
-### <span id="jobs-toc-heading-50" data-jobs-toc="v2">场景 3：没有安装 fzf <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-31" data-jobs-toc="v2">场景 3：没有安装 fzf <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-拆分脚本没有 fzf 时，可以回退为数字输入模式选择拆分标准。
-
-合并脚本在只检测到一个子卷目录时，不需要 fzf。
-
-但如果目标目录下有多个子卷目录，合并脚本会使用 fzf 选择目录，所以建议先执行环境自检安装 fzf。
+拆分、合并入口都会检查本机 fzf 及实际使用的选项。缺失或损坏时停止并显示修复提示，不回退数字菜单，不执行工具安装或升级。请自行准备健康 fzf 后重新运行；仅计算 MD5 不依赖 fzf。
 
 ---
 
-### <span id="jobs-toc-heading-51" data-jobs-toc="v2">场景 4：只想计算 MD5 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-32" data-jobs-toc="v2">场景 4：只想计算 MD5 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 直接运行：
 
@@ -1194,13 +579,13 @@ Ctrl+C
 
 ---
 
-## <span id="jobs-toc-heading-52" data-jobs-toc="v2">十、失败排查顺序 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-33" data-jobs-toc="v2">十、失败排查顺序 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### <span id="jobs-toc-heading-53" data-jobs-toc="v2">10.1、拆分脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-34" data-jobs-toc="v2">10.1、拆分脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 优先检查：
 
-1. 目标路径是否是目录。
+1. 目标路径是否是有效单文件或目录。
 2. 目标目录一级是否真的有大文件。
 3. 文件大小是否大于当前拆分标准。
 4. 子卷目录是否已经存在同名文件。
@@ -1213,12 +598,12 @@ Ctrl+C
 ```shell
 ls -lah '/你的目标目录'
 df -h
-cat '$TMPDIR/【MacOS】✂️源文件压缩拆分➤子卷.log'
+cat "${TMPDIR:-/tmp}/【MacOS】✂️源文件压缩拆分➤子卷.log"
 ```
 
 ---
 
-### <span id="jobs-toc-heading-54" data-jobs-toc="v2">10.2、合并脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-35" data-jobs-toc="v2">10.2、合并脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 优先检查：
 
@@ -1227,19 +612,19 @@ cat '$TMPDIR/【MacOS】✂️源文件压缩拆分➤子卷.log'
 3. 子卷文件是否缺失。
 4. 子卷文件名是否被手动改过。
 5. 目标目录是否已经有同名输出文件。
-6. 多子卷目录场景下是否安装了 fzf。
+6. 本机 fzf 及所需选项是否可用。
 7. `$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log` 中最后一个错误。
 
 常用命令：
 
 ```shell
 find '/你的目标目录' -maxdepth 2 -type f -name '*@*' | sort
-cat '$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log'
+cat "${TMPDIR:-/tmp}/【MacOS】🧩子卷➤合而为一源文件.log"
 ```
 
 ---
 
-### <span id="jobs-toc-heading-55" data-jobs-toc="v2">10.3、MD5 脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-36" data-jobs-toc="v2">10.3、MD5 脚本失败 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 优先检查：
 
@@ -1254,14 +639,14 @@ cat '$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log'
 ```shell
 command -v md5
 command -v md5sum
-cat '$TMPDIR/【MacOS】🧬MD5.log'
+cat "${TMPDIR:-/tmp}/【MacOS】🧬MD5.log"
 ```
 
 ---
 
-## <span id="jobs-toc-heading-56" data-jobs-toc="v2">十一、<font color=red>F</font><font color=blue>A</font><font color=green>Q</font> <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-37" data-jobs-toc="v2">十一、<font color=red>F</font><font color=blue>A</font><font color=green>Q</font> <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-### <span id="jobs-toc-heading-57" data-jobs-toc="v2">11.1、这个拆分脚本真的会压缩文件吗？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-38" data-jobs-toc="v2">11.1、这个拆分脚本真的会压缩文件吗？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 不会。
 
@@ -1271,7 +656,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### <span id="jobs-toc-heading-58" data-jobs-toc="v2">11.2、为什么默认是 50 MB？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-39" data-jobs-toc="v2">11.2、为什么默认是 50 MiB？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 因为这是偏保守的拆分标准。
 
@@ -1279,7 +664,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### <span id="jobs-toc-heading-59" data-jobs-toc="v2">11.3、为什么 2GB 选项实际是 1900 MiB？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-40" data-jobs-toc="v2">11.3、为什么大分卷标准使用 1900 MiB？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 因为 2GB 附近容易受到平台限制、单位差异、额外元数据等因素影响。
 
@@ -1287,7 +672,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### <span id="jobs-toc-heading-60" data-jobs-toc="v2">11.4、为什么拆分后的子卷不是每个都刚好等于我选择的大小？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-41" data-jobs-toc="v2">11.4、为什么拆分后的子卷不是每个都刚好等于我选择的大小？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 脚本会根据文件总大小计算一个更均衡的实际拆分大小，避免最后一个子卷过小。
 
@@ -1295,7 +680,7 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### <span id="jobs-toc-heading-61" data-jobs-toc="v2">11.5、为什么合并脚本要求文件名里有 `@`？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-42" data-jobs-toc="v2">11.5、为什么合并脚本要求文件名里有 `@`？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 因为拆分脚本使用 `@001of005` 这种格式标记子卷序号。
 
@@ -1303,23 +688,19 @@ cat '$TMPDIR/【MacOS】🧬MD5.log'
 
 ---
 
-### <span id="jobs-toc-heading-62" data-jobs-toc="v2">11.6、源文件名能不能包含 `@`？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-43" data-jobs-toc="v2">11.6、源文件名能不能包含 `@`？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-不建议。
-
-因为合并脚本会把第一个 `@` 前面的内容当作源文件名。源文件名本身包含 `@` 时，可能会导致输出文件名错误。
+可以。`A@B.zip@01of02` 会还原为 `A@B.zip`，按最后一个合法卷号后缀解析。
 
 ---
 
-### <span id="jobs-toc-heading-63" data-jobs-toc="v2">11.7、为什么合并脚本没有自动验证 MD5？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-44" data-jobs-toc="v2">11.7、自动校验与 MD5 工具各负责什么？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-当前合并脚本只负责按字节拼接，不负责校验。
-
-如果你需要确认合并结果是否和源文件一致，请使用 `【MacOS】🧬MD5.command` 在拆分前后分别计算 MD5。
+拆分器自动比对源文件、分卷流及发布后分卷的 SHA-256；合并器自动比对读取流与候选文件，并核对大小和输入状态。MD5 保持为独立的人工核对工具；验证镜像来源仍应比较可信来源给出的摘要。
 
 ---
 
-### <span id="jobs-toc-heading-64" data-jobs-toc="v2">11.8、为什么 MD5 脚本直接按 Enter 不退出？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-45" data-jobs-toc="v2">11.8、为什么 MD5 脚本直接按 Enter 不退出？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 这是当前脚本真实行为。
 
@@ -1333,19 +714,15 @@ Ctrl+C
 
 ---
 
-### <span id="jobs-toc-heading-65" data-jobs-toc="v2">11.9、为什么合并时提示目标文件已存在？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-46" data-jobs-toc="v2">11.9、为什么合并时提示目标文件已存在？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-因为合并输出文件会直接写到目标目录。
-
-如果目标目录里已经有同名文件，脚本会要求你确认是否覆盖。
-
-直接按 `[Enter]` 会覆盖，输入任意字符会跳过。
+已有同名完整文件、目录或符号链接一律拒绝覆盖，保留原目标。请人工核对和另存已有结果后重试；回车不会触发覆盖。
 
 ---
 
-### <span id="jobs-toc-heading-66" data-jobs-toc="v2">11.10、为什么拆分成功后不建议立刻删除源文件？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-47" data-jobs-toc="v2">11.10、为什么拆分成功后不建议立刻删除源文件？ <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-因为拆分成功只代表子卷文件生成了，不代表你已经验证过后续能否完整合并。
+拆分成功已经通过大小和 SHA-256 校验；源文件仍作为独立备份默认保留。跨机器传输或长期保存后，仍建议还原并核对可信摘要再决定是否删除。
 
 更稳的流程是：
 
@@ -1357,20 +734,20 @@ Ctrl+C
 
 ---
 
-## <span id="jobs-toc-heading-67" data-jobs-toc="v2">十二、设计原则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-48" data-jobs-toc="v2">十二、设计原则 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-- 拆分和合并都只处理目标目录的一级内容，避免误伤深层目录。
+- 拆分只扫描本层；合并扫描本层及一级子目录，避免递归处理深层内容。
 - 子卷命名要可读、可排序、可反推源文件名。
 - 默认标准要保守，避免贴近平台硬限制。
-- 删除源文件、覆盖目标文件、删除子卷目录都必须交互确认。
+- 已有输出不覆盖；删除原件必须精确 `YES`，只处理校验过的清单，不递归删除。
 - 多目录选择交给 fzf，减少输入路径错误。
 - MD5 独立成单独脚本，不强塞进拆分 / 合并主流程。
 - 日志统一写入 `$TMPDIR`，方便排查。
-- 当前实现优先保证简单直接，不做复杂归档、压缩、加密和自动校验。
+- 使用流式 SHA-256 和大小验证；不做归档、压缩或加密，不自动安装或升级工具。
 
 ---
 
-## <span id="jobs-toc-heading-68" data-jobs-toc="v2">十三、外部链接 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+## <span id="jobs-toc-heading-49" data-jobs-toc="v2">十三、外部链接 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 | 名称 | 链接 | 说明 |
 |---|---|---|

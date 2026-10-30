@@ -235,19 +235,21 @@ MacOS 目录共有 21 个用户入口，Release 目录另有 1 个 MD5 入口（
 
 ### <span id="jobs-toc-heading-21" data-jobs-toc="v2">[【MacOS】✂️源文件压缩拆分➤子卷.command](<./MacOS/【MacOS】文件分拆（合并）测试. command/【MacOS】✂️源文件压缩拆分➤子卷.command/【MacOS】✂️源文件压缩拆分➤子卷.command>)</span><!-- jobs-toc:heading-end -->
 
-> **目的：** 将指定源文件压缩并拆成可传输子卷。
+> **目的：** 将指定源文件按上限拆成可传输的原始子卷。
 
-- 选择源文件、输出目录、压缩和分卷参数。
-- 检查归档工具，按计划压缩并拆分子卷。
-- 生成校验 / 恢复所需信息，显示产物目录；源文件保留。
+- 拖入单文件或目录，也可传一个位置参数；目录模式使用 fzf 明确勾选。
+- 选择 50 / 100 / 1900 MiB 或自定义上限，均衡切分，生成 `完整原文件名@序号of总数`；文件名中的“压缩”是兼容名称，实际不压缩字节。
+- 大小、SHA-256 及源状态校验后原子无覆盖发布；默认保留源文件，仅精确输入 `YES` 才删除。
 
 ### <span id="jobs-toc-heading-22" data-jobs-toc="v2">[【MacOS】🧩子卷➤合而为一源文件.command](<./MacOS/【MacOS】文件分拆（合并）测试. command/【MacOS】🧩子卷➤合而为一源文件.command/【MacOS】🧩子卷➤合而为一源文件.command>)</span><!-- jobs-toc:heading-end -->
 
 > **目的：** 按子卷顺序重建源文件。
 
-- 选择子卷位置、首卷和输出目标。
-- 检查卷集与重建工具，按对应压缩 / 拆分格式合并或解包。
-- 核对重建结果与校验信息，显示输出位置。
+- 输入分卷目录或父目录，识别当前层与一级子目录，使用 fzf 勾选分卷组。
+- 核对完整原名、总数、缺号、重复及非空条件，按数字卷号合并；拒绝覆盖已有目标。
+- 大小、SHA-256 与输入状态校验通过才发布；分卷默认保留，仅精确输入 `YES` 后删除本组精确清单。
+
+两项与 `WindowsOS_11` 对应 macOS 脚本保持同版本、同内容；[Windows 原生分卷](<./WindowsOS/【WindowsOS】源文件压缩分卷/README.md>)和[Windows 原生合并](<./WindowsOS/【WindowsOS】子卷合并/README.md>)默认使用相同原始卷格式，保留 `-LegacyManifest` 的旧清单 / gzip 模式。
 
 ### <span id="jobs-toc-heading-23" data-jobs-toc="v2">[【MacOS】🧬MD5.command](<./Release/【MacOS】🧬MD5.command/【MacOS】🧬MD5.command>)</span><!-- jobs-toc:heading-end -->
 

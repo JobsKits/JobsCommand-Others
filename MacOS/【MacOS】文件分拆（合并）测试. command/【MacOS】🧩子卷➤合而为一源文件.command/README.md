@@ -30,15 +30,13 @@
 
 ## <span id="jobs-toc-heading-1" data-jobs-toc="v2">🔥 <font id=前言>前言</font></span><!-- jobs-toc:heading-end -->
 
-`【MacOS】🧩子卷➤合而为一源文件.command` 用于执行“【MacOS】🧩子卷➤合而为一源文件”对应的 MacOS 自动化流程。主脚本与本 `README.md` 必须保持在同一目录，运行前先阅读影响范围。
+`【MacOS】🧩子卷➤合而为一源文件.command` 将 `文件名@序号of总数` 分卷按数值顺序还原，支持平铺、分卷目录和父目录扫描，检查完整卷号与 SHA-256。
 
 ## <span id="jobs-toc-heading-2" data-jobs-toc="v2">一、适用场景 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-- 需要执行“【MacOS】🧩子卷➤合而为一源文件”所描述的本机开发或维护任务。
-- 希望通过可重复运行的 Shell 脚本减少手工命令遗漏。
-- 需要结合终端日志定位环境、路径或第三方工具问题。
-
-脚本统一由 macOS 预置的 `/bin/zsh` 执行。双击或直接执行脚本即可；显式指定解释器时使用 `zsh`，不要使用 `bash` 或 `sh`。运行后先显示内置自述，确认后才进入业务；无法读取确认输入时会退出。
+- 通过 fzf 明确勾选完整分卷组；兼容补零编号和原文件名内的 `@`。
+- 显式指定分卷目录时，其本层组在父目录还原；扫描父目录时输出到所选父目录；回车默认扫描脚本目录，平铺组就在默认目录输出。
+- 标题与日志按当前文件名生成，脚本自包含，可单独复制运行；与 WindowsOS_11 同功能命令保持同一源码。
 
 ## <span id="jobs-toc-heading-3" data-jobs-toc="v2">二、目录结构 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
@@ -50,10 +48,7 @@
 
 ## <span id="jobs-toc-heading-4" data-jobs-toc="v2">三、执行前检查 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-- 确认当前系统为 MacOS，并已安装脚本实际调用的工具。
-- 确认脚本路径、工程目录、输入文件和当前 Git 工作区正确。
-- 打开主脚本检查其中的业务命令，不理解的操作不要直接执行。
-- 涉及安装、更新或升级时，以脚本终端提示为准；直接回车应表示跳过。
+依赖本机已有 [**fzf**](https://github.com/junegunn/fzf) 及系统命令，只检查，不安装、升级或写 Shell 配置。拆分使用系统 JXA 排他发布目录，无需 Python、Node.js 或编译器。缺失依赖时显示错误并停止。
 
 ## <span id="jobs-toc-heading-5" data-jobs-toc="v2">四、运行方式 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
@@ -64,33 +59,37 @@
 ### <span id="jobs-toc-heading-7" data-jobs-toc="v2">4.2、终端运行 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
 ```shell
-cd "脚本所在目录/【MacOS】🧩子卷➤合而为一源文件.command"
-./【MacOS】🧩子卷➤合而为一源文件.command
+/bin/zsh './【MacOS】🧩子卷➤合而为一源文件.command' \
+  '/待处理/分卷目录'
 ```
+
+只接受一个路径参数；也可不带参数运行后拖入文件夹。引号、空格、中文等路径按字面值处理。
 
 ## <span id="jobs-toc-heading-8" data-jobs-toc="v2">五、操作流程 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-1. 展示脚本自述或同目录 `README.md`。
-2. 检查运行环境、输入参数和目标路径。
-3. 按脚本提示确认需要执行的业务步骤。
-4. 输出执行结果、失败原因和日志位置。
+1、展示源码内置自述，回车继续，Ctrl+C 或输入结束取消。
+
+2、检查工具并解析路径。按同目录完整原文件名分组。
+
+3、fzf 单选回车确认、Esc 取消；多选回车勾选 / 取消、空格确认、Ctrl+A 全选、Ctrl+D 清空、Esc 取消，空选不启动业务。
+
+4、流式处理，在独占候选中核对大小及 SHA-256 后发布；失败保留候选并报告位置。
+
+5、默认保留原件；精确 `YES` 且复核状态未变后才删除相应源文件或已合并分卷清单。
 
 ## <span id="jobs-toc-heading-9" data-jobs-toc="v2">六、风险说明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-- 脚本包含删除、清理或重置动作，执行前必须确认目标路径和影响范围。
-- 脚本可能访问网络、下载文件或更新本机工具链。
-
-危险操作必须以脚本中的 `YES` 确认为准；如果脚本尚未提供明确确认，应先审查脚本内容，不要盲目执行。
+已有完整文件、目录或符号链接均不覆盖。拆分的分卷目录采用排他重命名发布，合并的完整文件以硬链接无覆盖发布；文件系统不支持时安全停止并保留候选。删除只针对已核对对象，不递归删除目录。合并 SHA-256 确认复制一致性，没有可信原文件摘要时不表示验证来源。
 
 ## <span id="jobs-toc-heading-10" data-jobs-toc="v2">七、日志文件 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-Jobs 标准脚本日志默认写入：
+日志使用实际脚本文件名去掉扩展名；系统临时目录不可用时使用 `/tmp`：
 
 ```text
-$TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log
+${TMPDIR:-/tmp}/【MacOS】🧩子卷➤合而为一源文件.log
 ```
 
-如果脚本内部另有 `LOG_FILE` 定义，以主脚本实际配置为准。
+终端与日志同步显示状态；失败或中断显示保留候选的路径。
 
 ## <span id="jobs-toc-heading-11" data-jobs-toc="v2">八、常见问题 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
@@ -100,7 +99,7 @@ $TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log
 
 ### <span id="jobs-toc-heading-13" data-jobs-toc="v2">8.2、提示权限不足 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-检查目标文件权限和目录归属。只有确认命令及目标路径安全后，才按提示使用管理员权限。
+检查来源读取权限、目标父目录写入权限及可用空间；不要通过自动提权绕过不明权限问题。
 
 ### <span id="jobs-toc-heading-14" data-jobs-toc="v2">8.3、双击后没有继续执行 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
@@ -108,8 +107,6 @@ $TMPDIR/【MacOS】🧩子卷➤合而为一源文件.log
 
 ## <span id="jobs-toc-heading-15" data-jobs-toc="v2">九、未执行声明 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-README 只描述脚本职责和通用风险，不代表已经在当前 MacOS 环境执行真实业务命令。交付前应至少通过对应 Shell 的静态语法检查。
-
-[**Homebrew**](https://brew.sh/) 安装路径由用户选择：已有可运行安装时复用；确实需要安装时先强提示，只有精确输入大写 `YES` 才选择系统标准目录，其它输入或直接回车选择当前用户的 `.local/homebrew`。`YES` 只表示选择路径，权限与密码由官方安装器实际处理；有管理员权限也可以选用户目录。选定路径失败立即停止，不自动切换；`Ctrl+C` / 输入结束取消整个任务。
+已通过 zsh 语法检查及隔离小文件的拆分 / 合并往返、特殊路径、缺卷、重复卷和无覆盖验证；测试不注册系统菜单，不处理真实镜像。大文件运行仍由用户按上述入口明确执行。
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>

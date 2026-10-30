@@ -28,11 +28,9 @@ function Require-JobsCommand([string]$Name) {
     if (!$command) { throw "缺少 $Name。请安装后重开终端，或先运行对应安装入口。" }
     return $command.Source
 }
-function Get-JobsPath([string]$Prompt, [switch]$Directory, [switch]$AllowNew) {
-    $raw = (Read-JobsText $Prompt).Trim().Trim('"')
-    if ([string]::IsNullOrWhiteSpace($raw)) { throw '路径不能为空。' }
-    $full = [IO.Path]::GetFullPath([Environment]::ExpandEnvironmentVariables($raw))
-    $ancestor = $full
+# 拒绝目标及所有已有祖先中的链接，写入前可重复核对路径边界。
+function Assert-JobsPathAncestors([string]$Path) {
+    $ancestor = [IO.Path]::GetFullPath($Path)
     while ($ancestor) {
         if (Test-Path -LiteralPath $ancestor) {
             $item = Get-Item -LiteralPath $ancestor -Force
@@ -40,12 +38,26 @@ function Get-JobsPath([string]$Prompt, [switch]$Directory, [switch]$AllowNew) {
         }
         $ancestor = [IO.Path]::GetDirectoryName($ancestor)
     }
+}
+# 解析用户目标，按文件 / 目录用途验证存在性及链接祖先。
+function Get-JobsPath([string]$Prompt, [switch]$Directory, [switch]$AllowNew, [switch]$FileOrDirectory) {
+    $raw = (Read-JobsText $Prompt).Trim().Trim('"')
+    if ([string]::IsNullOrWhiteSpace($raw)) { throw '路径不能为空。' }
+    # 路径内部的 %TEMP% 等可为合法文件名，仅显式环境变量根允许展开。
+    if (!(Test-Path -LiteralPath $raw) -and $raw -match '^%([^%\\/]+)%([\\/].*|$)') {
+        $variable = $Matches[1]; $suffix = $Matches[2]
+        $base = [Environment]::GetEnvironmentVariable($variable, 'Process')
+        if ([string]::IsNullOrEmpty($base)) { throw "环境变量未设置：$variable" }
+        $raw = $base + $suffix
+    }
+    $full = [IO.Path]::GetFullPath($raw)
+    Assert-JobsPathAncestors $full
     if (!$AllowNew -and !(Test-Path -LiteralPath $full)) { throw "路径不存在：$full" }
     if (Test-Path -LiteralPath $full) {
         $item = Get-Item -LiteralPath $full -Force
         if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw '拒绝符号链接或目录联接。' }
         if ($Directory -and !$item.PSIsContainer) { throw '需要目录。' }
-        if (!$Directory -and $item.PSIsContainer) { throw '需要普通文件。' }
+        if (!$FileOrDirectory -and !$Directory -and $item.PSIsContainer) { throw '需要普通文件。' }
     }
     return $full
 }
@@ -157,7 +169,7 @@ function Invoke-JobsAppend {
     Write-JobsLog "已写入：$path"
 }
 function Invoke-JobsReplace {
-    $raw=(Read-JobsText '输入文件或目录路径').Trim().Trim('"');$root=[IO.Path]::GetFullPath($raw)
+    $root=Get-JobsPath '输入文件或目录路径' -FileOrDirectory
     $find=Read-JobsText '输入查找文本（字面量）';if ($find -eq '') { throw '查找文本不能为空。' }
     $replace=Read-JobsText '输入替换文本（可为空）'
     $matches=New-Object Collections.ArrayList
@@ -168,6 +180,7 @@ function Invoke-JobsReplace {
     if ($matches.Count -eq 0) { Write-JobsLog '无匹配文件。';return }
     Confirm-JobsChange "修改 $($matches.Count) 个文件；每个文件保留独立备份"
     foreach ($item in $matches) {
+        Assert-JobsPathAncestors $item.Path
         if ((Get-FileHash -LiteralPath $item.Path -Algorithm SHA256).Hash -ne $item.Hash) { throw "文件已并发修改，停止：$($item.Path)" }
         $null=Backup-JobsFile $item.Path;Write-JobsUtf8 $item.Path ($item.Doc.Text.Replace($find,$replace)) $item.Doc.Bom
     }
