@@ -14,7 +14,7 @@
 - [三、目录结构](#repository-layout)
 - [四、脚本执行流程](#script-workflows)
   - [【MacOS】Caddy本地域名映射.command](#jobs-toc-heading-7)
-  - [JobsKeyboardRecorder.command](#jobs-toc-heading-8)
+  - [【MacOS】JobsKeyboardRecorder.command](#jobs-toc-heading-8)
   - [【MacOS】Jobs计划任务.command](#jobs-toc-heading-9)
   - [【MacOS】Mock.command](#jobs-toc-heading-10)
   - [【MacOS】StirlingPDF.command](#jobs-toc-heading-11)
@@ -77,7 +77,7 @@
 
 下面按平台目录与 Release 资源列出真实文件与目录；包内主脚本由下方完整名称直接进入。
 
-Windows 每项功能独占同名目录，目录内放成对的 `.cmd`、`.ps1` 和 `README.md`；公共函数集中在 `WindowsOS/Common/`，功能专属资源随对应目录保存。例如 [MD5 功能目录](<./WindowsOS/【WindowsOS】MD5/README.md>)，完整清单见 [WindowsOS 总览](./WindowsOS/README.md)。
+Windows 每项功能独占同名目录，目录内放成对的 `.cmd`、`.ps1` 和 `README.md`；公共函数集中在 `WindowsOS/Common/`，功能专属资源随对应目录保存。例如 [MD5 功能目录](<./WindowsOS/【WindowsOS】MD5.ps1/README.md>)，完整清单见 [WindowsOS 总览](./WindowsOS/README.md)。
 
 ```text
 JobsCommand@Others/
@@ -127,7 +127,7 @@ MacOS 目录共有 21 个用户入口，Release 目录另有 1 个 MD5 入口（
 - 检查 Caddy、端口与配置冲突，按提示准备 hosts / 证书与 Caddyfile。
 - 启动代理并自检 HTTPS，打开映射地址；会影响本机解析与代理配置。
 
-### <span id="jobs-toc-heading-8" data-jobs-toc="v2">[JobsKeyboardRecorder.command](<./MacOS/【MacOS】JobsKeyboardRecorder.command/JobsKeyboardRecorder.command>)</span><!-- jobs-toc:heading-end -->
+### <span id="jobs-toc-heading-8" data-jobs-toc="v2">[【MacOS】JobsKeyboardRecorder.command](<./MacOS/【MacOS】JobsKeyboardRecorder.command/【MacOS】JobsKeyboardRecorder.command>)</span><!-- jobs-toc:heading-end -->
 
 > **目的：** 在明确授权下记录本机键盘事件到指定文件。
 
@@ -249,7 +249,7 @@ MacOS 目录共有 21 个用户入口，Release 目录另有 1 个 MD5 入口（
 - 核对完整原名、总数、缺号、重复及非空条件，按数字卷号合并；拒绝覆盖已有目标。
 - 大小、SHA-256 与输入状态校验通过才发布；分卷默认保留，仅精确输入 `YES` 后删除本组精确清单。
 
-两项与 `WindowsOS_11` 对应 macOS 脚本保持同版本、同内容；[Windows 原生分卷](<./WindowsOS/【WindowsOS】源文件压缩分卷/README.md>)和[Windows 原生合并](<./WindowsOS/【WindowsOS】子卷合并/README.md>)默认使用相同原始卷格式，保留 `-LegacyManifest` 的旧清单 / gzip 模式。
+两项与 `WindowsOS_11` 对应 macOS 脚本保持同版本、同内容；[Windows 原生分卷](<./WindowsOS/【WindowsOS】源文件压缩分卷.ps1/README.md>)和[Windows 原生合并](<./WindowsOS/【WindowsOS】子卷合并.ps1/README.md>)默认使用相同原始卷格式，保留 `-LegacyManifest` 的旧清单 / gzip 模式。
 
 ### <span id="jobs-toc-heading-23" data-jobs-toc="v2">[【MacOS】🧬MD5.command](<./Release/【MacOS】🧬MD5.command/【MacOS】🧬MD5.command>)</span><!-- jobs-toc:heading-end -->
 

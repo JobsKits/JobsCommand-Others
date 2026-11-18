@@ -40,8 +40,8 @@
 
 ## <span id="jobs-toc-heading-4" data-jobs-toc="v2">三、Windows 使用边界 <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
 
-[Windows 源文件压缩分卷](<../WindowsOS/【WindowsOS】源文件压缩分卷/README.md>) 生成 `JobsSplit-1` 的 `manifest.json`，并由 [Windows 子卷合并](<../WindowsOS/【WindowsOS】子卷合并/README.md>) 校验和重建。这里的 `@001of004` 样本没有该清单，不能直接交给 Windows 合并入口。
+[Windows 源文件压缩分卷](<../WindowsOS/【WindowsOS】源文件压缩分卷.ps1/README.md>) 生成 `JobsSplit-1` 的 `manifest.json`，并由 [Windows 子卷合并](<../WindowsOS/【WindowsOS】子卷合并.ps1/README.md>) 校验和重建。这里的 `@001of004` 样本没有该清单，不能直接交给 Windows 合并入口。
 
-MD5 `.command` 仅供 [**macOS**](https://www.apple.com/macos/) 使用；Windows 用户使用 [Windows MD5 工具](<../WindowsOS/【WindowsOS】MD5/README.md>)。移动目录不改变分卷内容或格式。
+MD5 `.command` 仅供 [**macOS**](https://www.apple.com/macos/) 使用；Windows 用户使用 [Windows MD5 工具](<../WindowsOS/【WindowsOS】MD5.ps1/README.md>)。移动目录不改变分卷内容或格式。
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>

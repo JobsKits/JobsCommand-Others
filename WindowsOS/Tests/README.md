@@ -20,15 +20,15 @@
 在此目录使用 [**PowerShell**](https://learn.microsoft.com/powershell/) 运行：
 
 ```powershell
-& ./Regression.ps1
+& ./Regression.ps1/Regression.ps1
 ```
 
 公共模块从 `../Common/JobsTools.ps1` 加载；入口检查递归发现各功能目录内的 `【WindowsOS】*.ps1`。`-SkipEntrypoints` 只运行模块夹具。macOS 完整检查为 59 项断言，Windows 为 57 项，覆盖精确 `YES`、BOM、严格 UTF-8、重复整行、并发修改保留、祖先链接拒绝、替换单文件 / 目录的字面量与 BOM 保留、替换入口链接拒绝及确认期间目录变为链接时停止、路径内 `%TEMP%` 字面保留、显式环境变量根与缺变量停止、递归排除、原始与 gzip 分卷往返、损坏卷与覆盖保护、原生命令退出码，以及全部 17 个入口的 `-Check`。
 
-跨平台原始分卷专项运行 [`FileVolumes.Tests.ps1`](./FileVolumes.Tests.ps1)：
+跨平台原始分卷专项运行 [`FileVolumes.Tests.ps1`](./FileVolumes.Tests.ps1/FileVolumes.Tests.ps1)：
 
 ```powershell
-& ./FileVolumes.Tests.ps1
+& ./FileVolumes.Tests.ps1/FileVolumes.Tests.ps1
 ```
 
 专项使用真实临时二进制文件验证跨块拆分、乱序合并、指定输出目录、源件保留和无覆盖，mock 选择器验证 `←` / Esc / 空值 / 错误及默认原始卷与 `-LegacyManifest` 分流；旧 `JobsSplit-1` 的直接分卷与 gzip 往返继续验证。fzf 交互分支的 mock 不等同于 Windows 桌面真实按键验收。

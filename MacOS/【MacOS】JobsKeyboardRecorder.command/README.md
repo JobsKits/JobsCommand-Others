@@ -1,4 +1,4 @@
-# `JobsKeyboardRecorder.command` 键盘输入记录
+# `【MacOS】JobsKeyboardRecorder.command` 键盘输入记录
 
 ![Jobs出品，必属精品](https://picsum.photos/1500/400)
 
@@ -23,6 +23,7 @@
 - [七、执行流程](#flow)
 - [八、常见问题与清理](#faq)
 - [九、验证说明](#verification)
+- [十、运行规则补充（脚本统一）](#jobs-toc-heading-17)
 
 </details>
 <!-- jobs-toc:end -->
@@ -31,13 +32,13 @@
 
 ## 🔥 <span id="前言">前言</span>
 
-`JobsKeyboardRecorder.command` 用于记录当前登录会话中、按键事件携带的可见文字。入口使用系统自带的 [**zsh**](https://www.zsh.org/)，内嵌 [**Objective-C**](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/Introduction/Introduction.html) 源码，运行时在本机编译为 [**macOS**](https://www.apple.com/macos/) 原生菜单栏 App。当前内嵌程序版本为 `1.7.0`。
+`【MacOS】JobsKeyboardRecorder.command` 用于记录当前登录会话中、按键事件携带的可见文字。入口使用系统自带的 [**zsh**](https://www.zsh.org/)，内嵌 [**Objective-C**](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/Introduction/Introduction.html) 源码，运行时在本机编译为 [**macOS**](https://www.apple.com/macos/) 原生菜单栏 App。当前内嵌程序版本为 `1.7.0`。
 
 启动需要两次回车确认及手动授予输入监控权限。终端出现 **“记录器已成功启动，请保持此终端运行”** 后，启动脚本会持续等待本次会话。**只有程序主动运行期间才允许创建或重建下载目录中的 `JobsKeyboardRecorder`；关闭启动终端、按 `Ctrl+C`，或启动脚本正常、异常退出后，记录随之停止。**
 
 | 操作 | 执行方式 | 完成标志 |
 | --- | --- | --- |
-| 开启 | 双击同目录的 `JobsKeyboardRecorder.command`，按提示回车两次，并保持该终端运行 | 终端显示“记录器已成功启动，请保持此终端运行” |
+| 开启 | 双击同目录的 `【MacOS】JobsKeyboardRecorder.command`，按提示回车两次，并保持该终端运行 | 终端显示“记录器已成功启动，请保持此终端运行” |
 | 在启动终端停止 | 按 `Ctrl+C`，或关闭启动终端 | 记录停止，菜单栏记录状态消失 |
 | 从菜单或其它终端停止 | 菜单栏选择“停止并保存”，或另开终端输入 `stop` 后回车 | `stop` 显示“■ 已停止并保存。”；启动脚本随后结束 |
 
@@ -98,14 +99,14 @@ xcode-select --install
 
 ```text
 【MacOS】JobsKeyboardRecorder.command/
-├── JobsKeyboardRecorder.command
+├── 【MacOS】JobsKeyboardRecorder.command
 └── README.md
 ```
 
-双击目录内的 [主脚本](./JobsKeyboardRecorder.command)，或在本 README 所在目录运行：
+双击目录内的 [主脚本](./【MacOS】JobsKeyboardRecorder.command)，或在本 README 所在目录运行：
 
 ```shell
-/bin/zsh ./JobsKeyboardRecorder.command
+/bin/zsh ./【MacOS】JobsKeyboardRecorder.command
 ```
 
 对外仅提供两个入口：无参数启动，以及 `stop` 停止。没有 `--help`、`--version`、`--self-test` 或卸载参数；源码中原生辅助程序的内部接口不属于 `.command` 使用参数。
@@ -163,7 +164,7 @@ stop
 若当前终端尚未加载新增命令路径，或使用其它 Shell，可在本 README 所在目录直接运行：
 
 ```shell
-/bin/zsh ./JobsKeyboardRecorder.command stop
+/bin/zsh ./【MacOS】JobsKeyboardRecorder.command stop
 ```
 
 停止入口不编译、不申请输入监控权限，也不会开启新的记录；它通过本地控制通道请求停止，并等待保存确认，等待上限约 `8` 秒。出现“未收到停止并保存成功的确认”时，应检查状态日志和菜单栏，不能按已保存处理。没有运行会话时，停止命令可正常返回。
@@ -268,11 +269,11 @@ flowchart TD
 
 | 问题 | 排查与处理 |
 | --- | --- |
-| 双击不能执行 | 确认打开的是目录内的主脚本；可改用本目录的 `/bin/zsh ./JobsKeyboardRecorder.command`，再按终端提示排查 |
+| 双击不能执行 | 确认打开的是目录内的主脚本；可改用本目录的 `/bin/zsh ./【MacOS】JobsKeyboardRecorder.command`，再按终端提示排查 |
 | 提示找不到 `clang` 或 SDK | 先执行[只读环境检查](#requirements)，按需安装或修复命令行工具，再重新运行 |
 | 已开启输入监控仍启动失败 | 按终端完整路径确认授权的是当前缓存 App；更新后尝试移除旧项、重新添加，再重新启动脚本 |
 | 终端显示“进程已完成”但没有记录 | 该文字不代表成功；检查脚本是否明确打印“记录器已成功启动”，再查看状态日志 |
-| `stop: command not found` | 打开新的 zsh 终端，或从脚本目录运行 `/bin/zsh ./JobsKeyboardRecorder.command stop` |
+| `stop: command not found` | 打开新的 zsh 终端，或从脚本目录运行 `/bin/zsh ./【MacOS】JobsKeyboardRecorder.command stop` |
 | 提示已有同名 `stop` | 脚本不会覆盖其它工具；先核对冲突来源，不能直接删除来源不明的命令 |
 | 没有输入或部分文字缺失 | 查看是否处于安全输入暂停；输入法、粘贴、快捷键和文稿编辑不保证可还原，监听超时也可能产生缺口 |
 | 找不到记录文件 | 到当前用户下载目录查看 `JobsKeyboardRecorder`；首次是文件，第二次起为目录，实际新记录路径也会写入状态日志 |
@@ -298,7 +299,7 @@ flowchart TD
 本文根据同目录脚本的实际控制流程、内嵌源码与路径规则编写。可在本目录进行不会启动记录的 Shell 语法检查：
 
 ```shell
-/bin/zsh -n ./JobsKeyboardRecorder.command
+/bin/zsh -n ./【MacOS】JobsKeyboardRecorder.command
 ```
 
 已完成 `zsh -n` 语法检查，并在临时目录中提取内嵌原生源码，以 `-Wall -Wextra -Werror` 编译通过。
@@ -308,5 +309,9 @@ flowchart TD
 验证不启动真实键盘监听、不读取真实键盘记录、不安装停止命令、不修改终端配置，也不触发系统授权。不同系统和机器上的授权及实际录制效果仍需在目标环境中验证。流程图已核对节点与内部链接，尚未进行渲染预览。
 
 **终端配色保护：** 独立运行时，在支持完整保存与恢复配色的交互终端中临时使用黑底白字及统一强调色；正常结束、失败或可捕获中断后恢复进入前的配色，不修改终端全局偏好或 Shell 启动配置。不支持完整保护、无交互终端、`NO_COLOR`、既有纯文本模式和 Sourcetree 场景不切换配色，并沿用纯文本输出约定。强制终止（如 `kill -9`）无法由脚本自身保证恢复，请使用运行时显示的独立恢复入口。
+
+## <span id="jobs-toc-heading-17" data-jobs-toc="v2">十、运行规则补充（脚本统一） <a href="#前言" style="font-size:17px; color:green;"><b>🔼</b></a> <a href="#🔚" style="font-size:17px; color:green;"><b>🔽</b></a></span><!-- jobs-toc:heading-end -->
+
+本轮按所选职责准备必要依赖；健康工具直接复用，缺失/损坏才条件获取并刷新当前进程路径后复检。临时网络失败持续重试，Ctrl+C/EOF 或确定的本地、版本、许可错误停止；只读、未选及卸载不因检查触发安装。原生GUI安装、系统权限、目标SDK构建与设备流程尚待对应系统实机验证。
 
 <a id="🔚" href="#前言" style="font-size:17px; color:green; font-weight:bold;">我是有底线的➤点我回到首页</a>
